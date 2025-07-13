@@ -1,0 +1,32 @@
+{
+  "name": "scherhak/laravel-uplinkr",
+  "description": "Ein natives Website- und API-Monitoring-Package für Laravel.",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Sascha Scherhak",
+      "email": "deine@email.de"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Uplinkr\\": "src/"
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Uplinkr\\UplinkrServiceProvider"
+      ]
+    }
+  },
+  "require": {
+    "php": "^8.1"
+  },
+  "require-dev": {
+    "laravel/framework": "^12.0"
+  },
+  "minimum-stability": "stable",
+  "prefer-stable": true
+}
