@@ -11,10 +11,8 @@ return [
     |
     */
 
-    'my' => [
-        'config' => env('UPLINKR_MY_CONFIG', 'default-value'),
-    ],
-
-    // more uplink related configuration
-
+    'storage' => [
+        'driver' => 'file',
+        'file_type' => 'json',
+    ]
 ];

@@ -1,4 +1,4 @@
-# laravel-uplinkr
+# laravel-uplinkr [--WIP--]
 
 uplinkr-laravel/
 ├── src/
@@ -18,3 +18,14 @@ uplinkr-laravel/
 ├── README.md
 ├── LICENSE               ← wichtig, falls du es später veröffentlichen willst (z. B. MIT)
 ├── .gitignore
+
+
+php artisan list uplinkr
+
+
+resources/
+└── lang/
+├── en/
+│   └── uplinkr.php
+└── de/
+└── uplinkr.php

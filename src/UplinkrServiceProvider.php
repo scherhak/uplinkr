@@ -4,7 +4,18 @@ namespace Uplinkr;
 
 use Illuminate\Support\ServiceProvider;
 use Uplinkr\Commands\ProbeUri;
+use Uplinkr\Storage\DatabaseStorage;
+use Uplinkr\Storage\FileStorage;
+use Uplinkr\Storage\StorageInterface;
 
+/**
+ * Class UplinkrServiceProvider
+ * @package Uplinkr
+ *
+ * @version 1
+ * @copyright 2025-today S. Scherhak / Uplinkr
+ * @author Sascha Scherhak <sascha.scherhak@uplinkr.app>
+ */
 class UplinkrServiceProvider extends ServiceProvider
 {
     /**
@@ -14,8 +25,14 @@ class UplinkrServiceProvider extends ServiceProvider
     {
         // Config publishen
         $this->publishes([
-            __DIR__.'/../config/uplinkr.php' => config_path('uplinkr.php'),
+            __DIR__ . '/../config/uplinkr.php' => config_path('uplinkr.php'),
         ], 'uplinkr-config');
+
+        $this->loadTranslationsFrom(__DIR__ . '/../resources/lang', 'uplinkr');
+
+        $this->publishes([
+            __DIR__ . '/../resources/lang' => resource_path('lang/vendor/uplinkr'),
+        ], 'uplinkr-lang');
 
         // Migrations automatisch laden
 //        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
@@ -23,14 +40,14 @@ class UplinkrServiceProvider extends ServiceProvider
         // Commands registrieren (falls vorhanden)
         if ($this->app->runningInConsole()) {
             $this->commands([
-                 ProbeUri::class,
+                ProbeUri::class,
             ]);
         }
 
-        // Optional: Views laden, falls du ein Dashboard baust
+        // Optional: Dashboard
         // $this->loadViewsFrom(__DIR__.'/../resources/views', 'uplinkr');
 
-        // Optional: Routen laden
+        // Optional: Routes
         // $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
     }
 
@@ -41,7 +58,13 @@ class UplinkrServiceProvider extends ServiceProvider
     {
         // Config mit Standardwerten mergen
         $this->mergeConfigFrom(
-            __DIR__.'/../config/uplinkr.php', 'uplinkr'
+            __DIR__ . '/../config/uplinkr.php', 'uplinkr'
         );
+
+        $this->app->singleton(StorageInterface::class, function ($app) {
+            return config('uplinkr.storage.driver') === 'file'
+                ? new FileStorage()
+                : new DatabaseStorage();
+        });
     }
 }

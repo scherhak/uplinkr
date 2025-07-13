@@ -6,8 +6,8 @@ use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 
 /**
- * Class Ids
- * @package App\Uplinkr
+ * Class IdsHelper
+ * @package Uplinkr\Helper
  *
  * @version 1
  * @copyright 2025-today S. Scherhak / Uplinkr

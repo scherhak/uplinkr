@@ -6,6 +6,7 @@ use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Uplinkr\Storage\StorageInterface;
 
 /**
  * Class ProbeUriHandler
@@ -16,7 +17,7 @@ use Illuminate\Support\Facades\Log;
  * @author Sascha Scherhak <sascha.scherhak@uplinkr.app>
  *
  * This class is responsible for handling and probing a given URI to determine its reachability,
- *  processing the response, and logging the outcome along with relevant metadata.
+ * processing the response, and logging the outcome along with relevant metadata.
  */
 readonly class ProbeUriHandler
 {
@@ -45,7 +46,7 @@ readonly class ProbeUriHandler
                 'User-Agent' => 'uplinkr-probe/1.0',
             ])->head($this->getUriFromData());
 
-            if(200 === $request->getStatusCode()) {
+            if (200 === $request->getStatusCode()) {
                 $status = 'reachable';
                 $probeMessage = [
                     'message' => 'Uri currently reachable',
@@ -68,7 +69,7 @@ readonly class ProbeUriHandler
         $result = Arr::add($result, 'probe_message', json_encode($probeMessage, JSON_THROW_ON_ERROR));
         $result = Arr::add($result, 'status', $status);
 
-//        (new ProbeResultHandler($result))->store();
+        app(StorageInterface::class)->saveResult($result);
 
         Log::info('ProbeUriHandler::execute', [
             'data' => $this->data,
@@ -87,7 +88,7 @@ readonly class ProbeUriHandler
      */
     private function buildProbeResult(mixed $request): array
     {
-        if(null !== $request) {
+        if (null !== $request) {
             return [
                 'status_header' => $request->getStatusCode(),
                 'headers' => $request->headers(),

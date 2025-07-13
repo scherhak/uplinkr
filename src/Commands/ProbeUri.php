@@ -2,10 +2,9 @@
 
 namespace Uplinkr\Commands;
 
-use Uplinkr\Handler\ProbeUriHandler;
-use Uplinkr\Helper\IdsHelper;
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Command\Command as CommandAlias;
+use Uplinkr\Handler\ProbeUriHandler;
 
 class ProbeUri extends Command
 {
