@@ -6,6 +6,16 @@ use Illuminate\Console\Command;
 use Symfony\Component\Console\Command\Command as CommandAlias;
 use Uplinkr\Handler\ProbeUriHandler;
 
+/**
+ * Class ProbeUri
+ * @package Uplinkr\Commands
+ *
+ * This class is responsible for handling the execution of the `uplinkr:probe-by-uri` command.
+ *
+ * @version 1
+ * @copyright 2025-today S. Scherhak / Uplinkr
+ * @author Sascha Scherhak <sascha.scherhak@uplinkr.app>
+ */
 class ProbeUri extends Command
 {
     /**
@@ -52,7 +62,7 @@ class ProbeUri extends Command
                 $execute = true;
             } else {
                 $execute = $this->confirm(sprintf(
-                    'Should %s request and loaded?',
+                    __('uplinkr.messages.checking', ['uri' => $uri]),
                     $uri,
                 ));
             }
@@ -65,6 +75,7 @@ class ProbeUri extends Command
                     'withBody' => $withBody,
                 ]);
 
+                // finally, execute it
                 $probeUriHandler->execute();
 
                 return CommandAlias::SUCCESS;

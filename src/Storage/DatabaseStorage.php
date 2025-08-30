@@ -3,6 +3,7 @@
 namespace Uplinkr\Storage;
 
 use Illuminate\Support\Facades\Log;
+use Uplinkr\Interfaces\StorageInterface;
 
 /**
  * Class DatabaseStorage
@@ -17,6 +18,6 @@ class DatabaseStorage implements StorageInterface
     public function saveResult(array $data): void
     {
 //        DB::table('uplinkr_logs')->insert($data);
-        Log::info(__METHOD__, $data);
+//        Log::info(__METHOD__, $data);
     }
 }

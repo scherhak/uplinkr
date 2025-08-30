@@ -2,8 +2,10 @@
 
 namespace Uplinkr\Storage;
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
 use JsonException;
+use Uplinkr\Interfaces\StorageInterface;
 
 /**
  * Class FileStorage
@@ -20,7 +22,17 @@ class FileStorage implements StorageInterface
      */
     public function saveResult(array $data): void
     {
-        $filename = 'uplinkr/' . date('Y-m-d') . '.log';
-        Storage::disk('local')->append($filename, json_encode($data, JSON_THROW_ON_ERROR));
+        Storage::disk('local')->append(
+            $this->buildFilename($data),
+            json_encode($data, JSON_THROW_ON_ERROR)
+        );
+    }
+
+    private function buildFilename(array $data): string
+    {
+        return sprintf('uplinkr/%s-%s.log',
+            Arr::get($data, 'settings.uri'),
+            date('Y-m-d')
+        );
     }
 }

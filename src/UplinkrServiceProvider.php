@@ -4,9 +4,9 @@ namespace Uplinkr;
 
 use Illuminate\Support\ServiceProvider;
 use Uplinkr\Commands\ProbeUri;
+use Uplinkr\Interfaces\StorageInterface;
 use Uplinkr\Storage\DatabaseStorage;
 use Uplinkr\Storage\FileStorage;
-use Uplinkr\Storage\StorageInterface;
 
 /**
  * Class UplinkrServiceProvider

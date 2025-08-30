@@ -6,7 +6,8 @@ use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Uplinkr\Storage\StorageInterface;
+use JsonException;
+use Uplinkr\Interfaces\StorageInterface;
 
 /**
  * Class ProbeUriHandler
@@ -28,9 +29,16 @@ readonly class ProbeUriHandler
     }
 
     /**
-     * @throws \JsonException
+     * Executes the URI probe process to determine its reachability.
+     *
+     * The method performs an HTTP head request to the given URI, measures the time
+     * taken to perform this request, and evaluates the reachability status. It
+     * builds a probe result based on the response and logs the outcome.
+     *
+     * @return void Does not return a value.
+     * @throws JsonException
      */
-    public function execute()
+    public function execute(): void
     {
         $request = null;
         $status = 'not-reachable';
@@ -66,8 +74,13 @@ readonly class ProbeUriHandler
 
         $result = $this->buildProbeResult($request);
         $result = Arr::add($result, 'time_to_load', $durationTime);
-        $result = Arr::add($result, 'probe_message', json_encode($probeMessage, JSON_THROW_ON_ERROR));
+        $result = Arr::add($result, 'probe_message', $probeMessage);
         $result = Arr::add($result, 'status', $status);
+        $result = Arr::add($result, 'executed', now());
+        $result = Arr::add($result, 'settings', [
+            'protocol' => Arr::get($this->data, 'protocol'),
+            'uri' => Arr::get($this->data, 'uri'),
+        ]);
 
         app(StorageInterface::class)->saveResult($result);
 

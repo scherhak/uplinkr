@@ -1,5 +1,24 @@
 # laravel-uplinkr [--WIP--]
 
+# After package changes
+composer update scherhak/laravel-uplinkr
+
+# Config publishen
+php artisan vendor:publish --tag=uplinkr-config
+php artisan vendor:publish --tag=uplinkr-lang
+
+# Artisan Command
+php artisan uplinkr:check-urls
+
+# Migrations migration (later)
+php artisan migrate
+
+# Caches
+php artisan config:clear
+php artisan cache:clear
+php artisan route:clear
+
+
 uplinkr-laravel/
 ├── src/
 │   ├── UplinkrServiceProvider.php

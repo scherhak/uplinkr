@@ -1,6 +1,6 @@
 <?php
 
-namespace Uplinkr\Storage;
+namespace Uplinkr\Interfaces;
 
 /**
  * Interface defining a contract for storage handling.
@@ -11,5 +11,11 @@ namespace Uplinkr\Storage;
  */
 interface StorageInterface
 {
+    /**
+     * Saves the provided result data.
+     *
+     * @param array $data The data to be saved.
+     * @return void
+     */
     public function saveResult(array $data): void;
 }
