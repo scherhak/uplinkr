@@ -3,12 +3,13 @@
   "description": "Ein natives Website- und API-Monitoring-Package für Laravel.",
   "type": "library",
   "license": "MIT",
-  "authors": [
-    {
-      "name": "Sascha Scherhak",
-      "email": "deine@email.de"
-    }
-  ],
+  "require": {
+    "php": "^8.2",
+    "illuminate/support": "^10|^11|^12",
+    "illuminate/console": "^10|^11|^12",
+    "illuminate/http": "^10|^11|^12",
+    "guzzlehttp/guzzle": "^7.9|^8.0"
+  },
   "autoload": {
     "psr-4": {
       "Uplinkr\\": "src/"
@@ -21,11 +22,14 @@
       ]
     }
   },
-  "require": {
-    "php": ">=8.1"
-  },
   "require-dev": {
-    "laravel/framework": "^12.0"
+    "orchestra/testbench": "^9.0",
+    "phpunit/phpunit": "^11.0"
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Uplinkr\\Tests\\": "tests/"
+    }
   },
   "minimum-stability": "stable",
   "prefer-stable": true

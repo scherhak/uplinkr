@@ -1,7 +1,15 @@
 # laravel-uplinkr [--WIP--]
 
+/usr/local/opt/php@8.4/bin/php $(which composer) install
+/usr/local/opt/php@8.4/bin/php $(which composer) scherhak/laravel-uplinkr:*@dev
+composer update scherhak/laravel-uplinkr -W
+/usr/local/opt/php@8.4/bin/php $(which composer) update scherhak/laravel-uplinkr -W
+composer dump-autoload -o
+/usr/local/opt/php@8.4/bin/php $(which composer) dump-autoload -o
+
 # After package changes
 composer update scherhak/laravel-uplinkr
+/usr/local/opt/php@8.4/bin/php $(which composer)  update scherhak/laravel-uplinkr
 
 # Config publishen
 php artisan vendor:publish --tag=uplinkr-config
