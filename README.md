@@ -9,7 +9,7 @@ composer dump-autoload -o
 
 # After package changes
 composer update scherhak/laravel-uplinkr
-/usr/local/opt/php@8.4/bin/php $(which composer)  update scherhak/laravel-uplinkr
+/usr/local/opt/php@8.4/bin/php $(which composer) update scherhak/laravel-uplinkr
 
 # Config publishen
 php artisan vendor:publish --tag=uplinkr-config

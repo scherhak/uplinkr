@@ -62,7 +62,7 @@ class ProbeUri extends Command
                 $execute = true;
             } else {
                 $execute = $this->confirm(sprintf(
-                    __('uplinkr.messages.checking', ['uri' => $uri]),
+                    __('uplinkr::messages.checking', ['uri' => $uri]),
                     $uri,
                 ));
             }

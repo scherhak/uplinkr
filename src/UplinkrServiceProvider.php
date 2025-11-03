@@ -23,7 +23,7 @@ class UplinkrServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Config publishen
+        // publish config
         $this->publishes([
             __DIR__ . '/../config/uplinkr.php' => config_path('uplinkr.php'),
         ], 'uplinkr-config');
@@ -34,20 +34,20 @@ class UplinkrServiceProvider extends ServiceProvider
             __DIR__ . '/../resources/lang' => resource_path('lang/vendor/uplinkr'),
         ], 'uplinkr-lang');
 
-        // Migrations automatisch laden
-//        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
+        // Upcoming migrations
+        // $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
 
-        // Commands registrieren (falls vorhanden)
+        // Register console commands
         if ($this->app->runningInConsole()) {
             $this->commands([
                 ProbeUri::class,
             ]);
         }
 
-        // Optional: Dashboard
+        // Upcoming Dashboard
         // $this->loadViewsFrom(__DIR__.'/../resources/views', 'uplinkr');
 
-        // Optional: Routes
+        // Upcoming Routes
         // $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
     }
 
