@@ -28,6 +28,13 @@ class FileStorage implements StorageInterface
         );
     }
 
+    /**
+     * Constructs a filename based on the provided data.
+     *
+     * @param array $data An associative array containing data required to build the filename.
+     *                    The 'settings.uri' key is expected to derive part of the filename.
+     * @return string The constructed filename in the format 'uplinkr/{uri}-{date}.log'.
+     */
     private function buildFilename(array $data): string
     {
         return sprintf('uplinkr/%s-%s.log',

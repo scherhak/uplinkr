@@ -18,7 +18,7 @@ class IdsHelper
     /**
      * @var string
      */
-    public const string REQUEST_ID_PRE_CHARS = '23456789abcdefghijklmnopqrstuvwxyz';
+    public const REQUEST_ID_PRE_CHARS = '23456789abcdefghijklmnopqrstuvwxyz';
 
     /**
      * Unique user id
@@ -94,7 +94,7 @@ class IdsHelper
     }
 
     /**
-     * Creates an id string from Ramysey's uuid without slashes
+     * Creates an id string from Ramsey's uuid without slashes
      * @see https://www.percona.com/blog/2014/12/19/store-uuid-optimized-way/
      *
      * @return UuidInterface

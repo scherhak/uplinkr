@@ -20,10 +20,10 @@ use Uplinkr\Interfaces\StorageInterface;
  * This class is responsible for handling and probing a given URI to determine its reachability,
  * processing the response, and logging the outcome along with relevant metadata.
  */
-readonly class ProbeUriHandler
+class ProbeUriHandler
 {
     public function __construct(
-        private array $data
+        private readonly array $data
     )
     {
     }
@@ -68,11 +68,12 @@ readonly class ProbeUriHandler
             ];
         }
 
+        $result = $this->getRequestResult($request);
+
         $durationTime = microtime(true) - $startTime;
         $probeMessage = Arr::add($probeMessage, 'duration_ms', round($durationTime * 1000, 2));
         $probeMessage = Arr::add($probeMessage, 'duration_s', round($durationTime, 2));
 
-        $result = $this->buildProbeResult($request);
         $result = Arr::add($result, 'time_to_load', $durationTime);
         $result = Arr::add($result, 'probe_message', $probeMessage);
         $result = Arr::add($result, 'status', $status);
@@ -84,6 +85,7 @@ readonly class ProbeUriHandler
 
         app(StorageInterface::class)->saveResult($result);
 
+        // currently only in development mode
         Log::info('ProbeUriHandler::execute', [
             'data' => $this->data,
             'uri' => $this->getUriFromData(),
@@ -99,7 +101,7 @@ readonly class ProbeUriHandler
      * @param mixed $request The response object containing status, headers, and optionally a body.
      * @return array Returns an array with the response status, headers, and optionally a body if specified.
      */
-    private function buildProbeResult(mixed $request): array
+    private function getRequestResult(mixed $request): array
     {
         if (null !== $request) {
             return [

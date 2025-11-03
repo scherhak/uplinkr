@@ -17,7 +17,6 @@ class DatabaseStorage implements StorageInterface
 {
     public function saveResult(array $data): void
     {
-//        DB::table('uplinkr_logs')->insert($data);
-//        Log::info(__METHOD__, $data);
+        // [-WIP-]
     }
 }
