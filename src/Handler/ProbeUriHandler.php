@@ -20,10 +20,10 @@ use Uplinkr\Interfaces\StorageInterface;
  * This class is responsible for handling and probing a given URI to determine its reachability,
  * processing the response, and logging the outcome along with relevant metadata.
  */
-readonly class ProbeUriHandler
+class ProbeUriHandler
 {
     public function __construct(
-        private array $data
+        private readonly array $data
     )
     {
     }

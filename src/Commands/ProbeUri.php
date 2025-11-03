@@ -3,6 +3,7 @@
 namespace Uplinkr\Commands;
 
 use Illuminate\Console\Command;
+use JsonException;
 use Symfony\Component\Console\Command\Command as CommandAlias;
 use Uplinkr\Handler\ProbeUriHandler;
 
@@ -41,9 +42,11 @@ class ProbeUri extends Command
      * initiates the `ProbeUriHandler` for processing the URI. It returns a status
      * code indicating the success or failure of the operation.
      *
+     * @example php artisan uplinkr:probe-by-uri https scherhak.com
+     *
      * @return int Returns CommandAlias::SUCCESS if the URI is successfully processed
      *             or CommandAlias::INVALID if the process is canceled or the URI is invalid.
-     * @throws \JsonException
+     * @throws JsonException
      */
     public function handle(): int
     {
@@ -51,9 +54,6 @@ class ProbeUri extends Command
         $uri = $this->argument('uri');
         $force = $this->option('force');
         $withBody = $this->option('with-body');
-
-        // TODO Validate incoming data here
-//        php artisan uplinkr:probe-by-uri https scherhak.com
 
         if (null !== $uri) {
 
