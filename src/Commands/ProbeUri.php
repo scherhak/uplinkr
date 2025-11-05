@@ -46,9 +46,8 @@ class ProbeUri extends Command
      *
      * @return int Returns CommandAlias::SUCCESS if the URI is successfully processed
      *             or CommandAlias::INVALID if the process is canceled or the URI is invalid.
-     * @throws JsonException
      */
-    public function handle(): int
+    public function handle(ProbeUriHandler $probeUriHandler): int
     {
         $protocol = $this->argument('protocol');
         $uri = $this->argument('uri');
@@ -69,14 +68,13 @@ class ProbeUri extends Command
 
             // execute it
             if ($execute) {
-                $probeUriHandler = new ProbeUriHandler([
+
+                // finally, execute it
+                $probeUriHandler->with([
                     'protocol' => $protocol,
                     'uri' => $uri,
                     'withBody' => $withBody,
-                ]);
-
-                // finally, execute it
-                $probeUriHandler->execute();
+                ])->handle();
 
                 return CommandAlias::SUCCESS;
             }

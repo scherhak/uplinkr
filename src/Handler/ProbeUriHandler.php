@@ -22,10 +22,22 @@ use Uplinkr\Interfaces\StorageInterface;
  */
 class ProbeUriHandler
 {
-    public function __construct(
-        private readonly array $data
-    )
+    /**
+     * @var array $data
+     */
+    private array $data;
+
+    /**
+     * Sets the provided data into the object and returns the updated instance.
+     *
+     * @param array $data The associative array of data to be stored in the object.
+     * @return static Returns the current instance with the updated data.
+     */
+    public function with(array $data): static
     {
+        $this->data = $data;
+
+        return $this;
     }
 
     /**
@@ -36,16 +48,11 @@ class ProbeUriHandler
      * builds a probe result based on the response and logs the outcome.
      *
      * @return void Does not return a value.
-     * @throws JsonException
      */
-    public function execute(): void
+    public function handle(): void
     {
         $request = null;
         $status = 'not-reachable';
-        $probeMessage = [
-            'message' => 'Uri currently not reachable',
-            'lang_key' => 'uri.not-reachable',
-        ];
 
         $startTime = microtime(true);
 
@@ -54,17 +61,24 @@ class ProbeUriHandler
                 'User-Agent' => 'uplinkr-probe/1.0',
             ])->head($this->getUriFromData());
 
-            if (200 === $request->getStatusCode()) {
+            if ($request->successful()) {
                 $status = 'reachable';
                 $probeMessage = [
                     'message' => 'Uri currently reachable',
                     'lang_key' => 'uri.reachable',
                 ];
+            } else {
+                // z. B. 404, 500 usw.
+                $status = 'unreachable';
+                $probeMessage = [
+                    'message' => 'Non-200 status code: ' . $request->status(),
+                    'lang_key' => 'uri.unreachable',
+                ];
             }
         } catch (ConnectionException $ce) {
             $probeMessage = [
-                'message' => $ce->getMessage(),
-                'lang_key' => 'uri.not-reachable',
+                'message' => 'fatale: ' . $ce->getMessage(),
+                'lang_key' => 'uri.fatal',
             ];
         }
 
@@ -92,7 +106,6 @@ class ProbeUriHandler
             'result' => $result,
             'probeMessage' => $probeMessage,
         ]);
-
     }
 
     /**

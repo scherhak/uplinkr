@@ -13,6 +13,8 @@ return [
 
     'storage' => [
         'driver' => 'file',
+        'path' => 'uplinkr',
         'file_type' => 'json',
+        'file_extension' => 'log',
     ]
 ];
