@@ -37,8 +37,9 @@ class FileStorage implements StorageInterface
      */
     private function buildFilename(array $data): string
     {
-        return sprintf('%s/%s-%s.%s',
+        return sprintf('%s/%s/%s-%s.%s',
             config('uplinkr.storage.path', 'uplinkr'),
+            config('uplinkr.storage.standard_project', 'standard_project'),
             Arr::get($data, 'settings.uri'),
             date('Y-m-d'),
             config('uplinkr.storage.file_extension', 'log'),
