@@ -15,7 +15,7 @@ use Uplinkr\Interfaces\StorageInterface;
  */
 class DatabaseStorage implements StorageInterface
 {
-    public function saveResult(array $data): void
+    public function saveResult(array $resultData): void
     {
         // [-WIP-]
     }

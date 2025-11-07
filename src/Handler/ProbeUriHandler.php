@@ -28,6 +28,17 @@ class ProbeUriHandler
     private array $data;
 
     /**
+     * Constructor method.
+     *
+     * @param StorageInterface $storage An instance of StorageInterface to handle storage operations.
+     * @return void
+     */
+    public function __construct(
+        private readonly StorageInterface $storage
+    ) {
+    }
+
+    /**
      * Sets the provided data into the object and returns the updated instance.
      *
      * @param array $data The associative array of data to be stored in the object.
@@ -59,7 +70,7 @@ class ProbeUriHandler
         try {
             $request = Http::withHeaders([
                 'User-Agent' => 'uplinkr-probe/1.0',
-            ])->head($this->getUriFromData());
+            ])->head($this->buildUriFromData());
 
             if ($request->successful()) {
                 $status = 'reachable';
@@ -68,7 +79,6 @@ class ProbeUriHandler
                     'lang_key' => 'uri.reachable',
                 ];
             } else {
-                // z. B. 404, 500 usw.
                 $status = 'unreachable';
                 $probeMessage = [
                     'message' => 'Non-200 status code: ' . $request->status(),
@@ -80,32 +90,53 @@ class ProbeUriHandler
                 'message' => 'fatale: ' . $ce->getMessage(),
                 'lang_key' => 'uri.fatal',
             ];
+
+            // Log this in the Laravel logging system
+            Log::error('Uplinkr_ProbeUriHandler_error', [
+                'data' => $this->data,
+                'uri' => $this->buildUriFromData(),
+                'probeMessage' => $probeMessage,
+                'status' => $status,
+                'error_message' => $ce->getMessage(),
+            ]);
         }
 
-        $result = $this->getRequestResult($request);
-
         $durationTime = microtime(true) - $startTime;
-        $probeMessage = Arr::add($probeMessage, 'duration_ms', round($durationTime * 1000, 2));
-        $probeMessage = Arr::add($probeMessage, 'duration_s', round($durationTime, 2));
 
-        $result = Arr::add($result, 'time_to_load', $durationTime);
-        $result = Arr::add($result, 'probe_message', $probeMessage);
-        $result = Arr::add($result, 'status', $status);
-        $result = Arr::add($result, 'executed', now());
-        $result = Arr::add($result, 'settings', [
-            'protocol' => Arr::get($this->data, 'protocol'),
-            'uri' => Arr::get($this->data, 'uri'),
-        ]);
+        // build the result ...
+        $result = $this->buildProbeResult(
+            request: $request,
+            durationTime: $durationTime,
+            probeMessage: $probeMessage,
+            status: $status
+        );
 
-        app(StorageInterface::class)->saveResult($result);
+        // ... and finally save it
+        $this->storage->saveResult(resultData: $result);
+    }
 
-        // currently only in development mode
-        Log::info('ProbeUriHandler::execute', [
-            'data' => $this->data,
-            'uri' => $this->getUriFromData(),
-            'result' => $result,
-            'probeMessage' => $probeMessage,
-        ]);
+    /**
+     * Builds the complete probe result by combining request data with metadata.
+     *
+     * @param mixed $request The HTTP request/response object
+     * @param float $durationTime The time taken to perform the probe in seconds
+     * @param array $probeMessage The probe message array containing message and lang_key
+     * @param string $status The status of the probe (reachable, unreachable, not-reachable)
+     * @return array The complete result array with all metadata
+     */
+    private function buildProbeResult(mixed $request, float $durationTime, array $probeMessage, string $status): array
+    {
+        $requestResult = $this->getRequestResult($request);
+
+        return (new ProbeResultHandler($requestResult))->build(
+            durationTime: $durationTime,
+            probeMessage: $probeMessage,
+            status: $status,
+            settings: [
+                'protocol' => Arr::get($this->data, 'protocol'),
+                'uri' => Arr::get($this->data, 'uri'),
+            ]
+        );
     }
 
     /**
@@ -129,7 +160,7 @@ class ProbeUriHandler
     /**
      * @return string
      */
-    private function getUriFromData(): string
+    private function buildUriFromData(): string
     {
         return sprintf('%s://%s',
             Arr::get($this->data, 'protocol'),

@@ -14,8 +14,8 @@ interface StorageInterface
     /**
      * Saves the provided result data.
      *
-     * @param array $data The data to be saved.
+     * @param array $resultData
      * @return void
      */
-    public function saveResult(array $data): void;
+    public function saveResult(array $resultData): void;
 }

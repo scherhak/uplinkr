@@ -20,20 +20,19 @@ class FileStorage implements StorageInterface
     /**
      * @throws JsonException
      */
-    public function saveResult(array $data): void
+    public function saveResult(array $resultData): void
     {
         Storage::disk('local')->append(
-            $this->buildFilename($data),
-            json_encode($data, JSON_THROW_ON_ERROR)
+            $this->buildFilename($resultData),
+            json_encode($resultData, JSON_THROW_ON_ERROR)
         );
     }
 
     /**
-     * Constructs a filename based on the provided data.
+     * Constructs a filename based on the provided data and application configuration.
      *
-     * @param array $data An associative array containing data required to build the filename.
-     *                    The 'settings.uri' key is expected to derive part of the filename.
-     * @return string The constructed filename in the format 'uplinkr/{uri}-{date}.log'.
+     * @param array $data An associative array containing metadata, including 'settings.uri', used for building the filename.
+     * @return string The generated filename as a string.
      */
     private function buildFilename(array $data): string
     {

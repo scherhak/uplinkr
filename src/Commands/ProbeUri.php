@@ -53,7 +53,6 @@ class ProbeUri extends Command
         $protocol = $this->argument('protocol');
         $uri = $this->argument('uri');
         $force = $this->option('force');
-        $withBody = $this->option('with-body');
 
         // if uri isset - let it through
         // TODO: validate complete uri
@@ -73,7 +72,7 @@ class ProbeUri extends Command
             if ($execute) {
 
                 // finally, execute it
-                $probeUriHandler->with([
+                $probeUriHandler->with(data: [
                     'project' => $project,
                     'protocol' => $protocol,
                     'uri' => $uri,
