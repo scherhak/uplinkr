@@ -2,7 +2,6 @@
 
 namespace Uplinkr\Storage;
 
-use Illuminate\Support\Facades\Log;
 use Uplinkr\Interfaces\StorageInterface;
 
 /**

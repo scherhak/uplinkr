@@ -3,6 +3,7 @@
 namespace Uplinkr\Storage;
 
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use JsonException;
 use Uplinkr\Interfaces\StorageInterface;
@@ -22,6 +23,11 @@ class FileStorage implements StorageInterface
      */
     public function saveResult(array $resultData): void
     {
+        Log::debug('Uplinkr_fileStorage', [
+            'data' => $resultData,
+            'filename' => $this->buildFilename($resultData),
+        ]);
+
         Storage::disk('local')->append(
             $this->buildFilename($resultData),
             json_encode($resultData, JSON_THROW_ON_ERROR)
@@ -37,11 +43,62 @@ class FileStorage implements StorageInterface
     private function buildFilename(array $data): string
     {
         return sprintf('%s/%s/%s-%s.%s',
-            config('uplinkr.storage.path', 'uplinkr'),
-            config('uplinkr.storage.standard_project', 'standard_project'),
-            Arr::get($data, 'settings.uri'),
-            date('Y-m-d'),
-            config('uplinkr.storage.file_extension', 'log'),
+            $this->getStoragePath(),
+            $this->getProjectPath(data: $data),
+            $this->getUriFromData(data: $data),
+            $this->getCurrentDate(),
+            $this->getFileExtension(),
         );
+    }
+
+    /**
+     * Retrieves the storage path for the application.
+     *
+     * @return string The configured storage path or the default path if not set.
+     */
+    private function getStoragePath(): string
+    {
+        return config('uplinkr.storage.path', 'uplinkr');
+    }
+
+    /**
+     * Retrieves the project path from the configuration settings.
+     *
+     * @return string The configured project path or a default value if not set.
+     */
+    private function getProjectPath(array $data): string
+    {
+        return Arr::get($data, 'settings.project', config('uplinkr.storage.standard_project', 'standard_project'));
+    }
+
+    /**
+     * Retrieves the file extension for storage file configuration.
+     *
+     * @return string The configured file extension, or 'log' as the default value.
+     */
+    private function getFileExtension(): string
+    {
+        return config('uplinkr.storage.file_extension', 'log');
+    }
+
+    /**
+     * Extracts the URI from the provided data array.
+     *
+     * @param array $data The input data array containing settings information.
+     * @return string The URI retrieved from the data array.
+     */
+    private function getUriFromData(array $data): string
+    {
+        return Arr::get($data, 'settings.uri');
+    }
+
+    /**
+     * Retrieves the current date in the format 'YYYY-MM-DD'.
+     *
+     * @return string The current date formatted as 'YYYY-MM-DD'.
+     */
+    private function getCurrentDate(): string
+    {
+        return date('Y-m-d');
     }
 }

@@ -6,7 +6,6 @@ use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use JsonException;
 use Uplinkr\Interfaces\StorageInterface;
 
 /**
@@ -35,7 +34,8 @@ class ProbeUriHandler
      */
     public function __construct(
         private readonly StorageInterface $storage
-    ) {
+    )
+    {
     }
 
     /**
@@ -86,8 +86,9 @@ class ProbeUriHandler
                 ];
             }
         } catch (ConnectionException $ce) {
+            $status = 'fatal';
             $probeMessage = [
-                'message' => 'fatale: ' . $ce->getMessage(),
+                'message' => 'fatal: ' . $ce->getMessage(),
                 'lang_key' => 'uri.fatal',
             ];
 
@@ -113,6 +114,14 @@ class ProbeUriHandler
 
         // ... and finally save it
         $this->storage->saveResult(resultData: $result);
+
+        Log::debug('Uplinkr_ProbeUriHandler_debug', [
+            'data' => $this->data,
+            'uri' => $this->buildUriFromData(),
+            'probeMessage' => $probeMessage,
+            'status' => $status,
+            'result' => $result,
+        ]);
     }
 
     /**
@@ -133,8 +142,9 @@ class ProbeUriHandler
             probeMessage: $probeMessage,
             status: $status,
             settings: [
-                'protocol' => Arr::get($this->data, 'protocol'),
-                'uri' => Arr::get($this->data, 'uri'),
+                'project' => $this->getProject(),
+                'protocol' => $this->getProtocol(),
+                'uri' => $this->getUri(),
             ]
         );
     }
@@ -158,13 +168,46 @@ class ProbeUriHandler
     }
 
     /**
-     * @return string
+     * Constructs a URI string using the protocol and URI components
+     * retrieved from the provided data array.
+     *
+     * @return string The generated URI in the format "protocol://uri".
      */
     private function buildUriFromData(): string
     {
         return sprintf('%s://%s',
-            Arr::get($this->data, 'protocol'),
-            Arr::get($this->data, 'uri')
+            $this->getProtocol(),
+            $this->getUri()
         );
+    }
+
+    /**
+     * Retrieves the project name or identifier from the data array.
+     *
+     * @return string The value of the 'project' key from the data array.
+     */
+    private function getProject(): string
+    {
+        return Arr::get($this->data, 'project');
+    }
+
+    /**
+     * Retrieves the protocol from the data array.
+     *
+     * @return string The protocol value extracted from the data.
+     */
+    private function getProtocol(): string
+    {
+        return Arr::get($this->data, 'protocol');
+    }
+
+    /**
+     * Retrieves the URI value from the data array.
+     *
+     * @return string The URI extracted from the data array.
+     */
+    private function getUri(): string
+    {
+        return Arr::get($this->data, 'uri');
     }
 }
