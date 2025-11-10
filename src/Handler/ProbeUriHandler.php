@@ -188,7 +188,13 @@ class ProbeUriHandler
      */
     private function getProject(): string
     {
-        return Arr::get($this->data, 'project');
+        $project = Arr::get(
+            $this->data,
+            'project',
+            config('uplinkr.storage.standard_project', 'standard_project')
+        );
+
+        return $this->sanitizeProjectName($project);
     }
 
     /**
@@ -209,5 +215,32 @@ class ProbeUriHandler
     private function getUri(): string
     {
         return Arr::get($this->data, 'uri');
+    }
+
+    /**
+     * Sanitizes the project name for use in file paths.
+     *
+     * @param string $value The project name to sanitize
+     * @return string The sanitized project name
+     */
+    private function sanitizeProjectName(string $value): string
+    {
+        // Ersetze problematische Zeichen durch Bindestriche (inkl. Punkt)
+        $sanitized = preg_replace('/[\/\\\:*?"<>|()!$%&.]/', '-', $value);
+
+        // Entferne Control-Characters
+        $sanitized = preg_replace('/[\x00-\x1F\x7F]/', '', $sanitized);
+
+        // Multiple Bindestriche zu einem reduzieren
+        $sanitized = preg_replace('/-+/', '-', $sanitized);
+
+        // Whitespace durch Bindestriche ersetzen
+        $sanitized = preg_replace('/\s+/', '-', $sanitized);
+
+        // Trim Bindestriche und Whitespace
+        $sanitized = trim($sanitized, '- ');
+
+        // Lowercase für Konsistenz
+        return strtolower($sanitized);
     }
 }
