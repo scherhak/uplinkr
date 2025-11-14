@@ -35,21 +35,12 @@ class UplinkrServiceProvider extends ServiceProvider
             __DIR__ . '/../resources/lang' => resource_path('lang/vendor/uplinkr'),
         ], 'uplinkr-lang');
 
-        // Upcoming migrations
-        // $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
-
         // Register console commands
         if ($this->app->runningInConsole()) {
             $this->commands([
                 ProbeUri::class,
             ]);
         }
-
-        // Upcoming Dashboard
-        // $this->loadViewsFrom(__DIR__.'/../resources/views', 'uplinkr');
-
-        // Upcoming Routes
-        // $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
     }
 
     /**
@@ -63,12 +54,8 @@ class UplinkrServiceProvider extends ServiceProvider
         );
 
         $this->app->singleton(StorageInterface::class, function ($app) {
-
             $config = $app->make(UplinkrConfig::class);
-
-            return config('uplinkr.storage.driver') === 'file'
-                ? new FileStorage($config)
-                : new DatabaseStorage();
+            return new FileStorage($config);
         });
 
         $this->app->singleton(UplinkrConfig::class, function () {
