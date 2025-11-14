@@ -60,13 +60,11 @@ class ProbeUriHandler
      * taken to perform this request, and evaluates the reachability status. It
      * builds a probe result based on the response and logs the outcome.
      *
-     * @return void Does not return a value.
+     * @return array|null Does not return a value.
      */
-    public function handle(): void
+    public function handle(): ?array
     {
         $request = null;
-        $status = 'not-reachable';
-
         $startTime = microtime(true);
 
         try {
@@ -124,6 +122,8 @@ class ProbeUriHandler
             'status' => $status,
             'result' => $result,
         ]);
+
+        return $result;
     }
 
     /**

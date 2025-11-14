@@ -3,8 +3,10 @@
 namespace Uplinkr\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Arr;
 use Symfony\Component\Console\Command\Command as CommandAlias;
 use Uplinkr\Handler\ProbeUriHandler;
+use Uplinkr\Objects\Config\UplinkrConfig;
 
 /**
  * Class ProbeUri
@@ -46,7 +48,7 @@ class ProbeUri extends Command
      * @example php artisan uplinkr:probe-by-uri https scherhak.com
      *
      */
-    public function handle(ProbeUriHandler $probeUriHandler): int
+    public function handle(ProbeUriHandler $probeUriHandler, UplinkrConfig $config): int
     {
         $protocol = $this->argument('protocol');
         $uri = $this->argument('uri');
@@ -71,14 +73,24 @@ class ProbeUri extends Command
             if ($execute) {
 
                 // finally, execute it
-                $probeUriHandler->with(data: [
+                $result = $probeUriHandler->with(data: [
                     'protocol' => $protocol,
                     'uri' => $uri,
                     'project' => $project,
                 ])->handle();
 
                 if (!$force) {
-                    $this->info(__('uplinkr::messages.stored', ['project' => $project,]));
+                    if(Arr::get($result, 'status') === 'reachable') {
+                        $this->info(__('uplinkr::messages.reachable', [
+                            'time_in_ms' => Arr::get($result, 'probe_message.duration_ms'),
+                        ]));
+                    } else {
+                        $this->info(__('uplinkr::messages.unreachable', [
+                            'status_header' => Arr::get($result, 'status_header'),
+                            'time_in_ms' => Arr::get($result, 'probe_message.duration_ms'),
+                        ]));
+                    }
+                    $this->info(__('uplinkr::messages.stored', ['project' => $project ?? $config->getStandardProject(),]));
                 }
 
                 return CommandAlias::SUCCESS;
