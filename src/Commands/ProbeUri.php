@@ -23,7 +23,7 @@ class ProbeUri extends Command
      *
      * @var string
      */
-    protected $signature = 'uplinkr:probe-by-uri {project} {protocol} {uri} {--force}';
+    protected $signature = 'uplinkr:probe-by-uri {protocol} {uri} {project?} {--force}';
 
     /**
      * The console command description.
@@ -48,9 +48,9 @@ class ProbeUri extends Command
      */
     public function handle(ProbeUriHandler $probeUriHandler): int
     {
-        $project = $this->argument('project');
         $protocol = $this->argument('protocol');
         $uri = $this->argument('uri');
+        $project = $this->argument('project');
         $force = $this->option('force');
 
         // if uri isset - let it through
@@ -72,9 +72,9 @@ class ProbeUri extends Command
 
                 // finally, execute it
                 $probeUriHandler->with(data: [
-                    'project' => $project,
                     'protocol' => $protocol,
                     'uri' => $uri,
+                    'project' => $project,
                 ])->handle();
 
                 if (!$force) {

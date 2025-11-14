@@ -5,6 +5,7 @@ namespace Uplinkr;
 use Illuminate\Support\ServiceProvider;
 use Uplinkr\Commands\ProbeUri;
 use Uplinkr\Interfaces\StorageInterface;
+use Uplinkr\Objects\Config\UplinkrConfig;
 use Uplinkr\Storage\DatabaseStorage;
 use Uplinkr\Storage\FileStorage;
 
@@ -56,15 +57,22 @@ class UplinkrServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        // Config mit Standardwerten mergen
+        // merge config with standard config
         $this->mergeConfigFrom(
             __DIR__ . '/../config/uplinkr.php', 'uplinkr'
         );
 
         $this->app->singleton(StorageInterface::class, function ($app) {
+
+            $config = $app->make(UplinkrConfig::class);
+
             return config('uplinkr.storage.driver') === 'file'
-                ? new FileStorage()
+                ? new FileStorage($config)
                 : new DatabaseStorage();
+        });
+
+        $this->app->singleton(UplinkrConfig::class, function () {
+            return UplinkrConfig::fromConfig();
         });
     }
 }

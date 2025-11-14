@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use JsonException;
 use Uplinkr\Interfaces\StorageInterface;
+use Uplinkr\Objects\Config\UplinkrConfig;
 
 /**
  * Class FileStorage
@@ -18,6 +19,18 @@ use Uplinkr\Interfaces\StorageInterface;
  */
 class FileStorage implements StorageInterface
 {
+    /**
+     * Constructor method for initializing the class with configuration.
+     *
+     * @param UplinkrConfig $config The configuration object required for the class.
+     *
+     * @return void
+     */
+    public function __construct(
+        private readonly UplinkrConfig $config
+    )
+    {}
+
     /**
      * @throws JsonException
      */
@@ -58,7 +71,7 @@ class FileStorage implements StorageInterface
      */
     private function getStoragePath(): string
     {
-        return config('uplinkr.storage.path', 'uplinkr');
+        return $this->config->getStoragePath();
     }
 
     /**
@@ -68,7 +81,11 @@ class FileStorage implements StorageInterface
      */
     private function getProjectPath(array $data): string
     {
-        return Arr::get($data, 'settings.project', config('uplinkr.storage.standard_project', 'standard_project'));
+        return Arr::get(
+            $data,
+            'settings.project',
+            $this->config->getStandardProject()
+        );
     }
 
     /**
@@ -78,7 +95,7 @@ class FileStorage implements StorageInterface
      */
     private function getFileExtension(): string
     {
-        return config('uplinkr.storage.file_extension', 'log');
+        return $this->config->getFileExtension();
     }
 
     /**

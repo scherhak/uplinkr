@@ -7,6 +7,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Uplinkr\Interfaces\StorageInterface;
+use Uplinkr\Objects\Config\UplinkrConfig;
 
 /**
  * Class ProbeUriHandler
@@ -33,7 +34,8 @@ class ProbeUriHandler
      * @return void
      */
     public function __construct(
-        private readonly StorageInterface $storage
+        private readonly StorageInterface $storage,
+        private readonly UplinkrConfig $config
     )
     {
     }
@@ -191,7 +193,7 @@ class ProbeUriHandler
         $project = Arr::get(
             $this->data,
             'project',
-            config('uplinkr.storage.standard_project', 'standard_project')
+            $this->config->getStandardProject()
         );
 
         return $this->sanitizeProjectName($project);
@@ -220,11 +222,15 @@ class ProbeUriHandler
     /**
      * Sanitizes the project name for use in file paths.
      *
-     * @param string $value The project name to sanitize
+     * @param string|null $value The project name to sanitize
      * @return string The sanitized project name
      */
-    private function sanitizeProjectName(string $value): string
+    private function sanitizeProjectName(string|null $value): string
     {
+        if ($value === null) {
+            return $this->config->getStandardProject();
+        }
+
         // Ersetze problematische Zeichen durch Bindestriche (inkl. Punkt)
         $sanitized = preg_replace('/[\/\\\:*?"<>|()!$%&.]/', '-', $value);
 
