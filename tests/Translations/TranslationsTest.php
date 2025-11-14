@@ -13,7 +13,7 @@ class TranslationsTest extends TestCase
 
         $text = __('uplinkr::messages.checking', ['uri' => 'scherhak.com']);
 
-        $this->assertStringContainsString('Checking', $text);
+        $this->assertStringContainsString('Should the check of scherhak.com be started?', $text);
         $this->assertStringContainsString('scherhak.com', $text);
     }
 }

@@ -80,17 +80,7 @@ class ProbeUri extends Command
                 ])->handle();
 
                 if (!$force) {
-                    if(Arr::get($result, 'status') === 'reachable') {
-                        $this->info(__('uplinkr::messages.reachable', [
-                            'time_in_ms' => Arr::get($result, 'probe_message.duration_ms'),
-                        ]));
-                    } else {
-                        $this->info(__('uplinkr::messages.unreachable', [
-                            'status_header' => Arr::get($result, 'status_header'),
-                            'time_in_ms' => Arr::get($result, 'probe_message.duration_ms'),
-                        ]));
-                    }
-                    $this->info(__('uplinkr::messages.stored', ['project' => $project ?? $config->getStandardProject(),]));
+                    $this->resultMessages(result: $result, project: $project, config: $config);
                 }
 
                 return CommandAlias::SUCCESS;
@@ -102,5 +92,28 @@ class ProbeUri extends Command
         $this->error('No URI provided');
 
         return CommandAlias::INVALID;
+    }
+
+    /**
+     * Processes and logs result messages based on the status and configuration.
+     *
+     * @param array $result An array containing the result data, including status and probe details.
+     * @param string|null $project The specific project associated with the result, or null to fall back to a default.
+     * @param UplinkrConfig $config Configuration object used to retrieve default project settings if no project is provided.
+     * @return void Returns true if message processing and logging are completed successfully.
+     */
+    private function resultMessages(array $result, string|null $project, UplinkrConfig $config): void
+    {
+        if(Arr::get($result, 'status') === 'reachable') {
+            $this->info(__('uplinkr::messages.reachable', [
+                'time_in_ms' => Arr::get($result, 'probe_message.duration_ms'),
+            ]));
+        } else {
+            $this->info(__('uplinkr::messages.unreachable', [
+                'status_header' => Arr::get($result, 'status_header'),
+                'time_in_ms' => Arr::get($result, 'probe_message.duration_ms'),
+            ]));
+        }
+        $this->info(__('uplinkr::messages.stored', ['project' => $project ?? $config->getStandardProject(),]));
     }
 }
