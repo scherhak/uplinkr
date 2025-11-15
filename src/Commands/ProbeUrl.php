@@ -26,7 +26,7 @@ class ProbeUrl extends Command
      *
      * @var string
      */
-    protected $signature = 'uplinkr:probe-by-uri {protocol} {uri} {project?} {--force}';
+    protected $signature = 'uplinkr:probe-by-uri {protocol} {url} {project?} {--force}';
 
     /**
      * The console command description.
@@ -52,26 +52,25 @@ class ProbeUrl extends Command
     public function handle(ProbeUrlHandler $probeUriHandler, UplinkrConfig $config): int
     {
         $protocol = $this->argument('protocol');
-        $uri = $this->argument('uri');
+        $url = $this->argument('url');
         $project = $this->argument('project');
         $force = $this->option('force');
 
-//        $validate = Validator::make(
-//            ['uri' => $uri],
-//            ['uri' => 'required|url:http,https']
-//        );
+        $validate = Validator::make(
+            ['url' => $url],
+            ['url' => 'required|url:http,https']
+        );
 
         // if uri isset - let it through
-//        if ($validate->passes()) {
-        if (null !== $uri) {
+        if ($validate->passes()) {
 
             // if force isset - just let it through
             if ($force) {
                 $execute = true;
             } else {
                 $execute = $this->confirm(sprintf(
-                    __('uplinkr::messages.checking', ['uri' => $uri]),
-                    $uri,
+                    __('uplinkr::messages.checking', ['url' => $url]),
+                    $url,
                 ));
             }
 
@@ -81,7 +80,7 @@ class ProbeUrl extends Command
                 // finally, execute it
                 $result = $probeUriHandler->with(data: [
                     'protocol' => $protocol,
-                    'uri' => $uri,
+                    'url' => $url,
                     'project' => $project,
                 ])->handle();
 

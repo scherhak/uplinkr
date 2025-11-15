@@ -95,7 +95,7 @@ class ProbeUrlHandler
             // Log this in the Laravel logging system
             Log::error('Uplinkr_ProbeUriHandler_error', [
                 'data' => $this->data,
-                'uri' => $this->buildUriFromData(),
+                'url' => $this->buildUriFromData(),
                 'probeMessage' => $probeMessage,
                 'status' => $status,
                 'error_message' => $ce->getMessage(),
@@ -117,7 +117,7 @@ class ProbeUrlHandler
 
         Log::debug('Uplinkr_ProbeUriHandler_debug', [
             'data' => $this->data,
-            'uri' => $this->buildUriFromData(),
+            'url' => $this->buildUriFromData(),
             'probeMessage' => $probeMessage,
             'status' => $status,
             'result' => $result,
@@ -146,7 +146,7 @@ class ProbeUrlHandler
             settings: [
                 'project' => $this->getProject(),
                 'protocol' => $this->getProtocol(),
-                'uri' => $this->getUri(),
+                'url' => $this->getUri(),
             ]
         );
     }
@@ -216,7 +216,7 @@ class ProbeUrlHandler
      */
     private function getUri(): string
     {
-        return Arr::get($this->data, 'uri');
+        return Arr::get($this->data, 'url');
     }
 
     /**
