@@ -10,7 +10,7 @@ use Uplinkr\Interfaces\StorageInterface;
 use Uplinkr\Objects\Config\UplinkrConfig;
 
 /**
- * Class ProbeUriHandler
+ * Class ProbeUrlHandler
  * @package Uplinkr\Handler
  *
  * @version 1
@@ -20,7 +20,7 @@ use Uplinkr\Objects\Config\UplinkrConfig;
  * This class is responsible for handling and probing a given URI to determine its reachability,
  * processing the response, and logging the outcome along with relevant metadata.
  */
-class ProbeUriHandler
+class ProbeUrlHandler
 {
     /**
      * @var array $data
@@ -95,7 +95,7 @@ class ProbeUriHandler
             // Log this in the Laravel logging system
             Log::error('Uplinkr_ProbeUriHandler_error', [
                 'data' => $this->data,
-                'uri' => $this->buildUriFromData(),
+                'url' => $this->buildUriFromData(),
                 'probeMessage' => $probeMessage,
                 'status' => $status,
                 'error_message' => $ce->getMessage(),
@@ -117,7 +117,7 @@ class ProbeUriHandler
 
         Log::debug('Uplinkr_ProbeUriHandler_debug', [
             'data' => $this->data,
-            'uri' => $this->buildUriFromData(),
+            'url' => $this->buildUriFromData(),
             'probeMessage' => $probeMessage,
             'status' => $status,
             'result' => $result,
@@ -146,7 +146,7 @@ class ProbeUriHandler
             settings: [
                 'project' => $this->getProject(),
                 'protocol' => $this->getProtocol(),
-                'uri' => $this->getUri(),
+                'url' => $this->getUri(),
             ]
         );
     }
@@ -216,7 +216,7 @@ class ProbeUriHandler
      */
     private function getUri(): string
     {
-        return Arr::get($this->data, 'uri');
+        return Arr::get($this->data, 'url');
     }
 
     /**

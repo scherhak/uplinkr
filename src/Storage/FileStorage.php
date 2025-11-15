@@ -58,7 +58,7 @@ class FileStorage implements StorageInterface
         return sprintf('%s/%s/%s-%s.%s',
             $this->getStoragePath(),
             $this->getProjectPath(data: $data),
-            $this->getUriFromData(data: $data),
+            $this->getUrlFromData(data: $data),
             $this->getCurrentDate(),
             $this->getFileExtension(),
         );
@@ -104,9 +104,9 @@ class FileStorage implements StorageInterface
      * @param array $data The input data array containing settings information.
      * @return string The URI retrieved from the data array.
      */
-    private function getUriFromData(array $data): string
+    private function getUrlFromData(array $data): string
     {
-        return Arr::get($data, 'settings.uri');
+        return Arr::get($data, 'settings.url');
     }
 
     /**

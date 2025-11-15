@@ -3,19 +3,19 @@
 namespace Uplinkr\Tests\Handler;
 
 use PHPUnit\Framework\TestCase;
-use Uplinkr\Handler\ProbeUriHandler;
+use Uplinkr\Handler\ProbeUrlHandler;
 use Uplinkr\Interfaces\StorageInterface;
 use Uplinkr\Objects\Config\UplinkrConfig;
 
 /**
- * Class ProbeUriHandlerTest
+ * Class ProbeUrlHandlerTest
  *
- * This class tests the sanitizeProjectName method in the ProbeUriHandler class.
+ * This class tests the sanitizeProjectName method in the ProbeUrlHandler class.
  * The method sanitizes file and project names by removing or replacing problematic characters.
  */
-class ProbeUriHandlerTest extends TestCase
+class ProbeUrlHandlerTest extends TestCase
 {
-    private ProbeUriHandler $probeUriHandler;
+    private ProbeUrlHandler $probeUriHandler;
 
     protected function setUp(): void
     {
@@ -28,7 +28,7 @@ class ProbeUriHandlerTest extends TestCase
             fileExtension: 'log'
         );
 
-        $this->probeUriHandler = new ProbeUriHandler($storageMock, $config);
+        $this->probeUriHandler = new ProbeUrlHandler($storageMock, $config);
     }
 
     /**

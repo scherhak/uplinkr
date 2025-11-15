@@ -6,11 +6,11 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\Console\Command\Command as CommandAlias;
-use Uplinkr\Handler\ProbeUriHandler;
+use Uplinkr\Handler\ProbeUrlHandler;
 use Uplinkr\Objects\Config\UplinkrConfig;
 
 /**
- * Class ProbeUri
+ * Class ProbeUrl
  * @package Uplinkr\Commands
  *
  * This class is responsible for handling the execution of the `uplinkr:probe-by-uri` command.
@@ -19,14 +19,14 @@ use Uplinkr\Objects\Config\UplinkrConfig;
  * @copyright 2025-today S. Scherhak / Uplinkr
  * @author Sascha Scherhak <sascha.scherhak@uplinkr.app>
  */
-class ProbeUri extends Command
+class ProbeUrl extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'uplinkr:probe-by-uri {protocol} {uri} {project?} {--force}';
+    protected $signature = 'uplinkr:probe-by-uri {protocol} {url} {project?} {--force}';
 
     /**
      * The console command description.
@@ -41,7 +41,7 @@ class ProbeUri extends Command
      * The method retrieves the URI argument and related options such as `force`
      * and `with-body`. If a URI is provided, it will either prompt for confirmation
      * or proceed directly based on the `force` option. If confirmed, the method
-     * initiates the `ProbeUriHandler` for processing the URI. It returns a status
+     * initiates the `ProbeUrlHandler` for processing the URI. It returns a status
      * code indicating the success or failure of the operation.
      *
      * @return int Returns CommandAlias::SUCCESS if the URI is successfully processed
@@ -49,16 +49,16 @@ class ProbeUri extends Command
      * @example php artisan uplinkr:probe-by-uri https scherhak.com
      *
      */
-    public function handle(ProbeUriHandler $probeUriHandler, UplinkrConfig $config): int
+    public function handle(ProbeUrlHandler $probeUriHandler, UplinkrConfig $config): int
     {
         $protocol = $this->argument('protocol');
-        $uri = $this->argument('uri');
+        $url = $this->argument('url');
         $project = $this->argument('project');
         $force = $this->option('force');
 
         $validate = Validator::make(
-            ['uri' => $uri],
-            ['uri' => 'required|url:http,https']
+            ['url' => $url],
+            ['url' => 'required|url:http,https']
         );
 
         // if uri isset - let it through
@@ -69,8 +69,8 @@ class ProbeUri extends Command
                 $execute = true;
             } else {
                 $execute = $this->confirm(sprintf(
-                    __('uplinkr::messages.checking', ['uri' => $uri]),
-                    $uri,
+                    __('uplinkr::messages.checking', ['url' => $url]),
+                    $url,
                 ));
             }
 
@@ -80,7 +80,7 @@ class ProbeUri extends Command
                 // finally, execute it
                 $result = $probeUriHandler->with(data: [
                     'protocol' => $protocol,
-                    'uri' => $uri,
+                    'url' => $url,
                     'project' => $project,
                 ])->handle();
 

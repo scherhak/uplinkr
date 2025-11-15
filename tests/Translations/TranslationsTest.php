@@ -11,7 +11,7 @@ class TranslationsTest extends TestCase
     {
         app()->setLocale('en');
 
-        $text = __('uplinkr::messages.checking', ['uri' => 'scherhak.com']);
+        $text = __('uplinkr::messages.checking', ['url' => 'scherhak.com']);
 
         $this->assertStringContainsString('Should the check of scherhak.com be started?', $text);
         $this->assertStringContainsString('scherhak.com', $text);

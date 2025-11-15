@@ -26,7 +26,7 @@ class ProbeResultHandlerTest extends TestCase
         $status = 'reachable';
         $settings = [
             'protocol' => 'https',
-            'uri' => 'test.com',
+            'url' => 'test.com',
         ];
 
         $handler = new ProbeResultHandler($initialResult);
@@ -63,7 +63,7 @@ class ProbeResultHandlerTest extends TestCase
         $status = 'unreachable';
         $settings = [
             'protocol' => 'http',
-            'uri' => 'example.com',
+            'url' => 'example.com',
         ];
 
         $handler = new ProbeResultHandler($initialResult);
@@ -95,7 +95,7 @@ class ProbeResultHandlerTest extends TestCase
         $status = 'reachable';
         $settings = [
             'protocol' => 'ftp',
-            'uri' => 'ftp.example.com',
+            'url' => 'ftp.example.com',
         ];
 
         $handler = new ProbeResultHandler($initialResult);
@@ -122,7 +122,7 @@ class ProbeResultHandlerTest extends TestCase
         $status = 'not-reachable';
         $settings = [
             'protocol' => 'https',
-            'uri' => 'nonexistent.com',
+            'url' => 'nonexistent.com',
         ];
 
         $handler = new ProbeResultHandler($initialResult);
