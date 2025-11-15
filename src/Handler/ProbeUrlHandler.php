@@ -10,7 +10,7 @@ use Uplinkr\Interfaces\StorageInterface;
 use Uplinkr\Objects\Config\UplinkrConfig;
 
 /**
- * Class ProbeUriHandler
+ * Class ProbeUrlHandler
  * @package Uplinkr\Handler
  *
  * @version 1
@@ -20,7 +20,7 @@ use Uplinkr\Objects\Config\UplinkrConfig;
  * This class is responsible for handling and probing a given URI to determine its reachability,
  * processing the response, and logging the outcome along with relevant metadata.
  */
-class ProbeUriHandler
+class ProbeUrlHandler
 {
     /**
      * @var array $data

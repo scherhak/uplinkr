@@ -3,7 +3,7 @@
 namespace Uplinkr;
 
 use Illuminate\Support\ServiceProvider;
-use Uplinkr\Commands\ProbeUri;
+use Uplinkr\Commands\ProbeUrl;
 use Uplinkr\Interfaces\StorageInterface;
 use Uplinkr\Objects\Config\UplinkrConfig;
 use Uplinkr\Storage\DatabaseStorage;
@@ -38,7 +38,7 @@ class UplinkrServiceProvider extends ServiceProvider
         // Register console commands
         if ($this->app->runningInConsole()) {
             $this->commands([
-                ProbeUri::class,
+                ProbeUrl::class,
             ]);
         }
     }
