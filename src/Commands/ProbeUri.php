@@ -4,6 +4,7 @@ namespace Uplinkr\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Validator;
 use Symfony\Component\Console\Command\Command as CommandAlias;
 use Uplinkr\Handler\ProbeUriHandler;
 use Uplinkr\Objects\Config\UplinkrConfig;
@@ -55,9 +56,13 @@ class ProbeUri extends Command
         $project = $this->argument('project');
         $force = $this->option('force');
 
+        $validate = Validator::make(
+            ['uri' => $uri],
+            ['uri' => 'required|url:http,https']
+        );
+
         // if uri isset - let it through
-        // TODO: validate complete uri
-        if (null !== $uri) {
+        if ($validate->passes()) {
 
             // if force isset - just let it through
             if ($force) {
