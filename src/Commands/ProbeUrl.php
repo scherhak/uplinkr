@@ -56,9 +56,12 @@ class ProbeUrl extends Command
         $project = $this->argument('project');
         $force = $this->option('force');
 
+        // generate full url for validating and prompting
+        $fullUrl = sprintf('%s://%s', $protocol, $url);
+
         $validate = Validator::make(
-            ['url' => $url],
-            ['url' => 'required|url:http,https']
+            ['url' => $fullUrl],
+            ['url' => 'required|url']
         );
 
         // if uri isset - let it through
@@ -69,7 +72,7 @@ class ProbeUrl extends Command
                 $execute = true;
             } else {
                 $execute = $this->confirm(sprintf(
-                    __('uplinkr::messages.checking', ['url' => $url]),
+                    __('uplinkr::messages.checking', ['url' => $fullUrl]),
                     $url,
                 ));
             }
@@ -114,7 +117,7 @@ class ProbeUrl extends Command
                 'time_in_ms' => Arr::get($result, 'probe_message.duration_ms'),
             ]));
         } else {
-            $this->info(__('uplinkr::messages.unreachable', [
+            $this->error(__('uplinkr::messages.unreachable', [
                 'status_header' => Arr::get($result, 'status_header'),
                 'time_in_ms' => Arr::get($result, 'probe_message.duration_ms'),
             ]));
