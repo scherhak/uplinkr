@@ -15,7 +15,7 @@ use Uplinkr\Objects\Config\UplinkrConfig;
  *
  * @version 1
  * @copyright 2025-today S. Scherhak / Uplinkr
- * @author Sascha Scherhak <sascha.scherhak@uplinkr.app>
+ * @author Sascha Scherhak <uplinkr@scherhak.com>
  *
  * This class is responsible for handling and probing a given URI to determine its reachability,
  * processing the response, and logging the outcome along with relevant metadata.

@@ -10,7 +10,7 @@ namespace Uplinkr\Objects\Config;
  * @package Uplinkr\Objects\Config
  * @version 1
  * @copyright 2025-today S. Scherhak / Uplinkr
- * @author Sascha Scherhak <sascha.scherhak@uplinkr.app>
+ * @author Sascha Scherhak <uplinkr@scherhak.com>
  */
 final class UplinkrConfig
 {

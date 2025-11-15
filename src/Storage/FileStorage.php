@@ -15,7 +15,7 @@ use Uplinkr\Objects\Config\UplinkrConfig;
  *
  * @version 1
  * @copyright 2025-today S. Scherhak / Uplinkr
- * @author Sascha Scherhak <sascha.scherhak@uplinkr.app>
+ * @author Sascha Scherhak <uplinkr@scherhak.com>
  */
 class FileStorage implements StorageInterface
 {

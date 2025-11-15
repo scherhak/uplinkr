@@ -1,5 +1,5 @@
 {
-  "name": "scherhak/laravel-uplinkr",
+  "name": "scherhak/uplinkr",
   "type": "library",
   "require": {
     "php": "^8.1",

@@ -13,11 +13,11 @@ use Uplinkr\Objects\Config\UplinkrConfig;
  * Class ProbeUrl
  * @package Uplinkr\Commands
  *
- * This class is responsible for handling the execution of the `uplinkr:probe-by-uri` command.
+ * This class is responsible for handling the execution of the `uplinkr:probe-by-url` command.
  *
  * @version 1
  * @copyright 2025-today S. Scherhak / Uplinkr
- * @author Sascha Scherhak <sascha.scherhak@uplinkr.app>
+ * @author Sascha Scherhak <uplinkr@scherhak.com>
  */
 class ProbeUrl extends Command
 {
@@ -26,14 +26,14 @@ class ProbeUrl extends Command
      *
      * @var string
      */
-    protected $signature = 'uplinkr:probe-by-uri {protocol} {url} {project?} {--force}';
+    protected $signature = 'uplinkr:probe-by-url {protocol} {url} {project?} {--force}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Try to reach a url and store the response in the database';
+    protected $description = 'Try to reach a url and store the response within basic file system';
 
     /**
      * Handles the execution of a command that processes a given URI.

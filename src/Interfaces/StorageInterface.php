@@ -7,7 +7,7 @@ namespace Uplinkr\Interfaces;
  *
  * @version 1
  * @copyright 2025-today S. Scherhak / Uplinkr
- * @author Sascha Scherhak <sascha.scherhak@uplinkr.app>
+ * @author Sascha Scherhak <uplinkr@scherhak.com>
  */
 interface StorageInterface
 {
