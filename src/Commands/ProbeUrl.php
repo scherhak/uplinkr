@@ -112,7 +112,7 @@ class ProbeUrl extends Command
      */
     private function resultMessages(array $result, string|null $project, UplinkrConfig $config): void
     {
-        if(Arr::get($result, 'status') === 'reachable') {
+        if (Arr::get($result, 'status') === 'reachable') {
             $this->info(__('uplinkr::messages.reachable', [
                 'time_in_ms' => Arr::get($result, 'probe_message.duration_ms'),
             ]));

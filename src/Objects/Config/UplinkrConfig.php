@@ -18,7 +18,9 @@ final class UplinkrConfig
         public string $storagePath = 'uplinkr',
         public string $standardProject = 'standard_project',
         public string $fileExtension = 'log'
-    ) {}
+    )
+    {
+    }
 
     /**
      * Creates an instance from Laravel's config repository.

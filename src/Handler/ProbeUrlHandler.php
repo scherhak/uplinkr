@@ -35,7 +35,7 @@ class ProbeUrlHandler
      */
     public function __construct(
         private readonly StorageInterface $storage,
-        private readonly UplinkrConfig $config
+        private readonly UplinkrConfig    $config
     )
     {
     }

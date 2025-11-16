@@ -3,10 +3,7 @@
 namespace Uplinkr\Commands;
 
 use Illuminate\Console\Command;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Validator;
 use Symfony\Component\Console\Command\Command as CommandAlias;
-use Uplinkr\Handler\ProbeUrlHandler;
 use Uplinkr\Objects\Config\UplinkrConfig;
 
 /**
@@ -44,7 +41,7 @@ class StoragePrune extends Command
         // if force isset - just let it through
         if ($force) {
             $execute = true;
-        } else if($all) {
+        } else if ($all) {
             $execute = $this->confirm(__('uplinkr::messages.clear_all'));
         } else {
             $execute = $this->confirm(__('uplinkr::messages.clear_project', ['project' => $project]));

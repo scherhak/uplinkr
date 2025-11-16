@@ -29,7 +29,8 @@ class FileStorage implements StorageInterface
     public function __construct(
         private readonly UplinkrConfig $config
     )
-    {}
+    {
+    }
 
     /**
      * @throws JsonException
