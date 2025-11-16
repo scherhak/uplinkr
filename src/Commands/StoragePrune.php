@@ -10,7 +10,7 @@ use Uplinkr\Handler\ProbeUrlHandler;
 use Uplinkr\Objects\Config\UplinkrConfig;
 
 /**
- * Class ClearStorage
+ * Class StoragePrune
  * @package Uplinkr\Commands
  *
  * This class is responsible for handling the execution of the `uplinkr:probe-by-uri` command.
@@ -19,14 +19,14 @@ use Uplinkr\Objects\Config\UplinkrConfig;
  * @copyright 2025-today S. Scherhak / Uplinkr
  * @author Sascha Scherhak <uplinkr@scherhak.com>
  */
-class ClearStorage extends Command
+class StoragePrune extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'uplinkr:clear {project?} {--all} {--force}';
+    protected $signature = 'uplinkr:prune {project?} {--all} {--force}';
 
     /**
      * The console command description.
@@ -44,12 +44,10 @@ class ClearStorage extends Command
         // if force isset - just let it through
         if ($force) {
             $execute = true;
+        } else if($all) {
+            $execute = $this->confirm(__('uplinkr::messages.clear_all'));
         } else {
-            if($all) {
-                $execute = $this->confirm(__('uplinkr::messages.clear_all'));
-            } else {
-                $execute = $this->confirm(__('uplinkr::messages.clear_project', ['project' => $project]));
-            }
+            $execute = $this->confirm(__('uplinkr::messages.clear_project', ['project' => $project]));
         }
 
         // execute it
