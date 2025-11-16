@@ -4,9 +4,9 @@ namespace Uplinkr;
 
 use Illuminate\Support\ServiceProvider;
 use Uplinkr\Commands\ProbeUrl;
+use Uplinkr\Commands\StoragePrune;
 use Uplinkr\Interfaces\StorageInterface;
 use Uplinkr\Objects\Config\UplinkrConfig;
-use Uplinkr\Storage\DatabaseStorage;
 use Uplinkr\Storage\FileStorage;
 
 /**
@@ -39,6 +39,7 @@ class UplinkrServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 ProbeUrl::class,
+                StoragePrune::class,
             ]);
         }
     }

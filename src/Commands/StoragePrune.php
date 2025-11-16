@@ -56,6 +56,8 @@ class StoragePrune extends Command
                 // TODO Explanatory text regarding the deletion process
             }
 
+            $this->info('Pruning storage ...');
+
             return CommandAlias::SUCCESS;
         }
 
