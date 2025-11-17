@@ -57,12 +57,22 @@ class FileStorage implements StorageInterface
     private function buildFilename(array $data): string
     {
         return sprintf('%s/%s/%s-%s.%s',
-            $this->getStoragePath(),
+            $this->buildStoragePath(),
             $this->getProjectPath(data: $data),
             $this->getUrlFromData(data: $data),
             $this->getCurrentDate(),
             $this->getFileExtension(),
         );
+    }
+
+    /**
+     * Constructs the full storage path by combining the base storage path and the probes results path.
+     *
+     * @return string The constructed storage path.
+     */
+    private function buildStoragePath(): string
+    {
+        return sprintf('%s/%s', $this->getStoragePath(), $this->getProbesResultsPath());
     }
 
     /**
@@ -73,6 +83,16 @@ class FileStorage implements StorageInterface
     private function getStoragePath(): string
     {
         return $this->config->getStoragePath();
+    }
+
+    /**
+     * Retrieves the storage path used for storing results.
+     *
+     * @return string The path to the result storage directory.
+     */
+    private function getProbesResultsPath(): string
+    {
+        return $this->config->getProbesResultPath();
     }
 
     /**

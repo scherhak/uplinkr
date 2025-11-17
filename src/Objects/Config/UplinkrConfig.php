@@ -16,6 +16,7 @@ final class UplinkrConfig
 {
     public function __construct(
         public string $storagePath = 'uplinkr',
+        public string $probesResultPath = 'results',
         public string $standardProject = 'standard_project',
         public string $fileExtension = 'log'
     )
@@ -31,6 +32,7 @@ final class UplinkrConfig
     {
         return new self(
             storagePath: config('uplinkr.storage.path', 'uplinkr'),
+            probesResultPath: config('uplinkr.storage.records', 'probes'),
             standardProject: config('uplinkr.storage.standard_project', 'standard_project'),
             fileExtension: config('uplinkr.storage.file_extension', 'log')
         );
@@ -44,6 +46,14 @@ final class UplinkrConfig
     public function getStoragePath(): string
     {
         return $this->storagePath;
+    }
+
+    /**
+     * @return string
+     */
+    public function getProbesResultPath(): string
+    {
+        return $this->probesResultPath;
     }
 
     /**
