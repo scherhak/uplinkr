@@ -109,6 +109,8 @@ class ProbeUrl extends Command
      * @param string|null $project The specific project associated with the result, or null to fall back to a default.
      * @param UplinkrConfig $config Configuration object used to retrieve default project settings if no project is provided.
      * @return void Returns true if message processing and logging are completed successfully.
+     *
+     * TODO (0.2.0) Distinguish between unreachable and server error status headers
      */
     private function resultMessages(array $result, string|null $project, UplinkrConfig $config): void
     {

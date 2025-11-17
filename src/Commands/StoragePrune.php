@@ -3,8 +3,10 @@
 namespace Uplinkr\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Storage;
 use Symfony\Component\Console\Command\Command as CommandAlias;
 use Uplinkr\Objects\Config\UplinkrConfig;
+use Illuminate\Console\ConfirmableTrait;
 
 /**
  * Class StoragePrune
@@ -18,6 +20,8 @@ use Uplinkr\Objects\Config\UplinkrConfig;
  */
 class StoragePrune extends Command
 {
+    use ConfirmableTrait;
+
     /**
      * The name and signature of the console command.
      *
@@ -42,18 +46,29 @@ class StoragePrune extends Command
         if ($force) {
             $execute = true;
         } else if ($all) {
-            $execute = $this->confirm(__('uplinkr::messages.clear_all'));
+            $execute = $this->confirmToProceed(__('uplinkr::messages.prune_all'));
         } else {
-            $execute = $this->confirm(__('uplinkr::messages.clear_project', ['project' => $project]));
+            $execute = $this->confirm(__('uplinkr::messages.prune_project',
+                [
+                    'project' => $project
+                ]
+            ));
         }
 
         // execute it
         if ($execute) {
             if (!$force) {
-                // TODO Explanatory text regarding the deletion process
+                $this->warn('Starting deletion process ...');
             }
 
             $this->info('Pruning storage ...');
+
+            if($all) {
+                Storage::disk('local')->deleteDirectory('uplinkr');
+                $this->warn('All storage files deleted.');
+                Storage::disk('local')->makeDirectory('uplinkr');
+                $this->warn('Fresh storage created.');
+            }
 
             return CommandAlias::SUCCESS;
         }

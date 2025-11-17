@@ -69,7 +69,7 @@ class ProbeUrlHandler
 
         try {
             $request = Http::withHeaders([
-                'User-Agent' => 'uplinkr-probe/1.0',
+                'User-Agent' => 'uplinkr-probe/0.1.0',
             ])->head($this->buildUriFromData());
 
             if ($request->successful()) {
