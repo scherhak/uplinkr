@@ -92,7 +92,7 @@ class FileStorage implements StorageInterface
      */
     private function getProbesResultsPath(): string
     {
-        return $this->config->getProbesResultPath();
+        return $this->config->getProbeResultsPath();
     }
 
     /**

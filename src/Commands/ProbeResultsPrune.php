@@ -9,7 +9,7 @@ use Uplinkr\Objects\Config\UplinkrConfig;
 use Illuminate\Console\ConfirmableTrait;
 
 /**
- * Class StoragePrune
+ * Class ProbeResultsPrune
  * @package Uplinkr\Commands
  *
  * This class is responsible for handling the execution of the `uplinkr:probe-by-uri` command.
@@ -18,7 +18,7 @@ use Illuminate\Console\ConfirmableTrait;
  * @copyright 2025-today S. Scherhak / Uplinkr
  * @author Sascha Scherhak <uplinkr@scherhak.com>
  */
-class StoragePrune extends Command
+class ProbeResultsPrune extends Command
 {
     use ConfirmableTrait;
 
@@ -27,7 +27,7 @@ class StoragePrune extends Command
      *
      * @var string
      */
-    protected $signature = 'uplinkr:prune {project?} {--all} {--force}';
+    protected $signature = 'uplinkr:probe-results-prune {project?} {--all} {--force}';
 
     /**
      * The console command description.
@@ -58,16 +58,28 @@ class StoragePrune extends Command
         // execute it
         if ($execute) {
             if (!$force) {
-                $this->warn('Starting deletion process ...');
+                $this->warn('Starting pruning process ...');
             }
 
-            $this->info('Pruning storage ...');
+            // Projects section
+            if($project) {
+                // Check if the project folder exists
+                $projectFolderExists = Storage::disk('local')->exists('uplinkr/probes' . '/' . $project);
 
-            if($all) {
-                Storage::disk('local')->deleteDirectory('uplinkr');
+                if($projectFolderExists) {
+                    Storage::disk('local')->deleteDirectory('uplinkr/probes' . '/' . $project);
+                    $this->warn('All storage files deleted.');
+                } else {
+                    $this->error('Project folder does not exist.');
+                }
+
+            } elseif ($all) {
+                Storage::disk('local')->deleteDirectory('uplinkr/probes');
                 $this->warn('All storage files deleted.');
-                Storage::disk('local')->makeDirectory('uplinkr');
+                Storage::disk('local')->makeDirectory('uplinkr/probes');
                 $this->warn('Fresh storage created.');
+            } else {
+                $this->warn('No storage files deleted.');
             }
 
             return CommandAlias::SUCCESS;
