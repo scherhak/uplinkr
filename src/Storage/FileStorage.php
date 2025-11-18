@@ -5,6 +5,7 @@ namespace Uplinkr\Storage;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use JsonException;
 use Uplinkr\Interfaces\StorageInterface;
 use Uplinkr\Objects\Config\UplinkrConfig;
@@ -56,10 +57,11 @@ class FileStorage implements StorageInterface
      */
     private function buildFilename(array $data): string
     {
-        return sprintf('%s/%s/%s-%s.%s',
+        return sprintf('%s/%s/%s%s%s.%s',
             $this->buildStoragePath(),
             $this->getProjectPath(data: $data),
             $this->getUrlFromData(data: $data),
+            $this->getFilenameSeparator(),
             $this->getCurrentDate(),
             $this->getFileExtension(),
         );
@@ -127,13 +129,46 @@ class FileStorage implements StorageInterface
      */
     private function getUrlFromData(array $data): string
     {
-        return Arr::get($data, 'settings.url');
+        $rawUrl = (string) Arr::get($data, 'settings.url', '');
+
+        if ($rawUrl === '') {
+            return 'unknown';
+        }
+
+        // Ensure that a scheme exists so that parse_url works reliably.
+        if (!preg_match('#^[a-zA-Z][a-zA-Z0-9+.-]*://#', $rawUrl)) {
+            $rawUrl = 'http://' . ltrim($rawUrl, '/');
+        }
+
+        // Extract only the host (domain), e.g., "scherhak.com"
+        $host = parse_url($rawUrl, PHP_URL_HOST) ?: $rawUrl;
+        $host = preg_replace('/^www\./i', '', $host);
+
+        // Everything that is not a letter/number should be changed to "_"
+        $sanitized = preg_replace('/[^A-Za-z0-9]+/', '_', $host);
+
+        // Shrink multiple "_" lines and trim edges
+        $sanitized = trim(preg_replace('/_+/', '_', $sanitized), '_');
+
+        return strtolower($sanitized);
+    }
+
+    /**
+     * Retrieves the separator used in filenames.
+     *
+     * @return string The character or string used as a filename separator.
+     */
+    private function getFilenameSeparator(): string
+    {
+        return $this->config->getProbeFilenameSeparator();
     }
 
     /**
      * Retrieves the current date in the format 'YYYY-MM-DD'.
      *
      * @return string The current date formatted as 'YYYY-MM-DD'.
+     *
+     * TODO (0.2.0) Embed this part into the configuration and see what sensible combinations are possible.
      */
     private function getCurrentDate(): string
     {

@@ -231,22 +231,17 @@ class ProbeUrlHandler
             return $this->config->getStandardProject();
         }
 
-        // Ersetze problematische Zeichen durch Bindestriche (inkl. Punkt)
+        // Replace problematic characters with hyphens (including dot)
+        // - Remove control characters
+        // - Reduce multiple hyphens to a single one
+        // - Replace whitespace with hyphens
+        // - Trim hyphens and whitespace
         $sanitized = preg_replace('/[\/\\\:*?"<>|()!$%&.]/', '-', $value);
-
-        // Entferne Control-Characters
         $sanitized = preg_replace('/[\x00-\x1F\x7F]/', '', $sanitized);
-
-        // Multiple Bindestriche zu einem reduzieren
         $sanitized = preg_replace('/-+/', '-', $sanitized);
-
-        // Whitespace durch Bindestriche ersetzen
         $sanitized = preg_replace('/\s+/', '-', $sanitized);
-
-        // Trim Bindestriche und Whitespace
         $sanitized = trim($sanitized, '- ');
 
-        // Lowercase für Konsistenz
         return strtolower($sanitized);
     }
 }

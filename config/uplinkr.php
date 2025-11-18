@@ -32,6 +32,8 @@ return [
         */
         'path' => 'uplinkr',
         'probe_results' => 'probes',
+        'probe_filename_separator' => '@',
+
 
         /*
         |--------------------------------------------------------------------------
