@@ -16,8 +16,8 @@ final class UplinkrConfig
 {
     public function __construct(
         public string $storagePath = 'uplinkr',
-        public string $probeResultsPath = 'results',
         public string $standardProject = 'standard_project',
+        public string $probeResultsPath = 'probes',
         public string $probeFilenameSeparator = '@',
         public string $fileExtension = 'log'
     )
@@ -33,8 +33,8 @@ final class UplinkrConfig
     {
         return new self(
             storagePath: config('uplinkr.storage.path', 'uplinkr'),
-            probeResultsPath: config('uplinkr.storage.probe_results', 'probes'),
             standardProject: config('uplinkr.storage.standard_project', 'standard_project'),
+            probeResultsPath: config('uplinkr.storage.probe_results', 'probes'),
             probeFilenameSeparator: config('uplinkr.storage.probe_filename_separator', '@'),
             fileExtension: config('uplinkr.storage.file_extension', 'log')
         );

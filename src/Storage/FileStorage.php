@@ -38,11 +38,6 @@ class FileStorage implements StorageInterface
      */
     public function saveResult(array $resultData): void
     {
-        Log::debug('Uplinkr_fileStorage', [
-            'data' => $resultData,
-            'filename' => $this->buildFilename($resultData),
-        ]);
-
         Storage::disk('local')->append(
             $this->buildFilename($resultData),
             json_encode($resultData, JSON_THROW_ON_ERROR)
@@ -57,9 +52,8 @@ class FileStorage implements StorageInterface
      */
     private function buildFilename(array $data): string
     {
-        return sprintf('%s/%s/%s%s%s.%s',
-            $this->buildStoragePath(),
-            $this->getProjectPath(data: $data),
+        return sprintf('%s/%s%s%s.%s',
+            $this->buildStoragePath(data: $data),
             $this->getUrlFromData(data: $data),
             $this->getFilenameSeparator(),
             $this->getCurrentDate(),
@@ -72,9 +66,13 @@ class FileStorage implements StorageInterface
      *
      * @return string The constructed storage path.
      */
-    private function buildStoragePath(): string
+    private function buildStoragePath(array $data): string
     {
-        return sprintf('%s/%s', $this->getStoragePath(), $this->getProbesResultsPath());
+        return sprintf('%s/%s/%s',
+            $this->getStoragePath(),
+            $this->getProjectPath($data),
+            $this->getProbesResultsPath()
+        );
     }
 
     /**
