@@ -3,10 +3,10 @@
 namespace Uplinkr\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Console\ConfirmableTrait;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\Console\Command\Command as CommandAlias;
 use Uplinkr\Objects\Config\UplinkrConfig;
-use Illuminate\Console\ConfirmableTrait;
 
 /**
  * Class ProbeResultsPrune
@@ -62,11 +62,11 @@ class ProbeResultsPrune extends Command
             }
 
             // Projects section
-            if($project) {
+            if ($project) {
                 // Check if the project folder exists
                 $projectFolderExists = Storage::disk('local')->exists('uplinkr/probes' . '/' . $project);
 
-                if($projectFolderExists) {
+                if ($projectFolderExists) {
                     Storage::disk('local')->deleteDirectory('uplinkr/probes' . '/' . $project);
                     $this->warn('All storage files deleted.');
                 } else {

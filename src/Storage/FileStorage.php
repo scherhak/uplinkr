@@ -3,9 +3,7 @@
 namespace Uplinkr\Storage;
 
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use JsonException;
 use Uplinkr\Interfaces\StorageInterface;
 use Uplinkr\Objects\Config\UplinkrConfig;
@@ -127,7 +125,7 @@ class FileStorage implements StorageInterface
      */
     private function getUrlFromData(array $data): string
     {
-        $rawUrl = (string) Arr::get($data, 'settings.url', '');
+        $rawUrl = (string)Arr::get($data, 'settings.url', '');
 
         if ($rawUrl === '') {
             return 'unknown';

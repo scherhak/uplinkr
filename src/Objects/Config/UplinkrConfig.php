@@ -83,6 +83,6 @@ final class UplinkrConfig
      */
     public function getProbeFilenameSeparator(): string
     {
-         return $this->probeFilenameSeparator;
+        return $this->probeFilenameSeparator;
     }
 }
