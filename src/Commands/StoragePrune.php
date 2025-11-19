@@ -9,16 +9,16 @@ use Symfony\Component\Console\Command\Command as CommandAlias;
 use Uplinkr\Objects\Config\UplinkrConfig;
 
 /**
- * Class ProbeResultsPrune
+ * Class StoragePrune
  * @package Uplinkr\Commands
  *
  * This class is responsible for handling the execution of the `uplinkr:probe-by-uri` command.
  *
  * @version 1
- * @copyright 2025-today S. Scherhak / Uplinkr
- * @author Sascha Scherhak <uplinkr@scherhak.com>
+ * @copyright 2025-today Sascha Scherhak / uplinkr.dev
+ * @author Sascha Scherhak <sascha@uplinkr.dev>
  */
-class ProbeResultsPrune extends Command
+class StoragePrune extends Command
 {
     use ConfirmableTrait;
 
@@ -27,7 +27,7 @@ class ProbeResultsPrune extends Command
      *
      * @var string
      */
-    protected $signature = 'uplinkr:probe-results-prune {project?} {--all} {--force}';
+    protected $signature = 'uplinkr:prune {--project=} {--before=} {--all} {--force}';
 
     /**
      * The console command description.
@@ -38,7 +38,8 @@ class ProbeResultsPrune extends Command
 
     public function handle(UplinkrConfig $config): int
     {
-        $project = $this->argument('project');
+        $project = $this->option('project');
+        $before = $this->option('before');
         $all = $this->option('all');
         $force = $this->option('force');
 
@@ -64,20 +65,18 @@ class ProbeResultsPrune extends Command
             // Projects section
             if ($project) {
                 // Check if the project folder exists
-                $projectFolderExists = Storage::disk('local')->exists('uplinkr/probes' . '/' . $project);
+                $projectFolderExists = Storage::disk('local')->exists('uplinkr/' . $project);
 
                 if ($projectFolderExists) {
-                    Storage::disk('local')->deleteDirectory('uplinkr/probes' . '/' . $project);
+                    Storage::disk('local')->deleteDirectory('uplinkr/' . $project);
                     $this->warn('All storage files deleted.');
                 } else {
                     $this->error('Project folder does not exist.');
                 }
-
             } elseif ($all) {
-                Storage::disk('local')->deleteDirectory('uplinkr/probes');
+                Storage::disk('local')->deleteDirectory('uplinkr');
                 $this->warn('All storage files deleted.');
-                Storage::disk('local')->makeDirectory('uplinkr/probes');
-                $this->warn('Fresh storage created.');
+                Storage::disk('local')->makeDirectory('uplinkr');
             } else {
                 $this->warn('No storage files deleted.');
             }
