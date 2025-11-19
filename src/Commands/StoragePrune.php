@@ -2,6 +2,7 @@
 
 namespace Uplinkr\Commands;
 
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Console\ConfirmableTrait;
 use Illuminate\Support\Facades\Storage;
@@ -25,7 +26,7 @@ class StoragePrune extends Command
      *
      * @var string
      */
-    protected $signature = 'uplinkr:prune {--project=} {--before=} {--all} {--force}';
+    protected $signature = 'uplinkr:prune {--project=} {--before=} {--wipe-all} {--force}';
 
     /**
      * The console command description.
@@ -34,11 +35,20 @@ class StoragePrune extends Command
      */
     protected $description = '';
 
+    /**
+     * Handles the pruning of files or directories based on the given configuration and options.
+     *
+     * @param UplinkrConfig $config The configuration instance containing various settings for pruning, such as paths and separators.
+     * @return int Returns a status code indicating the outcome of the process:
+     *             - CommandAlias::SUCCESS on successful execution.
+     *             - CommandAlias::FAILURE if the process encounters an error.
+     *             - CommandAlias::INVALID if no action is performed.
+     */
     public function handle(UplinkrConfig $config): int
     {
         $project = $this->option('project');
         $before = $this->option('before');
-        $all = $this->option('all');
+        $all = $this->option('wipe-all');
         $force = $this->option('force');
 
         // if force isset - just let it through
@@ -47,11 +57,11 @@ class StoragePrune extends Command
         } else if ($all) {
             $execute = $this->confirmToProceed(__('uplinkr::messages.prune_all'));
         } else {
-            $execute = $this->confirm(__('uplinkr::messages.prune_project',
-                [
-                    'project' => $project
-                ]
-            ));
+            $message = ($project && $before)
+                ? "Are you sure you want to delete files in project '$project' before $before?"
+                : __('uplinkr::messages.prune_project', ['project' => $project]);
+
+            $execute = $this->confirm($message);
         }
 
         // execute it
@@ -63,16 +73,72 @@ class StoragePrune extends Command
             // Projects section
             if ($project) {
                 // Check if the project folder exists
-                $projectFolderExists = Storage::disk('local')->exists('uplinkr/' . $project);
+                $projectPath = 'uplinkr/' . $project;
 
-                if ($projectFolderExists) {
-                    Storage::disk('local')->deleteDirectory('uplinkr/' . $project);
-                    if (!$force) {
-                        $this->warn('All storage files deleted.');
+                // Specific logic for pruning by date
+                if ($before) {
+                    try {
+                        $beforeDate = Carbon::createFromFormat('Y-m-d', $before)?->startOfDay();
+                    } catch (\Exception $e) {
+                        $this->error('Invalid date format for --before. Please use Y-m-d.');
+                        return CommandAlias::FAILURE;
                     }
-                } else {
-                    if (!$force) {
-                        $this->error('Project folder does not exist.');
+
+                    // Path to probes: uplinkr/[project]/probes
+                    $probesPath = $projectPath . '/' . $config->getProbeResultsPath();
+
+                    if (Storage::disk('local')->exists($probesPath)) {
+                        $files = Storage::disk('local')->files($probesPath);
+                        $deletedCount = 0;
+                        $separator = $config->getProbeFilenameSeparator();
+
+                        foreach ($files as $file) {
+                            // Get filename without extension (e.g., "filename@2023-01-01")
+                            $filename = pathinfo($file, PATHINFO_FILENAME);
+
+                            // Split by separator to get the date part
+                            $parts = explode($separator, $filename);
+                            
+                            // Assume the date is the last part of the filename
+                            if (count($parts) > 1) {
+                                $datePart = end($parts);
+                                
+                                try {
+                                    $fileDate = Carbon::createFromFormat('Y-m-d', $datePart)?->startOfDay();
+
+                                    if ($fileDate->lessThan($beforeDate)) {
+                                        Storage::disk('local')->delete($file);
+                                        $deletedCount++;
+                                    }
+                                } catch (\Exception $e) {
+                                    // Continue if date parsing fails for a file
+                                    continue;
+                                }
+                            }
+                        }
+
+                        if (!$force) {
+                            $this->info("Deleted {$deletedCount} files older than {$before}.");
+                        }
+                    } else {
+                        if (!$force) {
+                            $this->warn("No probes directory found for project {$project}.");
+                        }
+                    }
+                } 
+                // Standard logic: Delete complete project folder if no --before is set
+                else {
+                    $projectFolderExists = Storage::disk('local')->exists($projectPath);
+
+                    if ($projectFolderExists) {
+                        Storage::disk('local')->deleteDirectory($projectPath);
+                        if (!$force) {
+                            $this->warn('All storage files deleted.');
+                        }
+                    } else {
+                        if (!$force) {
+                            $this->error('Project folder does not exist.');
+                        }
                     }
                 }
             } elseif ($all) {
