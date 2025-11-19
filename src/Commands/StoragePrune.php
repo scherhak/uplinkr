@@ -12,8 +12,6 @@ use Uplinkr\Objects\Config\UplinkrConfig;
  * Class StoragePrune
  * @package Uplinkr\Commands
  *
- * This class is responsible for handling the execution of the `uplinkr:probe-by-uri` command.
- *
  * @version 1
  * @copyright 2025-today Sascha Scherhak / uplinkr.dev
  * @author Sascha Scherhak <sascha@uplinkr.dev>
@@ -69,16 +67,27 @@ class StoragePrune extends Command
 
                 if ($projectFolderExists) {
                     Storage::disk('local')->deleteDirectory('uplinkr/' . $project);
-                    $this->warn('All storage files deleted.');
+                    if (!$force) {
+                        $this->warn('All storage files deleted.');
+                    }
                 } else {
-                    $this->error('Project folder does not exist.');
+                    if (!$force) {
+                        $this->error('Project folder does not exist.');
+                    }
                 }
             } elseif ($all) {
                 Storage::disk('local')->deleteDirectory('uplinkr');
-                $this->warn('All storage files deleted.');
+                if (!$force) {
+                    $this->warn('All storage files deleted.');
+                }
                 Storage::disk('local')->makeDirectory('uplinkr');
+                if (!$force) {
+                    $this->info('New folder for uplinkr created.');
+                }
             } else {
-                $this->warn('No storage files deleted.');
+                if (!$force) {
+                    $this->warn('No storage files deleted.');
+                }
             }
 
             return CommandAlias::SUCCESS;
