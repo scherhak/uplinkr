@@ -7,6 +7,7 @@ use Illuminate\Console\Command;
 use Illuminate\Console\ConfirmableTrait;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\Console\Command\Command as CommandAlias;
+use Uplinkr\Handler\StoragePruneHandler;
 use Uplinkr\Objects\Config\UplinkrConfig;
 
 /**
@@ -44,7 +45,7 @@ class StoragePrune extends Command
      *             - CommandAlias::FAILURE if the process encounters an error.
      *             - CommandAlias::INVALID if no action is performed.
      */
-    public function handle(UplinkrConfig $config): int
+    public function handle(UplinkrConfig $config,  StoragePruneHandler $handler): int
     {
         $project = $this->option('project');
         $before = $this->option('before');
@@ -78,54 +79,20 @@ class StoragePrune extends Command
                 // Specific logic for pruning by date
                 if ($before) {
                     try {
-                        $beforeDate = Carbon::createFromFormat('Y-m-d', $before)?->startOfDay();
-                    } catch (\Exception $e) {
+                        $deletedCount = $handler->pruneByDate($project, $before);
+
+                        if (!$force) {
+                            if ($deletedCount > 0) {
+                                $this->info("Deleted {$deletedCount} files older than {$before}.");
+                            } else {
+                                $this->warn("No files found older than {$before} or directory empty.");
+                            }
+                        }
+                    } catch (\InvalidArgumentException $e) {
                         $this->error('Invalid date format for --before. Please use Y-m-d.');
                         return CommandAlias::FAILURE;
                     }
-
-                    // Path to probes: uplinkr/[project]/probes
-                    $probesPath = $projectPath . '/' . $config->getProbeResultsPath();
-
-                    if (Storage::disk('local')->exists($probesPath)) {
-                        $files = Storage::disk('local')->files($probesPath);
-                        $deletedCount = 0;
-                        $separator = $config->getProbeFilenameSeparator();
-
-                        foreach ($files as $file) {
-                            // Get filename without extension (e.g., "filename@2023-01-01")
-                            $filename = pathinfo($file, PATHINFO_FILENAME);
-
-                            // Split by separator to get the date part
-                            $parts = explode($separator, $filename);
-                            
-                            // Assume the date is the last part of the filename
-                            if (count($parts) > 1) {
-                                $datePart = end($parts);
-                                
-                                try {
-                                    $fileDate = Carbon::createFromFormat('Y-m-d', $datePart)?->startOfDay();
-
-                                    if ($fileDate->lessThan($beforeDate)) {
-                                        Storage::disk('local')->delete($file);
-                                        $deletedCount++;
-                                    }
-                                } catch (\Exception $e) {
-                                    // Continue if date parsing fails for a file
-                                    continue;
-                                }
-                            }
-                        }
-
-                        if (!$force) {
-                            $this->info("Deleted {$deletedCount} files older than {$before}.");
-                        }
-                    } else {
-                        if (!$force) {
-                            $this->warn("No probes directory found for project {$project}.");
-                        }
-                    }
-                } 
+                }
                 // Standard logic: Delete complete project folder if no --before is set
                 else {
                     $projectFolderExists = Storage::disk('local')->exists($projectPath);

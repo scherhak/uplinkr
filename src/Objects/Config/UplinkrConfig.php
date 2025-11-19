@@ -15,6 +15,7 @@ namespace Uplinkr\Objects\Config;
 final class UplinkrConfig
 {
     public function __construct(
+        public string $storageDisk = 'local',
         public string $storagePath = 'uplinkr',
         public string $standardProject = 'standard_project',
         public string $probeResultsPath = 'probes',
@@ -32,12 +33,21 @@ final class UplinkrConfig
     public static function fromConfig(): self
     {
         return new self(
+            storageDisk: config('uplinkr.storage.disk', 'local'),
             storagePath: config('uplinkr.storage.path', 'uplinkr'),
             standardProject: config('uplinkr.storage.standard_project', 'standard_project'),
             probeResultsPath: config('uplinkr.storage.probe_results', 'probes'),
             probeFilenameSeparator: config('uplinkr.storage.probe_filename_separator', '@'),
             fileExtension: config('uplinkr.storage.file_extension', 'log')
         );
+    }
+
+    /**
+     * @return string
+     */
+    public function getStorageDisc(): string
+    {
+        return $this->storageDisk;
     }
 
     /**

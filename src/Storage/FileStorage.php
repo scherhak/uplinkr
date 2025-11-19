@@ -36,7 +36,7 @@ class FileStorage implements StorageInterface
      */
     public function saveResult(array $resultData): void
     {
-        Storage::disk('local')->append(
+        Storage::disk($this->config->getStorageDisc())->append(
             $this->buildFilename($resultData),
             json_encode($resultData, JSON_THROW_ON_ERROR)
         );

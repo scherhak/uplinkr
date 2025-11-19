@@ -20,7 +20,7 @@ return [
         | TODO Check if driver is still needed or can be removed
         |
         */
-        'driver' => 'file', # file|database
+        'disk' => 'local', # local|...
 
         /*
         |--------------------------------------------------------------------------
