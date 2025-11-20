@@ -4,6 +4,7 @@ namespace Uplinkr\Tests\Handler;
 
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
+use ReflectionException;
 use Uplinkr\Handler\ProbeUrlHandler;
 use Uplinkr\Interfaces\StorageInterface;
 use Uplinkr\Objects\Config\UplinkrConfig;
@@ -100,6 +101,7 @@ class ProbeUrlHandlerTest extends TestCase
      *
      * @param string|null $value The value to be sanitized.
      * @return string The sanitized string.
+     * @throws ReflectionException
      */
     private function invokeSanitizeMethod(string|null $value): string
     {
