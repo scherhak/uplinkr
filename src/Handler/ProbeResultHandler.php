@@ -8,8 +8,6 @@ use Illuminate\Support\Arr;
  * Class ProbeResultHandler
  * @package Uplinkr\Handler
  *
- * @version 1
- * @copyright 2025-today Sascha Scherhak / uplinkr.dev
  * @author Sascha Scherhak <sascha@uplinkr.dev>
  */
 class ProbeResultHandler

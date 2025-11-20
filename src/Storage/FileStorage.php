@@ -12,8 +12,6 @@ use Uplinkr\Objects\Config\UplinkrConfig;
  * Class FileStorage
  * @package Uplinkr\Storage
  *
- * @version 1
- * @copyright 2025-today Sascha Scherhak / uplinkr.dev
  * @author Sascha Scherhak <sascha@uplinkr.dev>
  */
 class FileStorage implements StorageInterface

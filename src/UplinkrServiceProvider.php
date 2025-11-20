@@ -13,8 +13,6 @@ use Uplinkr\Storage\FileStorage;
  * Class UplinkrServiceProvider
  * @package Uplinkr
  *
- * @version 1
- * @copyright 2025-today Sascha Scherhak / uplinkr.dev
  * @author Sascha Scherhak <sascha@uplinkr.dev>
  */
 class UplinkrServiceProvider extends ServiceProvider

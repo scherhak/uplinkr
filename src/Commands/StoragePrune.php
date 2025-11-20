@@ -14,8 +14,6 @@ use Uplinkr\Objects\Config\UplinkrConfig;
  * Class StoragePrune
  * @package Uplinkr\Commands
  *
- * @version 1
- * @copyright 2025-today Sascha Scherhak / uplinkr.dev
  * @author Sascha Scherhak <sascha@uplinkr.dev>
  */
 class StoragePrune extends Command

@@ -3,13 +3,11 @@
 namespace Uplinkr\Objects\Config;
 
 /**
- * Configuration value object for Uplinkr application settings.
+ * @package Uplinkr\Objects\Config
  *
+ * Configuration value object for Uplinkr application settings.
  * Provides type-safe access to configuration values with centralized defaults.
  *
- * @package Uplinkr\Objects\Config
- * @version 1
- * @copyright 2025-today Sascha Scherhak / uplinkr.dev
  * @author Sascha Scherhak <sascha@uplinkr.dev>
  */
 final class UplinkrConfig

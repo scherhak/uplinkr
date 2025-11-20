@@ -13,10 +13,10 @@ class ProbeUrlCommandTest extends TestCase
     {
         Http::preventStrayRequests();
         Http::fake([
-            'https://scherhak.com*'      => Http::response('OK', 200),
-            'https://www.scherhak.com*'  => Http::response('OK', 200),
-            'http://scherhak.com*'       => Http::response('OK', 200),
-            'http://www.scherhak.com*'   => Http::response('OK', 200),
+            'https://scherhak.com*' => Http::response('OK', 200),
+            'https://www.scherhak.com*' => Http::response('OK', 200),
+            'http://scherhak.com*' => Http::response('OK', 200),
+            'http://www.scherhak.com*' => Http::response('OK', 200),
         ]);
 
         $this->artisan('uplinkr:probe-by-url https scherhak.com test_project --force')

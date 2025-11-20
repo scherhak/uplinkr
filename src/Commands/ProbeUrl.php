@@ -15,8 +15,6 @@ use Uplinkr\Objects\Config\UplinkrConfig;
  *
  * This class is responsible for handling the execution of the `uplinkr:probe-by-url` command.
  *
- * @version 1
- * @copyright 2025-today Sascha Scherhak / uplinkr.dev
  * @author Sascha Scherhak <sascha@uplinkr.dev>
  */
 class ProbeUrl extends Command

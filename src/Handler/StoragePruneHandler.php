@@ -12,10 +12,6 @@ use Uplinkr\Objects\Config\UplinkrConfig;
  * Class StoragePruneHandler
  * @package Uplinkr\Handler
  *
- * Handles the logic for pruning storage files based on specific criteria like dates.
- *
- * @version 1
- * @copyright 2025-today Sascha Scherhak / uplinkr.dev
  * @author Sascha Scherhak <sascha@uplinkr.dev>
  */
 class StoragePruneHandler

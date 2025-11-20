@@ -3,6 +3,7 @@
 namespace Uplinkr\Tests\Handler;
 
 use PHPUnit\Framework\TestCase;
+use ReflectionClass;
 use Uplinkr\Handler\ProbeUrlHandler;
 use Uplinkr\Interfaces\StorageInterface;
 use Uplinkr\Objects\Config\UplinkrConfig;
@@ -102,7 +103,7 @@ class ProbeUrlHandlerTest extends TestCase
      */
     private function invokeSanitizeMethod(string|null $value): string
     {
-        $reflection = new \ReflectionClass($this->probeUriHandler);
+        $reflection = new ReflectionClass($this->probeUriHandler);
         $method = $reflection->getMethod('sanitizeProjectName');
         $method->setAccessible(true);
 
