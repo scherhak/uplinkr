@@ -3,8 +3,8 @@
 namespace Uplinkr;
 
 use Illuminate\Support\ServiceProvider;
-use Uplinkr\Commands\StoragePrune;
 use Uplinkr\Commands\ProbeUrl;
+use Uplinkr\Commands\StoragePrune;
 use Uplinkr\Interfaces\StorageInterface;
 use Uplinkr\Objects\Config\UplinkrConfig;
 use Uplinkr\Storage\FileStorage;

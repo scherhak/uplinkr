@@ -3,7 +3,9 @@
 namespace Uplinkr\Handler;
 
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Support\Facades\Storage;
+use InvalidArgumentException;
 use Uplinkr\Objects\Config\UplinkrConfig;
 
 /**
@@ -11,12 +13,17 @@ use Uplinkr\Objects\Config\UplinkrConfig;
  * @package Uplinkr\Handler
  *
  * Handles the logic for pruning storage files based on specific criteria like dates.
+ *
+ * @version 1
+ * @copyright 2025-today Sascha Scherhak / uplinkr.dev
+ * @author Sascha Scherhak <sascha@uplinkr.dev>
  */
 class StoragePruneHandler
 {
     public function __construct(
         private readonly UplinkrConfig $config
-    ) {
+    )
+    {
     }
 
     /**
@@ -25,14 +32,14 @@ class StoragePruneHandler
      * @param string $project The project identifier
      * @param string $beforeDateString Date string in Y-m-d format
      * @return int Number of deleted files
-     * @throws \InvalidArgumentException If the date format is invalid
+     * @throws InvalidArgumentException If the date format is invalid
      */
-    public function pruneByDate(string $project, string $beforeDateString): int
+    public function pruneBeforeDate(string $project, string $beforeDateString): int
     {
         try {
             $beforeDate = Carbon::createFromFormat('Y-m-d', $beforeDateString)?->startOfDay();
-        } catch (\Exception $e) {
-            throw new \InvalidArgumentException("Invalid date format: $beforeDateString");
+        } catch (Exception $e) {
+            throw new InvalidArgumentException("Invalid date format: $beforeDateString");
         }
 
         // Build path: storage_path/project/probes
@@ -67,7 +74,7 @@ class StoragePruneHandler
                         Storage::disk($this->config->getStorageDisc())->delete($file);
                         $deletedCount++;
                     }
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     // Ignore files where date parsing fails
                     continue;
                 }
@@ -75,5 +82,27 @@ class StoragePruneHandler
         }
 
         return $deletedCount;
+    }
+
+    /**
+     * Deletes the specified directory from the storage disk.
+     *
+     * @param string $directory The path of the directory to be deleted.
+     * @return void
+     */
+    public function deleteDirectory(string $directory): void
+    {
+        Storage::disk($this->config->getStorageDisc())->deleteDirectory($directory);
+    }
+
+    /**
+     * Creates a new directory in the storage disk specified in the configuration.
+     *
+     * @param string $directory The name or path of the directory to be created.
+     * @return void
+     */
+    public function makeDirectory(string $directory): void
+    {
+        Storage::disk($this->config->getStorageDisc())->makeDirectory($directory);
     }
 }

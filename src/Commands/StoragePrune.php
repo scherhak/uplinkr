@@ -2,10 +2,10 @@
 
 namespace Uplinkr\Commands;
 
-use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Console\ConfirmableTrait;
 use Illuminate\Support\Facades\Storage;
+use InvalidArgumentException;
 use Symfony\Component\Console\Command\Command as CommandAlias;
 use Uplinkr\Handler\StoragePruneHandler;
 use Uplinkr\Objects\Config\UplinkrConfig;
@@ -34,7 +34,7 @@ class StoragePrune extends Command
      *
      * @var string
      */
-    protected $description = '';
+    protected $description = 'Combines various options for deleting existing data and files related to projects and results.';
 
     /**
      * Handles the pruning of files or directories based on the given configuration and options.
@@ -45,21 +45,21 @@ class StoragePrune extends Command
      *             - CommandAlias::FAILURE if the process encounters an error.
      *             - CommandAlias::INVALID if no action is performed.
      */
-    public function handle(UplinkrConfig $config,  StoragePruneHandler $handler): int
+    public function handle(UplinkrConfig $config, StoragePruneHandler $storagePruneHandler): int
     {
         $project = $this->option('project');
         $before = $this->option('before');
-        $all = $this->option('wipe-all');
+        $wipeAll = $this->option('wipe-all');
         $force = $this->option('force');
 
         // if force isset - just let it through
         if ($force) {
             $execute = true;
-        } else if ($all) {
-            $execute = $this->confirmToProceed(__('uplinkr::messages.prune_all'));
+        } else if ($wipeAll) {
+            $execute = $this->confirmToProceed(__('uplinkr::messages.prune_wipe_all'));
         } else {
             $message = ($project && $before)
-                ? "Are you sure you want to delete files in project '$project' before $before?"
+                ? __('uplinkr::messages.prune_before', ['project' => $project, 'before' => $before])
                 : __('uplinkr::messages.prune_project', ['project' => $project]);
 
             $execute = $this->confirm($message);
@@ -68,58 +68,66 @@ class StoragePrune extends Command
         // execute it
         if ($execute) {
             if (!$force) {
-                $this->warn('Starting pruning process ...');
+                $this->warn(__('uplinkr::messages.prune_start'));
             }
 
             // Projects section
             if ($project) {
                 // Check if the project folder exists
-                $projectPath = 'uplinkr/' . $project;
+                $projectPath = sprintf('%s/%s', $config->getStoragePath(), $project);
 
                 // Specific logic for pruning by date
                 if ($before) {
                     try {
-                        $deletedCount = $handler->pruneByDate($project, $before);
+                        // prune files by date
+                        $deletedCount = $storagePruneHandler->pruneBeforeDate($project, $before);
 
                         if (!$force) {
                             if ($deletedCount > 0) {
-                                $this->info("Deleted {$deletedCount} files older than {$before}.");
+                                $this->info(__('uplinkr::messages.prune_before_count_deleted_files', [
+                                    'deletedCount' => $deletedCount,
+                                    'before' => $before
+                                ]));
                             } else {
-                                $this->warn("No files found older than {$before} or directory empty.");
+                                $this->warn(__('uplinkr::messages.prune_before_no_files_found', [
+                                    'before' => $before
+                                ]));
                             }
                         }
-                    } catch (\InvalidArgumentException $e) {
-                        $this->error('Invalid date format for --before. Please use Y-m-d.');
+                    } catch (InvalidArgumentException $e) {
+                        $this->error(__('uplinkr::messages.prune_before_invalid_date_format'));
+
                         return CommandAlias::FAILURE;
                     }
-                }
-                // Standard logic: Delete complete project folder if no --before is set
-                else {
-                    $projectFolderExists = Storage::disk('local')->exists($projectPath);
+                } else {
+                    // Standard logic: Delete complete project folder if no --before is set
+                    $projectFolderExists = Storage::disk($config->getStorageDisc())->exists($projectPath);
 
                     if ($projectFolderExists) {
-                        Storage::disk('local')->deleteDirectory($projectPath);
+                        Storage::disk($config->getStorageDisc())->deleteDirectory($projectPath);
                         if (!$force) {
-                            $this->warn('All storage files deleted.');
+                            $this->warn(__('uplinkr::messages.prune_project_by_name', ['project' => $project]));
                         }
                     } else {
                         if (!$force) {
-                            $this->error('Project folder does not exist.');
+                            $this->error(__('uplinkr::messages.prune_project_folder_does_not_exists', [
+                                'project' => $project
+                            ]));
                         }
                     }
                 }
-            } elseif ($all) {
-                Storage::disk('local')->deleteDirectory('uplinkr');
+            } elseif ($wipeAll) {
+                $storagePruneHandler->deleteDirectory($config->getStoragePath());
                 if (!$force) {
-                    $this->warn('All storage files deleted.');
+                    $this->warn(__('uplinkr::messages.prune_wipe_all_success'));
                 }
-                Storage::disk('local')->makeDirectory('uplinkr');
+                $storagePruneHandler->makeDirectory($config->getStoragePath());
                 if (!$force) {
-                    $this->info('New folder for uplinkr created.');
+                    $this->info(__('uplinkr::messages.prune_wipe_all_new_folder_created'));
                 }
             } else {
                 if (!$force) {
-                    $this->warn('No storage files deleted.');
+                    $this->warn(__('uplinkr::messages.prune_wipe_all_no_files_wiped'));
                 }
             }
 
