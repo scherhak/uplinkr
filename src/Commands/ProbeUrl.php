@@ -13,7 +13,7 @@ use Uplinkr\Objects\Config\UplinkrConfig;
  * Class ProbeUrl
  * @package Uplinkr\Commands
  *
- * This class is responsible for handling the execution of the `uplinkr:probe-by-url` command.
+ * This class is responsible for handling the execution of the `uplinkr:probe-url` command.
  *
  * @author Sascha Scherhak <sascha@uplinkr.dev>
  */
@@ -24,7 +24,7 @@ class ProbeUrl extends Command
      *
      * @var string
      */
-    protected $signature = 'uplinkr:probe-by-url {protocol} {url} {project?} {--force}';
+    protected $signature = 'uplinkr:probe-url {protocol} {url} {project?} {--force}';
 
     /**
      * The console command description.
@@ -47,7 +47,7 @@ class ProbeUrl extends Command
      * @example php artisan uplinkr:probe-by-uri https scherhak.com
      *
      */
-    public function handle(ProbeUrlHandler $probeUriHandler, UplinkrConfig $config): int
+    public function handle(ProbeUrlHandler $probeUrlHandler, UplinkrConfig $config): int
     {
         $protocol = $this->argument('protocol');
         $url = $this->argument('url');
@@ -75,11 +75,10 @@ class ProbeUrl extends Command
                 ));
             }
 
-            // execute it
             if ($execute) {
 
                 // finally, execute it
-                $result = $probeUriHandler->with(data: [
+                $result = $probeUrlHandler->with(data: [
                     'protocol' => $protocol,
                     'url' => $url,
                     'project' => $project,
@@ -95,7 +94,7 @@ class ProbeUrl extends Command
             return CommandAlias::INVALID;
         }
 
-        $this->error('No URI provided');
+        $this->error(__('uplinkr::messages.no_url_provided'));
 
         return CommandAlias::INVALID;
     }

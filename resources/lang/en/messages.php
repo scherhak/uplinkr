@@ -1,6 +1,12 @@
 <?php
 
 return [
+
+    /*
+     * Common messages
+     */
+    'no_url_provided' => 'No URL provided.',
+
     /*
      * Probe results
      */
