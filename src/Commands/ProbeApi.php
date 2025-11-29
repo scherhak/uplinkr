@@ -4,6 +4,7 @@ namespace Uplinkr\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\Console\Command\Command as CommandAlias;
 use Uplinkr\Handler\ProbeUrlHandler;
@@ -25,12 +26,10 @@ class ProbeApi extends Command
      * @var string
      */
     protected $signature = 'uplinkr:probe-api 
-                            {name? : Optional probe name from config(uplinkr.probes.*)} 
-                            {--url= : API endpoint URL} 
+                            {--endpoint= : API endpoint URL} 
                             {--method=GET : HTTP method (GET, POST, PUT, DELETE, ...)} 
                             {--header=* : Additional headers, e.g. "Authorization: Bearer xxx"} 
                             {--body= : JSON body as string} 
-                            {--expect-status=200 : Expected HTTP status code}
                             {--project= : Optional project name}
                             {--force : Force execution without confirmation}';
 
@@ -43,21 +42,47 @@ class ProbeApi extends Command
 
     public function handle(UplinkrConfig $config): int
     {
+        $endpoint = $this->option('endpoint');
+        $method = $this->option('method');
+        $headers = $this->option('header');
+        $body = $this->option('body');
         $project = $this->option('project');
         $force = $this->option('force');
 
-        // if force isset - just let it through
-        if ($force) {
-            $execute = true;
-        } else {
-            $execute = $this->confirm(__('uplinkr::messages.checking'));
-        }
+        // url validating
+        $validate = Validator::make(
+            ['endpoint' => $endpoint],
+            ['endpoint' => 'required|url']
+        );
 
-        if ($execute) {
+        if ($validate->passes()) {
+            // if force isset - just let it through
+            if ($force) {
+                $execute = true;
+            } else {
+                $execute = $this->confirm(__('uplinkr::messages.api_checking', [
+                        'endpoint' => $endpoint,
+                        'method' => $method,
+                    ]));
+            }
 
-            // execute it
+            if ($execute) {
 
-            return CommandAlias::SUCCESS;
+                // execute it
+
+                Log::debug('Uplinkr_ProbeApiCommand_debug', [
+                    'endpoint' => $endpoint,
+                    'method' => $method,
+                    'headers' => $headers,
+                    'body' => $body,
+                    'project' => $project,
+                    'force' => $force,
+                ]);
+
+                return CommandAlias::SUCCESS;
+            }
+
+            return CommandAlias::INVALID;
         }
 
         return CommandAlias::INVALID;

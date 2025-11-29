@@ -65,37 +65,28 @@ class ProbeUrlHandler
 
         try {
             $request = Http::withHeaders([
-                'User-Agent' => 'uplinkr-probe/0.1.0',
+                'User-Agent' => 'uplinkr-url-probe/0.1.0',
             ])->head($this->buildUriFromData());
 
             if ($request->successful()) {
                 $status = 'reachable';
                 $probeMessage = [
                     'message' => 'Uri currently reachable',
-                    'lang_key' => 'uri.reachable',
+                    'lang_key' => 'messages.url_reachable',
                 ];
             } else {
                 $status = 'unreachable';
                 $probeMessage = [
                     'message' => 'Non-200 status code: ' . $request->status(),
-                    'lang_key' => 'uri.unreachable',
+                    'lang_key' => 'messages.url_unreachable',
                 ];
             }
         } catch (ConnectionException $ce) {
-            $status = 'fatal';
+            $status = 'error';
             $probeMessage = [
                 'message' => 'fatal: ' . $ce->getMessage(),
-                'lang_key' => 'uri.fatal',
+                'lang_key' => 'messages.url_error',
             ];
-
-            // Log this in the Laravel logging system
-            Log::error('Uplinkr_ProbeUriHandler_error', [
-                'data' => $this->data,
-                'url' => $this->buildUriFromData(),
-                'probeMessage' => $probeMessage,
-                'status' => $status,
-                'error_message' => $ce->getMessage(),
-            ]);
         }
 
         $durationTime = microtime(true) - $startTime;
@@ -110,14 +101,6 @@ class ProbeUrlHandler
 
         // ... and finally save it
         $this->storage->saveResult(resultData: $result);
-
-        Log::debug('Uplinkr_ProbeUriHandler_debug', [
-            'data' => $this->data,
-            'url' => $this->buildUriFromData(),
-            'probeMessage' => $probeMessage,
-            'status' => $status,
-            'result' => $result,
-        ]);
 
         return $result;
     }
@@ -140,7 +123,7 @@ class ProbeUrlHandler
             probeMessage: $probeMessage,
             status: $status,
             settings: [
-                'url' => $this->getUri(),
+                'url' => $this->getUrl(),
                 'project' => $this->getProject(),
             ]
         );
@@ -171,7 +154,7 @@ class ProbeUrlHandler
      */
     private function buildUriFromData(): string
     {
-        return Str::lower($this->getUri());
+        return Str::lower($this->getUrl());
     }
 
     /**
@@ -195,7 +178,7 @@ class ProbeUrlHandler
      *
      * @return string The URI extracted from the data array.
      */
-    private function getUri(): string
+    private function getUrl(): string
     {
         return Arr::get($this->data, 'url');
     }

@@ -98,7 +98,7 @@ class StoragePrune extends Command
                         return CommandAlias::FAILURE;
                     }
                 } else {
-                    // Standard logic: Delete complete project folder if no --before is set
+                    // Standard logic: Delete the complete project folder if no --before is set
                     $projectFolderExists = Storage::disk($config->getStorageDisc())->exists($projectPath);
 
                     if ($projectFolderExists) {

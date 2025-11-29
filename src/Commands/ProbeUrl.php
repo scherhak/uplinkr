@@ -25,8 +25,8 @@ class ProbeUrl extends Command
      * @var string
      */
     protected $signature = 'uplinkr:probe-url 
-                            {--url=: Target URL}
-                            {--project=: Optional project name} 
+                            {--url= : Target URL}
+                            {--project= : Optional project name} 
                             {--force}';
 
     /**
@@ -70,7 +70,7 @@ class ProbeUrl extends Command
                 $execute = true;
             } else {
                 $execute = $this->confirm(sprintf(
-                    __('uplinkr::messages.checking', ['url' => $url]),
+                    __('uplinkr::messages.url_checking', ['url' => $url]),
                     $url,
                 ));
             }
@@ -111,15 +111,15 @@ class ProbeUrl extends Command
     private function resultMessages(array $result, string|null $project, UplinkrConfig $config): void
     {
         if (Arr::get($result, 'status') === 'reachable') {
-            $this->info(__('uplinkr::messages.reachable', [
+            $this->info(__('uplinkr::messages.url_reachable', [
                 'time_in_ms' => Arr::get($result, 'probe_message.duration_ms'),
             ]));
         } else {
-            $this->error(__('uplinkr::messages.unreachable', [
+            $this->error(__('uplinkr::messages.url_unreachable', [
                 'status_header' => Arr::get($result, 'status_header'),
                 'time_in_ms' => Arr::get($result, 'probe_message.duration_ms'),
             ]));
         }
-        $this->info(__('uplinkr::messages.stored', ['project' => $project ?? $config->getStandardProject(),]));
+        $this->info(__('uplinkr::messages.url_stored', ['project' => $project ?? $config->getStandardProject(),]));
     }
 }

@@ -8,12 +8,22 @@ return [
     'no_url_provided' => 'No URL provided.',
 
     /*
-     * Probe results
+     * URL probe parts
      */
-    'checking' => 'Should the check of :url be started?',
-    'reachable' => 'Target URI is currently reachable (Response time: :time_in_ms ms)',
-    'unreachable' => 'Target URI is currently NOT reachable (Status response: :status_header with response time: :time_in_ms ms)',
-    'stored' => 'Result stored successfully in project :project.',
+    'url_checking' => 'Should the check of :url be started?',
+    'url_reachable' => 'Target URL is currently reachable (Response time: :time_in_ms ms)',
+    'url_unreachable' => 'Target URL is currently NOT reachable (Status response: :status_header with response time: :time_in_ms ms)',
+    'url_error' => 'An error is occurred.',
+    'url_stored' => 'Result stored successfully in project :project.',
+
+    /*
+     * API probe parts
+     */
+    'api_checking' => 'Should the check of API-Endpoint :endpoint with method :method be started?',
+    'api_reachable' => 'Target API-Endpoint is currently reachable (Response time: :time_in_ms ms)',
+    'api_unreachable' => 'Target API-Endpoint is currently NOT reachable (Status response: :status_header with response time: :time_in_ms ms)',
+    'api_error' => 'An error is occurred.',
+    'api_stored' => 'Result stored successfully in project :project.',
 
     /*
      * Prune project and probes results
