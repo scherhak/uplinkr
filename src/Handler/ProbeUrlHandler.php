@@ -6,6 +6,7 @@ use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Uplinkr\Interfaces\StorageInterface;
 use Uplinkr\Objects\Config\UplinkrConfig;
 
@@ -139,9 +140,8 @@ class ProbeUrlHandler
             probeMessage: $probeMessage,
             status: $status,
             settings: [
-                'project' => $this->getProject(),
-                'protocol' => $this->getProtocol(),
                 'url' => $this->getUri(),
+                'project' => $this->getProject(),
             ]
         );
     }
@@ -165,17 +165,13 @@ class ProbeUrlHandler
     }
 
     /**
-     * Constructs a URI string using the protocol and URI components
-     * retrieved from the provided data array.
+     * Constructs a URI by processing data and returns it as a lowercase string.
      *
-     * @return string The generated URI in the format "protocol://uri".
+     * @return string The constructed and formatted URI.
      */
     private function buildUriFromData(): string
     {
-        return sprintf('%s://%s',
-            $this->getProtocol(),
-            $this->getUri()
-        );
+        return Str::lower($this->getUri());
     }
 
     /**
@@ -192,16 +188,6 @@ class ProbeUrlHandler
         );
 
         return $this->sanitizeProjectName($project);
-    }
-
-    /**
-     * Retrieves the protocol from the data array.
-     *
-     * @return string The protocol value extracted from the data.
-     */
-    private function getProtocol(): string
-    {
-        return Arr::get($this->data, 'protocol');
     }
 
     /**

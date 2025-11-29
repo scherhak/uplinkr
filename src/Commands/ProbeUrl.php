@@ -24,7 +24,10 @@ class ProbeUrl extends Command
      *
      * @var string
      */
-    protected $signature = 'uplinkr:probe-url {protocol} {url} {project?} {--force}';
+    protected $signature = 'uplinkr:probe-url 
+                            {--url=: Target URL}
+                            {--project=: Optional project name} 
+                            {--force}';
 
     /**
      * The console command description.
@@ -49,16 +52,13 @@ class ProbeUrl extends Command
      */
     public function handle(ProbeUrlHandler $probeUrlHandler, UplinkrConfig $config): int
     {
-        $protocol = $this->argument('protocol');
-        $url = $this->argument('url');
-        $project = $this->argument('project');
+        $url = $this->option('url');
+        $project = $this->option('project');
         $force = $this->option('force');
 
-        // generate full url for validating and prompting
-        $fullUrl = sprintf('%s://%s', $protocol, $url);
-
+        // url validating
         $validate = Validator::make(
-            ['url' => $fullUrl],
+            ['url' => $url],
             ['url' => 'required|url']
         );
 
@@ -70,7 +70,7 @@ class ProbeUrl extends Command
                 $execute = true;
             } else {
                 $execute = $this->confirm(sprintf(
-                    __('uplinkr::messages.checking', ['url' => $fullUrl]),
+                    __('uplinkr::messages.checking', ['url' => $url]),
                     $url,
                 ));
             }
@@ -79,7 +79,6 @@ class ProbeUrl extends Command
 
                 // finally, execute it
                 $result = $probeUrlHandler->with(data: [
-                    'protocol' => $protocol,
                     'url' => $url,
                     'project' => $project,
                 ])->handle();
