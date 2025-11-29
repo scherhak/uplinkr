@@ -7,6 +7,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\Console\Command\Command as CommandAlias;
+use Uplinkr\Handler\ProbeApiHandler;
 use Uplinkr\Handler\ProbeUrlHandler;
 use Uplinkr\Objects\Config\UplinkrConfig;
 
@@ -40,7 +41,7 @@ class ProbeApi extends Command
      */
     protected $description = 'Run an API probe with headers, method and optional body';
 
-    public function handle(UplinkrConfig $config): int
+    public function handle(ProbeApiHandler $probeApiHandler, UplinkrConfig $config): int
     {
         $endpoint = $this->option('endpoint');
         $method = $this->option('method');
@@ -68,7 +69,18 @@ class ProbeApi extends Command
 
             if ($execute) {
 
-                // execute it
+                // finally, execute it
+                $result = $probeApiHandler->with(data: [
+                    'endpoint' => $endpoint,
+                    'method' => $method,
+                    'headers' => Arr::wrap($headers),
+                    'body' => $body,
+                    'project' => $project,
+                ])->handle();
+
+                if (!$force) {
+                    $this->resultMessages(result: $result, project: $project, config: $config);
+                }
 
                 Log::debug('Uplinkr_ProbeApiCommand_debug', [
                     'endpoint' => $endpoint,
@@ -86,5 +98,20 @@ class ProbeApi extends Command
         }
 
         return CommandAlias::INVALID;
+    }
+
+    private function resultMessages(array $result, string|null $project, UplinkrConfig $config): void
+    {
+        if (Arr::get($result, 'status') === 'reachable') {
+            $this->info(__('uplinkr::messages.url_reachable', [
+                'time_in_ms' => Arr::get($result, 'probe_message.duration_ms'),
+            ]));
+        } else {
+            $this->error(__('uplinkr::messages.url_unreachable', [
+                'status_header' => Arr::get($result, 'status_header'),
+                'time_in_ms' => Arr::get($result, 'probe_message.duration_ms'),
+            ]));
+        }
+        $this->info(__('uplinkr::messages.url_stored', ['project' => $project ?? $config->getStandardProject(),]));
     }
 }
