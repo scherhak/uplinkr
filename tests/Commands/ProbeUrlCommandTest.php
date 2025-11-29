@@ -19,7 +19,7 @@ class ProbeUrlCommandTest extends TestCase
             'http://www.uplinkr.dev*' => Http::response('OK', 200),
         ]);
 
-        $this->artisan('uplinkr:probe-url https uplinkr.dev test_project --force')
+        $this->artisan('uplinkr:probe-url --url=https://uplinkr.dev --project=test_project --force')
             ->assertExitCode(0);
     }
 }
