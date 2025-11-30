@@ -3,11 +3,11 @@
 namespace Uplinkr\Commands;
 
 use Illuminate\Console\Command;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\Console\Command\Command as CommandAlias;
 use Uplinkr\Handler\ProbeUrlHandler;
 use Uplinkr\Objects\Config\UplinkrConfig;
+use Uplinkr\Traits\HandlesProbeOutput;
 
 /**
  * Class ProbeUrl
@@ -19,6 +19,15 @@ use Uplinkr\Objects\Config\UplinkrConfig;
  */
 class ProbeUrl extends Command
 {
+    use HandlesProbeOutput;
+
+    /**
+     * The type of the probe, indicating the probe category or method.
+     *
+     * @var string
+     */
+    public const PROBE_TYPE = 'url';
+
     /**
      * The name and signature of the console command.
      *
@@ -84,7 +93,7 @@ class ProbeUrl extends Command
                 ])->handle();
 
                 if (!$force) {
-                    $this->resultMessages(result: $result, project: $project, config: $config);
+                    $this->resultMessages(result: $result, project: $project, config: $config, probeType: self::PROBE_TYPE);
                 }
 
                 return CommandAlias::SUCCESS;
@@ -96,30 +105,5 @@ class ProbeUrl extends Command
         $this->error(__('uplinkr::messages.no_url_provided'));
 
         return CommandAlias::INVALID;
-    }
-
-    /**
-     * Processes and logs result messages based on the status and configuration.
-     *
-     * @param array $result An array containing the result data, including status and probe details.
-     * @param string|null $project The specific project associated with the result, or null to fall back to a default.
-     * @param UplinkrConfig $config Configuration object used to retrieve default project settings if no project is provided.
-     * @return void Returns true if message processing and logging are completed successfully.
-     *
-     * TODO (0.2.0) Distinguish between unreachable and server error status headers
-     */
-    private function resultMessages(array $result, string|null $project, UplinkrConfig $config): void
-    {
-        if (Arr::get($result, 'status') === 'reachable') {
-            $this->info(__('uplinkr::messages.url_reachable', [
-                'time_in_ms' => Arr::get($result, 'probe_message.duration_ms'),
-            ]));
-        } else {
-            $this->error(__('uplinkr::messages.url_unreachable', [
-                'status_header' => Arr::get($result, 'status_header'),
-                'time_in_ms' => Arr::get($result, 'probe_message.duration_ms'),
-            ]));
-        }
-        $this->info(__('uplinkr::messages.url_stored', ['project' => $project ?? $config->getStandardProject(),]));
     }
 }

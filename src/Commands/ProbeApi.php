@@ -8,8 +8,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\Console\Command\Command as CommandAlias;
 use Uplinkr\Handler\ProbeApiHandler;
-use Uplinkr\Handler\ProbeUrlHandler;
 use Uplinkr\Objects\Config\UplinkrConfig;
+use Uplinkr\Traits\HandlesProbeOutput;
 
 /**
  * Class ProbeApi
@@ -21,6 +21,15 @@ use Uplinkr\Objects\Config\UplinkrConfig;
  */
 class ProbeApi extends Command
 {
+    use HandlesProbeOutput;
+
+    /**
+     * The type of the probe, indicating the probe category or method.
+     *
+     * @var string
+     */
+    public const PROBE_TYPE = 'api';
+
     /**
      * The name and signature of the console command.
      *
@@ -79,7 +88,7 @@ class ProbeApi extends Command
                 ])->handle();
 
                 if (!$force) {
-                    $this->resultMessages(result: $result, project: $project, config: $config);
+                    $this->resultMessages(result: $result, project: $project, config: $config , probeType: self::PROBE_TYPE);
                 }
 
                 Log::debug('Uplinkr_ProbeApiCommand_debug', [
@@ -98,20 +107,5 @@ class ProbeApi extends Command
         }
 
         return CommandAlias::INVALID;
-    }
-
-    private function resultMessages(array $result, string|null $project, UplinkrConfig $config): void
-    {
-        if (Arr::get($result, 'status') === 'reachable') {
-            $this->info(__('uplinkr::messages.url_reachable', [
-                'time_in_ms' => Arr::get($result, 'probe_message.duration_ms'),
-            ]));
-        } else {
-            $this->error(__('uplinkr::messages.url_unreachable', [
-                'status_header' => Arr::get($result, 'status_header'),
-                'time_in_ms' => Arr::get($result, 'probe_message.duration_ms'),
-            ]));
-        }
-        $this->info(__('uplinkr::messages.api_stored', ['project' => $project ?? $config->getStandardProject(),]));
     }
 }
