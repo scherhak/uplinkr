@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Uplinkr\Interfaces\StorageInterface;
 use Uplinkr\Objects\Config\UplinkrConfig;
+use Uplinkr\Support\Sanitizer;
 
 /**
  * Class ProbeUrlHandler
@@ -31,7 +32,8 @@ class ProbeUrlHandler
      */
     public function __construct(
         private readonly StorageInterface $storage,
-        private readonly UplinkrConfig    $config
+        private readonly UplinkrConfig    $config,
+        private readonly Sanitizer        $sanitizer
     )
     {
     }
@@ -158,7 +160,7 @@ class ProbeUrlHandler
             $this->config->getStandardProject()
         );
 
-        return $this->sanitizeProjectName($project);
+        return $this->sanitizer->project($project);
     }
 
     /**
@@ -169,31 +171,5 @@ class ProbeUrlHandler
     private function getUrl(): string
     {
         return Arr::get($this->data, 'url');
-    }
-
-    /**
-     * Sanitizes the project name for use in file paths.
-     *
-     * @param string|null $value The project name to sanitize
-     * @return string The sanitized project name
-     */
-    private function sanitizeProjectName(string|null $value): string
-    {
-        if ($value === null) {
-            return $this->config->getStandardProject();
-        }
-
-        // Replace problematic characters with hyphens (including dot)
-        // - Remove control characters
-        // - Reduce multiple hyphens to a single one
-        // - Replace whitespace with hyphens
-        // - Trim hyphens and whitespace
-        $sanitized = preg_replace('/[\/\\\:*?"<>|()!$%&.]/', '-', $value);
-        $sanitized = preg_replace('/[\x00-\x1F\x7F]/', '', $sanitized);
-        $sanitized = preg_replace('/-+/', '-', $sanitized);
-        $sanitized = preg_replace('/\s+/', '-', $sanitized);
-        $sanitized = trim($sanitized, '- ');
-
-        return strtolower($sanitized);
     }
 }

@@ -6,11 +6,16 @@ use Illuminate\Support\Facades\Storage;
 use InvalidArgumentException;
 use Mockery;
 use Mockery\MockInterface;
+use PHPUnit\Framework\Attributes\Test;
 use Symfony\Component\Console\Command\Command as CommandAlias;
 use Uplinkr\Handler\StoragePruneHandler;
 use Uplinkr\Objects\Config\UplinkrConfig;
 use Uplinkr\Tests\TestCase;
 
+/**
+ * Class StoragePruneTest
+ * @package Uplinkr\Tests\Commands
+ */
 class StoragePruneTest extends TestCase
 {
     private MockInterface $handlerMock;
@@ -22,6 +27,7 @@ class StoragePruneTest extends TestCase
      *
      * @return void
      */
+    #[Test]
     protected function setUp(): void
     {
         parent::setUp();
@@ -48,6 +54,7 @@ class StoragePruneTest extends TestCase
      * Tests: prune --project=X --before=Y --force
      * Scenario: Successfully deleting files before a date.
      */
+    #[Test]
     public function test_prune_files_before_date_executed_successfully(): void
     {
         $project = 'my-project';

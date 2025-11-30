@@ -4,6 +4,10 @@ namespace Uplinkr\Tests\Translations;
 
 use Uplinkr\Tests\TestCase;
 
+/**
+ * Class TranslationsTest
+ * @package Uplinkr\Tests\Translations
+ */
 class TranslationsTest extends TestCase
 {
     /** @test */

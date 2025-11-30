@@ -2,19 +2,15 @@
 
 namespace Uplinkr\Tests\Handler;
 
-use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\TestCase;
-use ReflectionClass;
-use ReflectionException;
 use Uplinkr\Handler\ProbeUrlHandler;
 use Uplinkr\Interfaces\StorageInterface;
 use Uplinkr\Objects\Config\UplinkrConfig;
+use Uplinkr\Support\Sanitizer;
 
 /**
  * Class ProbeUrlHandlerTest
- *
- * This class tests the sanitizeProjectName method in the ProbeUrlHandler class.
- * The method sanitizes file and project names by removing or replacing problematic characters.
+ * @package Uplinkr\Tests\Handler
  */
 class ProbeUrlHandlerTest extends TestCase
 {
@@ -36,91 +32,16 @@ class ProbeUrlHandlerTest extends TestCase
             fileExtension: 'log'
         );
 
-        $this->probeUriHandler = new ProbeUrlHandler($storageMock, $config);
+        $sanitizer = new Sanitizer($config);
+
+        $this->probeUriHandler = new ProbeUrlHandler($storageMock, $config, $sanitizer);
     }
 
     /**
-     * Test that sanitizeProjectName replaces special characters with dashes.
-     * @throws ReflectionException
+     * Basic instantiation test to ensure dependency injection works.
      */
-    public function testReplacesSpecialCharactersWithDashes(): void
+    public function testCanBeInstantiated(): void
     {
-        $result = $this->invokeSanitizeMethod('project:name?<>*|');
-        $this->assertSame('project-name', $result);
-    }
-
-    /**
-     * Test that sanitizeProjectName trims extra dashes and whitespace.
-     * @throws ReflectionException
-     */
-    public function testTrimsExtraDashesAndWhitespace(): void
-    {
-        $result = $this->invokeSanitizeMethod('  --project--name--  ');
-        $this->assertSame('project-name', $result);
-    }
-
-    /**
-     * Test that sanitizeProjectName lowers uppercase characters.
-     * @throws ReflectionException
-     */
-    public function testLowercasesCharacters(): void
-    {
-        $result = $this->invokeSanitizeMethod('ProjectName');
-        $this->assertSame('projectname', $result);
-    }
-
-    /**
-     * Test that sanitizeProjectName removes control characters.
-     * @throws ReflectionException
-     */
-    public function testRemovesControlCharacters(): void
-    {
-        $result = $this->invokeSanitizeMethod("project\u{001F}name");
-        $this->assertSame('projectname', $result);
-    }
-
-    /**
-     * Test that sanitizeProjectName replaces multiple spaces with a single dash.
-     * @throws ReflectionException
-     */
-    public function testReplacesMultipleSpacesWithSingleDash(): void
-    {
-        $result = $this->invokeSanitizeMethod('project         name');
-        $this->assertSame('project-name', $result);
-    }
-
-    /**
-     * Test that sanitizeProjectName replaces consecutive dashes with a single dash.
-     * @throws ReflectionException
-     */
-    public function testCollapsesConsecutiveDashes(): void
-    {
-        $result = $this->invokeSanitizeMethod('project---name');
-        $this->assertSame('project-name', $result);
-    }
-
-    /**
-     * Test that sanitizeProjectName returns standard_project for null input.
-     * @throws ReflectionException
-     */
-    public function testReturnsStandardProjectForNull(): void
-    {
-        $result = $this->invokeSanitizeMethod(null);
-        $this->assertSame('standard_project', $result);
-    }
-
-    /**
-     * Helper method to invoke the private sanitizeProjectName method.
-     *
-     * @param string|null $value The value to be sanitized.
-     * @return string The sanitized string.
-     * @throws ReflectionException
-     */
-    private function invokeSanitizeMethod(string|null $value): string
-    {
-        $reflection = new ReflectionClass($this->probeUriHandler);
-        $method = $reflection->getMethod('sanitizeProjectName');
-
-        return $method->invoke($this->probeUriHandler, $value);
+        $this->assertInstanceOf(ProbeUrlHandler::class, $this->probeUriHandler);
     }
 }

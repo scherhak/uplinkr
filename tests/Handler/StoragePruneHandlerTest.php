@@ -8,6 +8,10 @@ use Uplinkr\Handler\StoragePruneHandler;
 use Uplinkr\Objects\Config\UplinkrConfig;
 use Uplinkr\Tests\TestCase;
 
+/**
+ * Class StoragePruneHandlerTest
+ * @package Uplinkr\Tests\Handler
+ */
 class StoragePruneHandlerTest extends TestCase
 {
     private StoragePruneHandler $handler;

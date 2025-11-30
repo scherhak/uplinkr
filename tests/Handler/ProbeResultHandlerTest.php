@@ -5,6 +5,10 @@ namespace Uplinkr\Tests\Handler;
 use PHPUnit\Framework\TestCase;
 use Uplinkr\Handler\ProbeResultHandler;
 
+/**
+ * Class ProbeResultHandlerTest
+ * @package Uplinkr\Tests\Handler
+ */
 class ProbeResultHandlerTest extends TestCase
 {
     /**

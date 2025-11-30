@@ -6,6 +6,10 @@ use Illuminate\Support\Facades\Http;
 use PHPUnit\Framework\Attributes\Test;
 use Uplinkr\Tests\TestCase;
 
+/**
+ * Class ProbeUrlCommandTest
+ * @package Commands
+ */
 class ProbeUrlCommandTest extends TestCase
 {
     #[Test]

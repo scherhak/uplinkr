@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Uplinkr\Interfaces\StorageInterface;
 use Uplinkr\Objects\Config\UplinkrConfig;
+use Uplinkr\Support\Sanitizer;
 
 /**
  * Class ProbeApiHandler
@@ -23,13 +24,23 @@ class ProbeApiHandler
      */
     private array $data;
 
+    /**
+     * @param StorageInterface $storage
+     * @param UplinkrConfig $config
+     * @param Sanitizer $sanitizer
+     */
     public function __construct(
         private readonly StorageInterface $storage,
-        private readonly UplinkrConfig    $config
+        private readonly UplinkrConfig    $config,
+        private readonly Sanitizer        $sanitizer
     )
     {
     }
 
+    /**
+     * @param array $data The data to be set for the handler.
+     * @return static Returns the current instance with the updated data.
+     */
     public function with(array $data): static
     {
         $this->data = $data;
@@ -41,6 +52,12 @@ class ProbeApiHandler
         return $this;
     }
 
+    /**
+     * Handles the API probe process, including sending an HTTP request, measuring execution time,
+     * analyzing the response, composing the result, and saving the probe result in storage.
+     *
+     * @return array|null Returns the result array of the probe operation, or null if the result cannot be determined.
+     */
     public function handle(): ?array
     {
         $request = null;
@@ -104,6 +121,13 @@ class ProbeApiHandler
         return $result;
     }
 
+    /**
+     * @param mixed $request The original request data used for building the probe result.
+     * @param float $durationTime The time duration associated with the probe in seconds.
+     * @param array $probeMessage Messages or details related to the probe process.
+     * @param string $probeStatus The status of the probe, such as success or failure.
+     * @return array The resulting probe data structured and built for further processing.
+     */
     private function buildProbeResult(mixed $request, float $durationTime, array $probeMessage, string $probeStatus): array
     {
         $requestResult = $this->getRequestResult($request);
@@ -119,6 +143,12 @@ class ProbeApiHandler
         );
     }
 
+    /**
+     * Retrieves the result of a given request in the form of an associative array.
+     *
+     * @param mixed $request The request object from which the result will be extracted. Can be null.
+     * @return array An associative array containing the status header, headers, and body of the request, or an empty array if the request is null.
+     */
     private function getRequestResult(mixed $request): array
     {
         if (null !== $request) {
@@ -132,11 +162,21 @@ class ProbeApiHandler
         return [];
     }
 
+    /**
+     * Retrieves the HTTP method from the data array or defaults to 'GET' if not found.
+     *
+     * @return string The HTTP method retrieved from the data array or the default value 'GET'.
+     */
     private function getMethod(): string
     {
         return Arr::get($this->data, 'method', 'GET');
     }
 
+    /**
+     * Parses and retrieves headers from the data array.
+     *
+     * @return array An associative array of parsed headers where the keys are header names and the values are header values.
+     */
     private function getParsedHeaders(): array
     {
         $headers = Arr::get($this->data, 'headers', []);
@@ -152,11 +192,21 @@ class ProbeApiHandler
         return $parsed;
     }
 
+    /**
+     * Retrieves the value associated with the 'body' key from the data array.
+     *
+     * @return string|array|null The value of the 'body' key, or null if the key does not exist.
+     */
     private function getBody(): string|array|null
     {
         return Arr::get($this->data, 'body');
     }
 
+    /**
+     * Retrieves and sanitizes the project name from the data.
+     *
+     * @return string The sanitized project name.
+     */
     private function getProject(): string
     {
         $project = Arr::get(
@@ -165,31 +215,16 @@ class ProbeApiHandler
             $this->config->getStandardProject()
         );
 
-        return $this->sanitizeProjectName($project);
+        return $this->sanitizer->project($project);
     }
 
+    /**
+     * Retrieves the endpoint value from the data array.
+     *
+     * @return string The endpoint value extracted from the data.
+     */
     private function getEndpoint(): string
     {
         return Arr::get($this->data, 'endpoint');
-    }
-
-    private function sanitizeProjectName(string|null $value): string
-    {
-        if ($value === null) {
-            return $this->config->getStandardProject();
-        }
-
-        // Replace problematic characters with hyphens (including dot)
-        // - Remove control characters
-        // - Reduce multiple hyphens to a single one
-        // - Replace whitespace with hyphens
-        // - Trim hyphens and whitespace
-        $sanitized = preg_replace('/[\/\\\:*?"<>|()!$%&.]/', '-', $value);
-        $sanitized = preg_replace('/[\x00-\x1F\x7F]/', '', $sanitized);
-        $sanitized = preg_replace('/-+/', '-', $sanitized);
-        $sanitized = preg_replace('/\s+/', '-', $sanitized);
-        $sanitized = trim($sanitized, '- ');
-
-        return strtolower($sanitized);
     }
 }
