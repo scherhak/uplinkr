@@ -16,7 +16,8 @@ php artisan vendor:publish --tag=uplinkr-config
 php artisan vendor:publish --tag=uplinkr-lang
 
 # Artisan Command
-php artisan uplinkr:check-urls
+php artisan uplinkr:probe-api --endpoint=https://uplinkr.dev/api/health --method=GET --project=upkr-api-test
+php artisan uplinkr:probe-url --url=https://uplinkr.dev --project=upnkr-url-test
 
 # Migrations migration (later)
 php artisan migrate

@@ -10,12 +10,11 @@ use Uplinkr\Tests\TestCase;
 
 class StoragePruneHandlerTest extends TestCase
 {
-    private UplinkrConfig $config;
+    private StoragePruneHandler $handler;
 
     /**
-     * Sets up the test environment for the test case.
-     * This method initializes the UplinkrConfig object with pre-defined parameters
-     * to configure storage settings, project standards, and file properties.
+     * Initializes the test setup by creating an instance of the configuration file
+     * and setting up the StoragePruneHandler with the provided configuration.
      *
      * @return void
      */
@@ -23,142 +22,108 @@ class StoragePruneHandlerTest extends TestCase
     {
         parent::setUp();
 
-        // Since UplinkrConfig is 'final', we create a real instance.
-        // Because we use TestCase from Testbench/Orchestra, we can pass parameters.
-        $this->config = new UplinkrConfig(
+        // We use a real instance of the config file because it's a data object.
+        // This best reflects the app's behavior.
+        $config = new UplinkrConfig(
             storageDisk: 'local',
             storagePath: 'uplinkr',
-            standardProject: 'standard_project', // Important for Storage::fake()
+            standardProject: 'test_project',
             probeResultsPath: 'probes',
             probeFilenameSeparator: '@',
             fileExtension: 'log'
         );
+
+        $this->handler = new StoragePruneHandler($config);
     }
 
     /**
-     * Tests the creation of a StoragePruneHandler instance with a valid configuration.
-     * This method verifies that the handler is correctly instantiated using the provided configuration.
-     *
-     * @return void
-     */
-    public function test_construct_with_valid_config(): void
-    {
-        $handler = new StoragePruneHandler($this->config);
-        $this->assertInstanceOf(StoragePruneHandler::class, $handler);
-    }
-
-    /**
-     * Tests that the pruneBeforeDate method in the StoragePruneHandler deletes
-     * files older than a specified date while retaining newer files.
-     *
-     * This method sets up a simulated storage environment to verify the functionality
-     * of file pruning based on date criteria. It creates mock files representing
-     * dates before and after the pruning threshold, ensures their existence,
-     * invokes the pruning operation, and asserts the correct deletions were made
-     * without impacting unaffected files.
+     * Tests whether files with a modification date older than the given prune date are deleted
+     * while files with a modification date on or after the prune date are retained.
      *
      * @return void
      */
     public function test_prune_before_date_deletes_old_files(): void
     {
-        $project = 'test-project';
-        $oldDate = '2022-01-01';
-        $newDate = '2024-01-01';
-        $pruneDate = '2023-01-01';
-
-        // Path structure based on UplinkrConfig defaults
-        // Path: storagePath/project/probes/
-        $basePath = "uplinkr/{$project}/probes";
-
         Storage::fake('local');
 
-        // Simulate filenames: ID@DATE.log
-        $fileOld = "{$basePath}/old-id@{$oldDate}.log";
-        $fileNew = "{$basePath}/new-id@{$newDate}.log";
+        $project = 'test_project';
+        $pruneDate = '2023-06-01'; // Everything before this date will be deleted
 
-        // Create files
-        Storage::disk('local')->put($fileOld, 'content');
-        Storage::disk('local')->put($fileNew, 'content');
+        // Simulate the path: uplinkr/test_project/probes/
+        $basePath = "uplinkr/{$project}/probes";
 
-        // Ensure they exist
-        Storage::disk('local')->assertExists($fileOld);
-        Storage::disk('local')->assertExists($fileNew);
+        // File 1: Old (should be deleted) - 2023-01-01
+        $oldFile = "{$basePath}/old-id@2023-01-01.log";
+        // File 2: New (should remain) - 2024-01-01
+        $newFile = "{$basePath}/new-id@2024-01-01.log";
 
-        $handler = new StoragePruneHandler($this->config);
+        Storage::disk('local')->put($oldFile, 'dummy content');
+        Storage::disk('local')->put($newFile, 'dummy content');
 
-        // Delete all files before 2023-01-01
-        $deletedCount = $handler->pruneBeforeDate($project, $pruneDate);
+        $deletedCount = $this->handler->pruneBeforeDate($project, $pruneDate);
 
         $this->assertEquals(1, $deletedCount, 'Exactly one file should have been deleted.');
-        Storage::disk('local')->assertMissing($fileOld);
-        Storage::disk('local')->assertExists($fileNew);
+        Storage::disk('local')->assertMissing($oldFile);
+        Storage::disk('local')->assertExists($newFile);
     }
 
     /**
-     * Tests that the `pruneBeforeDate` method correctly ignores files with invalid filenames
-     * that do not match the expected date format or naming convention.
+     * Tests that the prune process ignores files with invalid filenames,
+     * such as those missing a required separator or containing invalid date segments.
      *
      * @return void
      */
-    public function test_prune_before_date_ignores_invalid_filenames(): void
+    public function test_prune_ignores_invalid_filenames(): void
     {
-        $project = 'test-project';
-        $pruneDate = '2023-01-01';
+        Storage::fake('local');
+        $project = 'test_project';
         $basePath = "uplinkr/{$project}/probes";
 
-        Storage::fake('local');
-
-        // File without a date separator or wrong format
+        // File without separator and date
         $invalidFile = "{$basePath}/invalid-filename.log";
         Storage::disk('local')->put($invalidFile, 'content');
 
-        $handler = new StoragePruneHandler($this->config);
+        // File with invalid date part
+        $invalidDateFile = "{$basePath}/id@not-a-date.log";
+        Storage::disk('local')->put($invalidDateFile, 'content');
 
-        $deletedCount = $handler->pruneBeforeDate($project, $pruneDate);
+        // We attempt to delete (date does not matter because filenames do not match)
+        $deletedCount = $this->handler->pruneBeforeDate($project, '2099-01-01');
 
         $this->assertEquals(0, $deletedCount);
         Storage::disk('local')->assertExists($invalidFile);
+        Storage::disk('local')->assertExists($invalidDateFile);
     }
 
     /**
-     * Tests that the pruneBeforeDate method throws an exception when an invalid date argument is provided.
-     * This ensures that the method validates the date format correctly and handles invalid inputs
-     * by throwing an InvalidArgumentException with an appropriate message.
+     * Tests the prune functionality to verify that it returns zero when the specified directory does not exist.
      *
      * @return void
      */
-    public function test_prune_before_date_throws_exception_on_invalid_date_argument(): void
+    public function test_prune_returns_zero_if_directory_does_not_exist(): void
     {
-        $handler = new StoragePruneHandler($this->config);
+        Storage::fake('local');
+        $deletedCount = $this->handler->pruneBeforeDate('non_existent_project', '2023-01-01');
+        $this->assertEquals(0, $deletedCount);
+    }
 
+    /**
+     * Tests if the pruneBeforeDate method throws an exception when provided with an invalid date format.
+     * Verifies that an InvalidArgumentException is thrown with the expected message.
+     *
+     * @return void
+     */
+    public function test_prune_throws_exception_on_invalid_date_format(): void
+    {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Invalid date format');
 
-        $handler->pruneBeforeDate('project', 'no-date');
+        $this->handler->pruneBeforeDate('test_project', 'invalid-date-string');
     }
 
     /**
-     * Tests the functionality of deleting a directory within a storage disk.
-     * This method verifies that the specified directory is successfully removed
-     * from the storage after invoking the deleteDirectory method of the storage handler.
-     *
-     * @return void
-     */
-    public function test_delete_directory(): void
-    {
-        Storage::fake('local');
-        Storage::disk('local')->makeDirectory('folder-to-delete');
-        Storage::disk('local')->assertExists('folder-to-delete');
-
-        $handler = new StoragePruneHandler($this->config);
-        $handler->deleteDirectory('folder-to-delete');
-
-        Storage::disk('local')->assertMissing('folder-to-delete');
-    }
-
-    /**
-     * Tests the creation of a new directory using the makeDirectory method in StoragePruneHandler.
-     * This method ensures that the specified directory is properly created in the configured storage disk.
+     * Tests the functionality of creating a directory using the handler
+     * and verifies that the directory exists in the storage disk.
      *
      * @return void
      */
@@ -166,9 +131,28 @@ class StoragePruneHandlerTest extends TestCase
     {
         Storage::fake('local');
 
-        $handler = new StoragePruneHandler($this->config);
-        $handler->makeDirectory('new-folder');
+        $dir = 'new-directory';
+        $this->handler->makeDirectory($dir);
 
-        Storage::disk('local')->assertExists('new-folder');
+        Storage::disk('local')->assertExists($dir);
+    }
+
+    /**
+     * Tests the functionality of deleting a directory using the deleteDirectory method.
+     * Ensures the directory is created, exists, and is properly deleted afterward.
+     *
+     * @return void
+     */
+    public function test_delete_directory(): void
+    {
+        Storage::fake('local');
+        $dir = 'dir-to-delete';
+        
+        Storage::disk('local')->makeDirectory($dir);
+        Storage::disk('local')->assertExists($dir);
+
+        $this->handler->deleteDirectory($dir);
+
+        Storage::disk('local')->assertMissing($dir);
     }
 }
