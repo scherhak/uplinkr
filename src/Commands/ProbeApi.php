@@ -112,6 +112,6 @@ class ProbeApi extends Command
                 'time_in_ms' => Arr::get($result, 'probe_message.duration_ms'),
             ]));
         }
-        $this->info(__('uplinkr::messages.url_stored', ['project' => $project ?? $config->getStandardProject(),]));
+        $this->info(__('uplinkr::messages.api_stored', ['project' => $project ?? $config->getStandardProject(),]));
     }
 }

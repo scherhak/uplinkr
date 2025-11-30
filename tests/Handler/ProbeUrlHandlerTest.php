@@ -2,6 +2,7 @@
 
 namespace Uplinkr\Tests\Handler;
 
+use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use ReflectionException;
@@ -19,6 +20,11 @@ class ProbeUrlHandlerTest extends TestCase
 {
     private ProbeUrlHandler $probeUriHandler;
 
+    /**
+     * Prepares the test environment by setting up dependencies and configurations.
+     * Initializes the ProbeUrlHandler with a mocked StorageInterface and a real UplinkrConfig instance.
+     * @return void
+     */
     protected function setUp(): void
     {
         $storageMock = $this->createMock(StorageInterface::class);
@@ -35,6 +41,7 @@ class ProbeUrlHandlerTest extends TestCase
 
     /**
      * Test that sanitizeProjectName replaces special characters with dashes.
+     * @throws ReflectionException
      */
     public function testReplacesSpecialCharactersWithDashes(): void
     {
@@ -44,6 +51,7 @@ class ProbeUrlHandlerTest extends TestCase
 
     /**
      * Test that sanitizeProjectName trims extra dashes and whitespace.
+     * @throws ReflectionException
      */
     public function testTrimsExtraDashesAndWhitespace(): void
     {
@@ -53,6 +61,7 @@ class ProbeUrlHandlerTest extends TestCase
 
     /**
      * Test that sanitizeProjectName lowers uppercase characters.
+     * @throws ReflectionException
      */
     public function testLowercasesCharacters(): void
     {
@@ -62,6 +71,7 @@ class ProbeUrlHandlerTest extends TestCase
 
     /**
      * Test that sanitizeProjectName removes control characters.
+     * @throws ReflectionException
      */
     public function testRemovesControlCharacters(): void
     {
@@ -71,6 +81,7 @@ class ProbeUrlHandlerTest extends TestCase
 
     /**
      * Test that sanitizeProjectName replaces multiple spaces with a single dash.
+     * @throws ReflectionException
      */
     public function testReplacesMultipleSpacesWithSingleDash(): void
     {
@@ -80,6 +91,7 @@ class ProbeUrlHandlerTest extends TestCase
 
     /**
      * Test that sanitizeProjectName replaces consecutive dashes with a single dash.
+     * @throws ReflectionException
      */
     public function testCollapsesConsecutiveDashes(): void
     {
@@ -89,6 +101,7 @@ class ProbeUrlHandlerTest extends TestCase
 
     /**
      * Test that sanitizeProjectName returns standard_project for null input.
+     * @throws ReflectionException
      */
     public function testReturnsStandardProjectForNull(): void
     {
@@ -107,7 +120,6 @@ class ProbeUrlHandlerTest extends TestCase
     {
         $reflection = new ReflectionClass($this->probeUriHandler);
         $method = $reflection->getMethod('sanitizeProjectName');
-        $method->setAccessible(true);
 
         return $method->invoke($this->probeUriHandler, $value);
     }

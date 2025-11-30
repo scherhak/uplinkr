@@ -61,7 +61,7 @@ class ProbeUrlHandler
     public function handle(): ?array
     {
         $request = null;
-        $startTime = microtime(true);
+        $startTime = microtime(as_float: true);
 
         try {
             $request = Http::withHeaders([
@@ -69,21 +69,20 @@ class ProbeUrlHandler
             ])->head($this->getUrl());
 
             if ($request->successful()) {
-                $status = 'reachable';
+                $probeStatus = 'reachable';
                 $probeMessage = [
                     'lang_key' => 'messages.url_reachable',
                 ];
             } else {
-                $status = 'unreachable';
+                $probeStatus = 'unreachable';
                 $probeMessage = [
-                    'message' => 'Non-200 status code: ' . $request->status(),
                     'lang_key' => 'messages.url_unreachable',
                 ];
             }
         } catch (ConnectionException $ce) {
-            $status = 'error';
+            $probeStatus = 'error';
             $probeMessage = [
-                'message' => 'fatal: ' . $ce->getMessage(),
+                'exception' => $ce->getMessage(),
                 'lang_key' => 'messages.url_error',
             ];
         }
@@ -95,7 +94,7 @@ class ProbeUrlHandler
             request: $request,
             durationTime: $durationTime,
             probeMessage: $probeMessage,
-            status: $status
+            probeStatus: $probeStatus
         );
 
         // ... and finally save it
@@ -110,17 +109,17 @@ class ProbeUrlHandler
      * @param mixed $request The HTTP request/response object
      * @param float $durationTime The time taken to perform the probe in seconds
      * @param array $probeMessage The probe message array containing message and lang_key
-     * @param string $status The status of the probe (reachable, unreachable, not-reachable)
+     * @param string $probeStatus The status of the probe (reachable, unreachable, not-reachable)
      * @return array The complete result array with all metadata
      */
-    private function buildProbeResult(mixed $request, float $durationTime, array $probeMessage, string $status): array
+    private function buildProbeResult(mixed $request, float $durationTime, array $probeMessage, string $probeStatus): array
     {
         $requestResult = $this->getRequestResult($request);
 
         return (new ProbeResultHandler($requestResult))->build(
             durationTime: $durationTime,
             probeMessage: $probeMessage,
-            status: $status,
+            probeStatus: $probeStatus,
             settings: [
                 'url' => $this->getUrl(),
                 'project' => $this->getProject(),

@@ -43,7 +43,7 @@ class ProbeResultHandlerTest extends TestCase
         $this->assertSame('success.key', $result['probe_message']['lang_key']);
         $this->assertEquals(1523, $result['probe_message']['duration_ms']);
         $this->assertEquals(1.52, $result['probe_message']['duration_s']);
-        $this->assertEquals($status, $result['status']);
+        $this->assertEquals($status, $result['probe_status']);
         $this->assertEquals($settings, $result['settings']);
         $this->assertArrayHasKey('executed', $result);
     }
@@ -78,7 +78,7 @@ class ProbeResultHandlerTest extends TestCase
         $this->assertSame('error.unreachable', $result['probe_message']['lang_key']);
         $this->assertEquals(2345, $result['probe_message']['duration_ms']);
         $this->assertEquals(2.35, $result['probe_message']['duration_s']);
-        $this->assertEquals($status, $result['status']);
+        $this->assertEquals($status, $result['probe_status']);
         $this->assertEquals($settings, $result['settings']);
         $this->assertArrayHasKey('executed', $result);
     }
@@ -135,7 +135,7 @@ class ProbeResultHandlerTest extends TestCase
         $this->assertSame('some_value', $result['previous_data']);
         $this->assertEquals($durationTime, $result['time_to_load']);
         $this->assertEquals($probeMessage['message'], $result['probe_message']['message']);
-        $this->assertEquals($status, $result['status']);
+        $this->assertEquals($status, $result['probe_status']);
         $this->assertEquals($settings, $result['settings']);
     }
 }

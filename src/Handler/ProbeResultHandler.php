@@ -26,11 +26,11 @@ class ProbeResultHandler
      *
      * @param float $durationTime The time taken to perform the probe in seconds
      * @param array $probeMessage The probe message array containing message and lang_key
-     * @param string $status The status of the probe (reachable, unreachable, not-reachable)
+     * @param string $probeStatus The status of the probe (reachable, unreachable, not-reachable)
      * @param array $settings The settings used for the probe (protocol, uri)
      * @return array The complete result array with all metadata
      */
-    public function build(float $durationTime, array $probeMessage, string $status, array $settings): array
+    public function build(float $durationTime, array $probeMessage, string $probeStatus, array $settings): array
     {
         $probeMessage = Arr::add($probeMessage, 'duration_ms', round($durationTime * 1000, 2));
         $probeMessage = Arr::add($probeMessage, 'duration_s', round($durationTime, 2));
@@ -38,7 +38,7 @@ class ProbeResultHandler
         return array_merge($this->result, [
             'time_to_load' => $durationTime,
             'probe_message' => $probeMessage,
-            'status' => $status,
+            'probe_status' => $probeStatus,
             'executed' => now(),
             'settings' => $settings,
         ]);

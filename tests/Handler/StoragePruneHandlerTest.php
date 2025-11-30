@@ -108,7 +108,7 @@ class StoragePruneHandlerTest extends TestCase
 
         Storage::fake('local');
 
-        // File without date separator or wrong format
+        // File without a date separator or wrong format
         $invalidFile = "{$basePath}/invalid-filename.log";
         Storage::disk('local')->put($invalidFile, 'content');
 

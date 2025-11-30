@@ -48,48 +48,42 @@ class ProbeApiHandler
         $method = strtoupper($this->getMethod());
         $endpoint = $this->getEndpoint();
 
+        // set probe status default to error
+        $probeStatus = 'error';
+
         try {
             $pendingRequest = Http::withHeaders([
                 'User-Agent' => 'uplinkr-api-probe-0.1.0',
             ])->withHeaders($this->getParsedHeaders());
 
-            // Body Handling für POST/PUT/PATCH
+            // Body handling for POST/PUT/PATCH
             $body = $this->getBody();
             if ($body && in_array($method, ['POST', 'PUT', 'PATCH', 'DELETE'])) {
                 $content = is_array($body) ? json_encode($body, JSON_THROW_ON_ERROR) : $body;
                 $pendingRequest->withBody($content, contentType: 'application/json');
             }
 
-            // Universeller Aufruf der Methode
             $request = $pendingRequest->send($method, $endpoint);
 
-            $probeMessage = [
-
-            ];
-
             if ($request->successful()) {
-                $status = 'reachable';
+                $probeStatus = 'reachable';
                 $probeMessage = [
-                    'message' => 'Uri currently reachable',
                     'lang_key' => 'messages.api_reachable',
                 ];
             } else {
-                $status = 'unreachable';
+                $probeStatus = 'unreachable';
                 $probeMessage = [
-                    'message' => 'Non-200 status code: ' . $request->status(),
                     'lang_key' => 'messages.api_unreachable',
                 ];
             }
         } catch (ConnectionException $ce) {
-            $status = 'error';
             $probeMessage = [
-                'message' => 'fatal: ' . $ce->getMessage(),
+                'exception' => $ce->getMessage(),
                 'lang_key' => 'messages.api_error',
             ];
         } catch (Exception $e) {
-            $status = 'error';
             $probeMessage = [
-                'message' => 'fatal: ' . $e->getMessage(),
+                'exception' => $e->getMessage(),
                 'lang_key' => 'messages.api_error',
             ];
         }
@@ -101,7 +95,7 @@ class ProbeApiHandler
             request: $request,
             durationTime: $durationTime,
             probeMessage: $probeMessage,
-            status: $status
+            probeStatus: $probeStatus
         );
 
         // ... and finally save it
@@ -110,14 +104,14 @@ class ProbeApiHandler
         return $result;
     }
 
-    private function buildProbeResult(mixed $request, float $durationTime, array $probeMessage, string $status): array
+    private function buildProbeResult(mixed $request, float $durationTime, array $probeMessage, string $probeStatus): array
     {
         $requestResult = $this->getRequestResult($request);
 
         return (new ProbeResultHandler($requestResult))->build(
             durationTime: $durationTime,
             probeMessage: $probeMessage,
-            status: $status,
+            probeStatus: $probeStatus,
             settings: [
                 'endpoint' => $this->getEndpoint(),
                 'project' => $this->getProject(),
@@ -143,9 +137,6 @@ class ProbeApiHandler
         return Arr::get($this->data, 'method', 'GET');
     }
 
-    /**
-     * Parst die Header von ["Key: Value"] in ["Key" => "Value"]
-     */
     private function getParsedHeaders(): array
     {
         $headers = Arr::get($this->data, 'headers', []);
