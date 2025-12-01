@@ -10,7 +10,7 @@ use Uplinkr\Tests\TestCase;
  * Class ProbeUrlCommandTest
  * @package Commands
  */
-class ProbeUrlCommandTest extends TestCase
+class ProbeUrlTest extends TestCase
 {
     #[Test]
     public function it_checks_a_url_and_outputs_status_and_latency(): void

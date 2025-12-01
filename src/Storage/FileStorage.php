@@ -115,18 +115,23 @@ class FileStorage implements StorageInterface
         return $this->config->getFileExtension();
     }
 
-    /**
-     * Extracts the URI from the provided data array.
+    /**w
+     * Generates a sanitized URL from the given data array.
      *
-     * @param array $data The input data array containing settings information.
-     * @return string The URI retrieved from the data array.
+     * Processes the input to ensure a valid URL structure,
+     * extracts the host, sanitizes the host name, and formats it
+     * into a lowercase string for consistency.
+     *
+     * @param array $data The input data to extract and process the URL from.
+     * @return string The sanitized, formatted version of the URL.
      */
     private function getUrlFromData(array $data): string
     {
-        $rawUrl = (string)Arr::get($data, 'settings.url', '');
+        // check the target url
+        $rawUrl = $this->findTargetUrl($data);
 
-        if ($rawUrl === '') {
-            return 'unknown';
+        if ($rawUrl === null) {
+            return $this->config->getStandardProject();
         }
 
         // Ensure that a scheme exists so that parse_url works reliably.
@@ -155,6 +160,25 @@ class FileStorage implements StorageInterface
     private function getFilenameSeparator(): string
     {
         return $this->config->getProbeFilenameSeparator();
+    }
+
+    /**
+     * Attempts to extract the target URL or API endpoint from the settings.
+     *
+     * @param array $data
+     * @return string|null Returns the URL string if found, otherwise null.
+     */
+    private function findTargetUrl(array $data): ?string
+    {
+        if (Arr::has($data, 'settings.url')) {
+            return (string) Arr::get($data, 'settings.url');
+        }
+
+        if (Arr::has($data, 'settings.api')) {
+            return (string) Arr::get($data, 'settings.api');
+        }
+
+        return null;
     }
 
     /**
