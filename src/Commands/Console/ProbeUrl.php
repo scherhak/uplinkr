@@ -1,6 +1,6 @@
 <?php
 
-namespace Uplinkr\Commands;
+namespace Uplinkr\Commands\Console;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Validator;

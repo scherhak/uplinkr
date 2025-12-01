@@ -3,9 +3,10 @@
 namespace Uplinkr;
 
 use Illuminate\Support\ServiceProvider;
-use Uplinkr\Commands\ProbeApi;
-use Uplinkr\Commands\ProbeUrl;
-use Uplinkr\Commands\StoragePrune;
+use Uplinkr\Commands\Console\ProbeApi;
+use Uplinkr\Commands\Console\ProbeUrl;
+use Uplinkr\Commands\Console\StoragePrune;
+use Uplinkr\Console\Commands\ListProbesCommand;
 use Uplinkr\Interfaces\StorageInterface;
 use Uplinkr\Objects\Config\UplinkrConfig;
 use Uplinkr\Storage\FileStorage;
