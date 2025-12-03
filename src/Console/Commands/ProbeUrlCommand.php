@@ -1,6 +1,6 @@
 <?php
 
-namespace Uplinkr\Commands\Console;
+namespace Uplinkr\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Validator;
@@ -10,14 +10,14 @@ use Uplinkr\Objects\Config\UplinkrConfig;
 use Uplinkr\Traits\HandlesProbeOutput;
 
 /**
- * Class ProbeUrl
+ * Class ProbeUrlCommand
  * @package Uplinkr\Commands
  *
  * This class is responsible for handling the execution of the `uplinkr:probe-url` command.
  *
  * @author Sascha Scherhak <sascha@uplinkr.dev>
  */
-class ProbeUrl extends Command
+class ProbeUrlCommand extends Command
 {
     use HandlesProbeOutput;
 

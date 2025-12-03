@@ -1,6 +1,6 @@
 <?php
 
-namespace Commands;
+namespace Uplinkr\Tests\Console\Commands;
 
 use Illuminate\Support\Facades\Http;
 use PHPUnit\Framework\Attributes\Test;

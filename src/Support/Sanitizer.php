@@ -14,7 +14,8 @@ class Sanitizer
 {
     public function __construct(
         private readonly UplinkrConfig $config
-    ) {
+    )
+    {
     }
 
     /**

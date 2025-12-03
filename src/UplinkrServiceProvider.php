@@ -3,10 +3,9 @@
 namespace Uplinkr;
 
 use Illuminate\Support\ServiceProvider;
-use Uplinkr\Commands\Console\ProbeApi;
-use Uplinkr\Commands\Console\ProbeUrl;
-use Uplinkr\Commands\Console\StoragePrune;
-use Uplinkr\Console\Commands\ListProbesCommand;
+use Uplinkr\Console\Commands\ProbeApiCommand;
+use Uplinkr\Console\Commands\ProbeUrlCommand;
+use Uplinkr\Console\Commands\StoragePruneCommand;
 use Uplinkr\Interfaces\StorageInterface;
 use Uplinkr\Objects\Config\UplinkrConfig;
 use Uplinkr\Storage\FileStorage;
@@ -38,9 +37,9 @@ class UplinkrServiceProvider extends ServiceProvider
         // Register console commands
         if ($this->app->runningInConsole()) {
             $this->commands([
-                ProbeUrl::class,
-                ProbeApi::class,
-                StoragePrune::class,
+                ProbeUrlCommand::class,
+                ProbeApiCommand::class,
+                StoragePruneCommand::class,
             ]);
         }
     }

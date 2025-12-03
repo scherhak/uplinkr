@@ -1,6 +1,6 @@
 <?php
 
-namespace Uplinkr\Commands\Console;
+namespace Uplinkr\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
@@ -12,14 +12,14 @@ use Uplinkr\Objects\Config\UplinkrConfig;
 use Uplinkr\Traits\HandlesProbeOutput;
 
 /**
- * Class ProbeApi
+ * Class ProbeApiCommand
  * @package Uplinkr\Commands
  *
  * This class is responsible for handling the execution of the `uplinkr:probe-api` command.
  *
  * @author Sascha Scherhak <sascha@uplinkr.dev>
  */
-class ProbeApi extends Command
+class ProbeApiCommand extends Command
 {
     use HandlesProbeOutput;
 
@@ -71,9 +71,9 @@ class ProbeApi extends Command
                 $execute = true;
             } else {
                 $execute = $this->confirm(__('uplinkr::messages.api_checking', [
-                        'endpoint' => $endpoint,
-                        'method' => $method,
-                    ]));
+                    'endpoint' => $endpoint,
+                    'method' => $method,
+                ]));
             }
 
             if ($execute) {
@@ -88,7 +88,7 @@ class ProbeApi extends Command
                 ])->handle();
 
                 if (!$force) {
-                    $this->resultMessages(result: $result, project: $project, config: $config , probeType: self::PROBE_TYPE);
+                    $this->resultMessages(result: $result, project: $project, config: $config, probeType: self::PROBE_TYPE);
                 }
 
                 Log::debug('Uplinkr_ProbeApiCommand_debug', [

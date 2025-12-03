@@ -1,12 +1,12 @@
 <?php
 
-namespace Commands;
+namespace Uplinkr\Tests\Console\Commands;
 
 use Illuminate\Console\Command;
 use Mockery\MockInterface;
-use Uplinkr\Tests\TestCase;
 use Uplinkr\Handler\ProbeApiHandler;
 use Uplinkr\Objects\Config\UplinkrConfig;
+use Uplinkr\Tests\TestCase;
 
 class ProbeApiTest extends TestCase
 {

@@ -151,7 +151,7 @@ class StoragePruneHandlerTest extends TestCase
     {
         Storage::fake('local');
         $dir = 'dir-to-delete';
-        
+
         Storage::disk('local')->makeDirectory($dir);
         Storage::disk('local')->assertExists($dir);
 

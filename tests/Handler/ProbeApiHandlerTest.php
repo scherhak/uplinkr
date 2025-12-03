@@ -5,7 +5,6 @@ namespace Uplinkr\Tests\Handler;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
-use PHPUnit\Framework\MockObject\Exception;
 use Uplinkr\Handler\ProbeApiHandler;
 use Uplinkr\Interfaces\StorageInterface;
 use Uplinkr\Objects\Config\UplinkrConfig;

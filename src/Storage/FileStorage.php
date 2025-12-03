@@ -171,11 +171,11 @@ class FileStorage implements StorageInterface
     private function findTargetUrl(array $data): ?string
     {
         if (Arr::has($data, 'settings.url')) {
-            return (string) Arr::get($data, 'settings.url');
+            return (string)Arr::get($data, 'settings.url');
         }
 
         if (Arr::has($data, 'settings.api')) {
-            return (string) Arr::get($data, 'settings.api');
+            return (string)Arr::get($data, 'settings.api');
         }
 
         return null;

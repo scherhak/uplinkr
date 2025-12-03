@@ -1,6 +1,6 @@
 <?php
 
-namespace Uplinkr\Tests\Commands;
+namespace Uplinkr\Tests\Console\Commands;
 
 use Illuminate\Support\Facades\Storage;
 use InvalidArgumentException;
@@ -145,7 +145,7 @@ class StoragePruneTest extends TestCase
             ->assertExitCode(CommandAlias::SUCCESS);
 
         // If we omit force, we would expect an error message
-         $this->artisan('uplinkr:prune', [
+        $this->artisan('uplinkr:prune', [
             '--project' => $project,
         ])
             ->expectsConfirmation(__('uplinkr::messages.prune_project', ['project' => $project]), 'yes')
@@ -199,10 +199,10 @@ class StoragePruneTest extends TestCase
      */
     public function test_command_does_nothing_without_arguments_and_warns(): void
     {
-         // If nothing is passed, it asks for the project name (which is null/empty)
-         // If we say 'yes', it lands in the "else" block for "no files wiped"
+        // If nothing is passed, it asks for the project name (which is null/empty)
+        // If we say 'yes', it lands in the "else" block for "no files wiped"
 
-         $this->artisan('uplinkr:prune')
+        $this->artisan('uplinkr:prune')
             ->expectsConfirmation(__('uplinkr::messages.prune_project', ['project' => null]), 'yes')
             ->expectsOutputToContain(__('uplinkr::messages.prune_wipe_all_no_files_wiped'))
             ->assertExitCode(CommandAlias::SUCCESS);

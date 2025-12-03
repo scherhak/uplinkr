@@ -1,6 +1,6 @@
 <?php
 
-namespace Uplinkr\Commands\Console;
+namespace Uplinkr\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Console\ConfirmableTrait;
@@ -11,12 +11,12 @@ use Uplinkr\Handler\StoragePruneHandler;
 use Uplinkr\Objects\Config\UplinkrConfig;
 
 /**
- * Class StoragePrune
+ * Class StoragePruneCommand
  * @package Uplinkr\Commands
  *
  * @author Sascha Scherhak <sascha@uplinkr.dev>
  */
-class StoragePrune extends Command
+class StoragePruneCommand extends Command
 {
     use ConfirmableTrait;
 
