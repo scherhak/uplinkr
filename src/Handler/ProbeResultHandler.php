@@ -3,6 +3,7 @@
 namespace Uplinkr\Handler;
 
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 
 /**
  * Class ProbeResultHandler
@@ -32,13 +33,15 @@ class ProbeResultHandler
      */
     public function build(float $durationTime, array $probeMessage, string $probeStatus, array $settings): array
     {
+        $probeId = Str::uuid()->toString();
         $probeMessage = Arr::add($probeMessage, 'duration_ms', round($durationTime * 1000, 2));
         $probeMessage = Arr::add($probeMessage, 'duration_s', round($durationTime, 2));
 
         return array_merge($this->result, [
-            'time_to_load' => $durationTime,
+            'probe_id' => $probeId,
             'probe_message' => $probeMessage,
             'probe_status' => $probeStatus,
+            'time_to_load' => $durationTime,
             'executed' => now(),
             'settings' => $settings,
         ]);

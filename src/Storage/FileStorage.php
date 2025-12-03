@@ -3,6 +3,7 @@
 namespace Uplinkr\Storage;
 
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use JsonException;
 use Uplinkr\Interfaces\StorageInterface;
@@ -130,6 +131,7 @@ class FileStorage implements StorageInterface
         // check the target url
         $rawUrl = $this->findTargetUrl($data);
 
+        // TODO (0.1.0) Add a fallback to the default filename name if no URL is found.
         if ($rawUrl === null) {
             return $this->config->getStandardProject();
         }
@@ -170,12 +172,14 @@ class FileStorage implements StorageInterface
      */
     private function findTargetUrl(array $data): ?string
     {
+        Log::debug('findTargetUrl data: ', [$data]);
+
         if (Arr::has($data, 'settings.url')) {
             return (string)Arr::get($data, 'settings.url');
         }
 
-        if (Arr::has($data, 'settings.api')) {
-            return (string)Arr::get($data, 'settings.api');
+        if (Arr::has($data, 'settings.endpoint')) {
+            return (string)Arr::get($data, 'settings.endpoint');
         }
 
         return null;

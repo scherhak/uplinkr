@@ -91,15 +91,6 @@ class ProbeApiCommand extends Command
                     $this->resultMessages(result: $result, project: $project, config: $config, probeType: self::PROBE_TYPE);
                 }
 
-                Log::debug('Uplinkr_ProbeApiCommand_debug', [
-                    'endpoint' => $endpoint,
-                    'method' => $method,
-                    'headers' => $headers,
-                    'body' => $body,
-                    'project' => $project,
-                    'force' => $force,
-                ]);
-
                 return CommandAlias::SUCCESS;
             }
 
