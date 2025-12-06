@@ -18,7 +18,8 @@ final class UplinkrConfig
         public string $standardProject = 'standard_project',
         public string $probeResultsPath = 'probes',
         public string $probeFilenameSeparator = '@',
-        public string $fileExtension = 'log'
+        public string $fileExtension = 'log',
+        public string $archivedFolder = 'archived',
     )
     {
     }
@@ -36,7 +37,8 @@ final class UplinkrConfig
             standardProject: config('uplinkr.storage.standard_project', 'standard_project'),
             probeResultsPath: config('uplinkr.storage.probe_results', 'probes'),
             probeFilenameSeparator: config('uplinkr.storage.probe_filename_separator', '@'),
-            fileExtension: config('uplinkr.storage.file_extension', 'log')
+            fileExtension: config('uplinkr.storage.file_extension', 'log'),
+            archivedFolder: config('uplinkr.storage.archive_folder', 'archived'),
         );
     }
 
@@ -92,5 +94,10 @@ final class UplinkrConfig
     public function getProbeFilenameSeparator(): string
     {
         return $this->probeFilenameSeparator;
+    }
+
+    public function getArchivedFolder(): string
+    {
+        return $this->archivedFolder;
     }
 }

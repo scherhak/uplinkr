@@ -5,6 +5,7 @@ namespace Uplinkr;
 use Illuminate\Support\ServiceProvider;
 use Uplinkr\Console\Commands\ProbeApiCommand;
 use Uplinkr\Console\Commands\ProbeUrlCommand;
+use Uplinkr\Console\Commands\ProjectManagerCommand;
 use Uplinkr\Console\Commands\StoragePruneCommand;
 use Uplinkr\Interfaces\StorageInterface;
 use Uplinkr\Objects\Config\UplinkrConfig;
@@ -40,6 +41,7 @@ class UplinkrServiceProvider extends ServiceProvider
                 ProbeUrlCommand::class,
                 ProbeApiCommand::class,
                 StoragePruneCommand::class,
+                ProjectManagerCommand::class,
             ]);
         }
     }

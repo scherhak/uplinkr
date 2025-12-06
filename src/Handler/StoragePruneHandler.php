@@ -81,6 +81,7 @@ class StoragePruneHandler
     }
 
     /**
+     * TODO: (0.1.0) Get this from ProjectManager->delete
      * Deletes the specified directory from the storage disk.
      *
      * @param string $directory The path of the directory to be deleted.
@@ -92,6 +93,7 @@ class StoragePruneHandler
     }
 
     /**
+     * TODO: (0.1.0) Get this from ProjectManager->create
      * Creates a new directory in the storage disk specified in the configuration.
      *
      * @param string $directory The name or path of the directory to be created.
