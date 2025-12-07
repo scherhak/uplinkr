@@ -59,6 +59,8 @@ class ProjectManagerHandler
     }
 
     /**
+     * TODO: (0.1.0) Replace/Use this in StoragePruneHandler->deleteDirectory
+     *
      * Deletes a directory corresponding to the specified project name.
      *
      * @param string $projectName The name of the project whose directory is to be deleted.
