@@ -4,7 +4,6 @@ namespace Uplinkr\Tests\Handler;
 
 use Illuminate\Support\Facades\Storage;
 use InvalidArgumentException;
-use Uplinkr\Handler\ProjectManagerHandler;
 use Uplinkr\Handler\StoragePruneHandler;
 use Uplinkr\Objects\Config\UplinkrConfig;
 use Uplinkr\Tests\TestCase;

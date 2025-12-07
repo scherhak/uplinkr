@@ -3,11 +3,8 @@
 namespace Uplinkr\Console\Commands;
 
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
 use Symfony\Component\Console\Command\Command as CommandAlias;
 use Uplinkr\Handler\ProjectManagerHandler;
-use Uplinkr\Objects\Config\UplinkrConfig;
 
 /**
  * Class ProjectManagerCommand
@@ -44,10 +41,10 @@ class ProjectManagerCommand extends Command
         $project = $this->option('project');
         $force = $this->option('force');
 
-        if($list) {
+        if ($list) {
             $projects = $projectManagerHandler->listAll();
 
-            foreach($projects as $project) {
+            foreach ($projects as $project) {
                 $name = basename($project);
                 $count = $projectManagerHandler->getProbesCount(path: $project);
                 $this->info(sprintf('%s [%s]', $name, $count));
@@ -56,7 +53,7 @@ class ProjectManagerCommand extends Command
             return CommandAlias::SUCCESS;
         }
 
-        if($archive && $project) {
+        if ($archive && $project) {
 
             $exists = $projectManagerHandler->exists(projectName: $project);
 
@@ -66,7 +63,7 @@ class ProjectManagerCommand extends Command
                 ]));
             }
 
-            if($exists) {
+            if ($exists) {
 
                 if ($force) {
                     $execute = true;
@@ -79,7 +76,7 @@ class ProjectManagerCommand extends Command
                 if ($execute) {
                     $copied = $projectManagerHandler->archive(projectName: $project);
 
-                    if($copied) {
+                    if ($copied) {
 
                         if (!$force) {
                             $this->info(__('uplinkr::messages.project_archive_success', [
@@ -109,7 +106,7 @@ class ProjectManagerCommand extends Command
             return CommandAlias::INVALID;
         }
 
-        if(!$archive && $project) {
+        if (!$archive && $project) {
             $this->warn(__('uplinkr::messages.project_archive_option_missing'));
         }
 
