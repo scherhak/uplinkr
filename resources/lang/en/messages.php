@@ -10,6 +10,15 @@ return [
     /*
      * URL probe parts
      */
+    'project_archive_start' => 'Should project :project now be archived?',
+    'project_archive_failed' => 'Archiving of Project :project failed.',
+    'project_archive_success' => 'Project :project archived successfully.',
+    'project_not_found' => 'Project :project not found.',
+    'project_archive_option_missing' => 'The archive option seems to be missing.',
+
+    /*
+     * URL probe parts
+     */
     'url_checking' => 'Should the check of :url be started?',
     'url_reachable' => 'Target URL is currently reachable (Response time: :time_in_ms ms)',
     'url_unreachable' => 'Target URL is currently NOT reachable (Status response: :status_header with response time: :time_in_ms ms)',
