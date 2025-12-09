@@ -5,7 +5,7 @@ namespace Uplinkr\Tests\Handler;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
-use Uplinkr\Handler\ProbeApiHandler;
+use Uplinkr\Handler\Probe\ApiHandler;
 use Uplinkr\Interfaces\StorageInterface;
 use Uplinkr\Objects\Config\UplinkrConfig;
 use Uplinkr\Support\Sanitizer;
@@ -13,7 +13,7 @@ use Uplinkr\Tests\TestCase;
 
 class ProbeApiHandlerTest extends TestCase
 {
-    private ProbeApiHandler $handler;
+    private ApiHandler $handler;
     private StorageInterface $storageMock;
 
     protected function setUp(): void
@@ -31,12 +31,12 @@ class ProbeApiHandlerTest extends TestCase
 
         $sanitizer = new Sanitizer($config);
 
-        $this->handler = new ProbeApiHandler($this->storageMock, $config, $sanitizer);
+        $this->handler = new ApiHandler($this->storageMock, $config, $sanitizer);
     }
 
     public function test_can_be_instantiated(): void
     {
-        $this->assertInstanceOf(ProbeApiHandler::class, $this->handler);
+        $this->assertInstanceOf(ApiHandler::class, $this->handler);
     }
 
     public function test_handle_returns_reachable_status_on_successful_request(): void

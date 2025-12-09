@@ -5,7 +5,7 @@ namespace Uplinkr\Console\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\Console\Command\Command as CommandAlias;
-use Uplinkr\Handler\ProbeUrlHandler;
+use Uplinkr\Handler\Probe\UrlHandler;
 use Uplinkr\Objects\Config\UplinkrConfig;
 use Uplinkr\Traits\HandlesProbeOutput;
 
@@ -51,7 +51,7 @@ class ProbeUrlCommand extends Command
      * The method retrieves the URI argument and related options such as `force`
      * and `with-body`. If a URI is provided, it will either prompt for confirmation
      * or proceed directly based on the `force` option. If confirmed, the method
-     * initiates the `ProbeUrlHandler` for processing the URI. It returns a status
+     * initiates the `UrlHandler` for processing the URI. It returns a status
      * code indicating the success or failure of the operation.
      *
      * @return int Returns CommandAlias::SUCCESS if the URI is successfully processed
@@ -59,7 +59,7 @@ class ProbeUrlCommand extends Command
      * @example php artisan uplinkr:probe-by-uri https scherhak.com
      *
      */
-    public function handle(ProbeUrlHandler $probeUrlHandler, UplinkrConfig $config): int
+    public function handle(UrlHandler $probeUrlHandler, UplinkrConfig $config): int
     {
         $url = $this->option('url');
         $project = $this->option('project');

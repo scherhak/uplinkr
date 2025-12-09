@@ -4,7 +4,7 @@ namespace Uplinkr\Console\Commands;
 
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Command\Command as CommandAlias;
-use Uplinkr\Handler\ProjectManagerHandler;
+use Uplinkr\Handler\Project\ManagerHandler;
 
 /**
  * Class ProjectManagerCommand
@@ -34,7 +34,7 @@ class ProjectManagerCommand extends Command
      */
     protected $description = 'Lists projects and/or archives them';
 
-    public function handle(ProjectManagerHandler $projectManagerHandler): int
+    public function handle(ManagerHandler $projectManagerHandler): int
     {
         $list = $this->option('list');
         $archive = $this->option('archive');

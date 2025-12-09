@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Mockery;
 use Mockery\MockInterface;
-use Uplinkr\Handler\ProjectManagerHandler;
+use Uplinkr\Handler\Project\ManagerHandler;
 use Uplinkr\Objects\Config\UplinkrConfig;
 use Uplinkr\Tests\TestCase;
 
@@ -51,7 +51,7 @@ class ProjectManagerHandlerTest extends TestCase
             ->once()
             ->andReturnTrue();
 
-        $handler = new ProjectManagerHandler($this->config);
+        $handler = new ManagerHandler($this->config);
         
         $this->assertTrue($handler->exists($projectName));
     }
@@ -66,7 +66,7 @@ class ProjectManagerHandlerTest extends TestCase
             ->with('uplinkr_projects/' . $projectName)
             ->andReturnFalse();
 
-        $handler = new ProjectManagerHandler($this->config);
+        $handler = new ManagerHandler($this->config);
 
         $this->assertFalse($handler->exists($projectName));
     }
@@ -95,7 +95,7 @@ class ProjectManagerHandlerTest extends TestCase
             ->once()
             ->andReturnTrue();
 
-        $handler = new ProjectManagerHandler($this->config);
+        $handler = new ManagerHandler($this->config);
 
         $this->assertTrue($handler->archive($projectName));
     }
@@ -117,7 +117,7 @@ class ProjectManagerHandlerTest extends TestCase
             ->once()
             ->andReturnTrue();
 
-        $handler = new ProjectManagerHandler($this->config);
+        $handler = new ManagerHandler($this->config);
 
         $this->assertTrue($handler->delete($projectName));
     }
@@ -134,7 +134,7 @@ class ProjectManagerHandlerTest extends TestCase
             ->once()
             ->andReturn($expectedDirectories);
 
-        $handler = new ProjectManagerHandler($this->config);
+        $handler = new ManagerHandler($this->config);
 
         $this->assertEquals($expectedDirectories, $handler->listAll());
     }
@@ -154,7 +154,7 @@ class ProjectManagerHandlerTest extends TestCase
             ->once()
             ->andReturn($files);
 
-        $handler = new ProjectManagerHandler($this->config);
+        $handler = new ManagerHandler($this->config);
 
         $this->assertEquals(3, $handler->getProbesCount($path));
     }

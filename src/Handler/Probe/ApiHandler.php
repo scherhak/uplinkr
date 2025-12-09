@@ -1,6 +1,6 @@
 <?php
 
-namespace Uplinkr\Handler;
+namespace Uplinkr\Handler\Probe;
 
 use Exception;
 use Illuminate\Http\Client\ConnectionException;
@@ -12,12 +12,12 @@ use Uplinkr\Objects\Config\UplinkrConfig;
 use Uplinkr\Support\Sanitizer;
 
 /**
- * Class ProbeApiHandler
+ * Class ApiHandler
  * @package Uplinkr\Handler
  *
  * @author Sascha Scherhak <sascha@uplinkr.dev>
  */
-class ProbeApiHandler
+class ApiHandler
 {
     /**
      * @var array $data
@@ -45,7 +45,7 @@ class ProbeApiHandler
     {
         $this->data = $data;
 
-        Log::debug('ProbeApiHandler with data: ', [
+        Log::debug('ApiHandler with data: ', [
             'data' => $this->data,
         ]);
 
@@ -132,7 +132,7 @@ class ProbeApiHandler
     {
         $requestResult = $this->getRequestResult($request);
 
-        return (new ProbeResultHandler($requestResult))->build(
+        return (new ResultHandler($requestResult))->build(
             durationTime: $durationTime,
             probeMessage: $probeMessage,
             probeStatus: $probeStatus,

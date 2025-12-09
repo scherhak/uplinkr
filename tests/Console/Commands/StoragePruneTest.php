@@ -8,7 +8,7 @@ use Mockery;
 use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Component\Console\Command\Command as CommandAlias;
-use Uplinkr\Handler\StoragePruneHandler;
+use Uplinkr\Handler\Storage\PruneHandler;
 use Uplinkr\Objects\Config\UplinkrConfig;
 use Uplinkr\Tests\TestCase;
 
@@ -46,8 +46,8 @@ class StoragePruneTest extends TestCase
         $this->app->instance(UplinkrConfig::class, $config);
 
         // 2. We mock the handler to verify if methods are called
-        $this->handlerMock = Mockery::mock(StoragePruneHandler::class);
-        $this->app->instance(StoragePruneHandler::class, $this->handlerMock);
+        $this->handlerMock = Mockery::mock(PruneHandler::class);
+        $this->app->instance(PruneHandler::class, $this->handlerMock);
     }
 
     /**

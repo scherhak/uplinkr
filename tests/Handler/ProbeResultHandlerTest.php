@@ -3,7 +3,7 @@
 namespace Uplinkr\Tests\Handler;
 
 use PHPUnit\Framework\TestCase;
-use Uplinkr\Handler\ProbeResultHandler;
+use Uplinkr\Handler\Probe\ResultHandler;
 
 /**
  * Class ProbeResultHandlerTest
@@ -33,7 +33,7 @@ class ProbeResultHandlerTest extends TestCase
             'url' => 'test.com',
         ];
 
-        $handler = new ProbeResultHandler($initialResult);
+        $handler = new ResultHandler($initialResult);
 
         // Act
         $result = $handler->build($durationTime, $probeMessage, $status, $settings);
@@ -70,7 +70,7 @@ class ProbeResultHandlerTest extends TestCase
             'url' => 'example.com',
         ];
 
-        $handler = new ProbeResultHandler($initialResult);
+        $handler = new ResultHandler($initialResult);
 
         // Act
         $result = $handler->build($durationTime, $probeMessage, $status, $settings);
@@ -102,7 +102,7 @@ class ProbeResultHandlerTest extends TestCase
             'url' => 'ftp.example.com',
         ];
 
-        $handler = new ProbeResultHandler($initialResult);
+        $handler = new ResultHandler($initialResult);
 
         // Act
         $result = $handler->build($durationTime, $probeMessage, $status, $settings);
@@ -129,7 +129,7 @@ class ProbeResultHandlerTest extends TestCase
             'url' => 'nonexistent.com',
         ];
 
-        $handler = new ProbeResultHandler($initialResult);
+        $handler = new ResultHandler($initialResult);
 
         // Act
         $result = $handler->build($durationTime, $probeMessage, $status, $settings);

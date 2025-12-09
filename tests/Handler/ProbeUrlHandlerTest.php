@@ -3,7 +3,7 @@
 namespace Uplinkr\Tests\Handler;
 
 use PHPUnit\Framework\TestCase;
-use Uplinkr\Handler\ProbeUrlHandler;
+use Uplinkr\Handler\Probe\UrlHandler;
 use Uplinkr\Interfaces\StorageInterface;
 use Uplinkr\Objects\Config\UplinkrConfig;
 use Uplinkr\Support\Sanitizer;
@@ -14,11 +14,11 @@ use Uplinkr\Support\Sanitizer;
  */
 class ProbeUrlHandlerTest extends TestCase
 {
-    private ProbeUrlHandler $probeUriHandler;
+    private UrlHandler $probeUriHandler;
 
     /**
      * Prepares the test environment by setting up dependencies and configurations.
-     * Initializes the ProbeUrlHandler with a mocked StorageInterface and a real UplinkrConfig instance.
+     * Initializes the UrlHandler with a mocked StorageInterface and a real UplinkrConfig instance.
      * @return void
      */
     protected function setUp(): void
@@ -34,7 +34,7 @@ class ProbeUrlHandlerTest extends TestCase
 
         $sanitizer = new Sanitizer($config);
 
-        $this->probeUriHandler = new ProbeUrlHandler($storageMock, $config, $sanitizer);
+        $this->probeUriHandler = new UrlHandler($storageMock, $config, $sanitizer);
     }
 
     /**
@@ -42,6 +42,6 @@ class ProbeUrlHandlerTest extends TestCase
      */
     public function testCanBeInstantiated(): void
     {
-        $this->assertInstanceOf(ProbeUrlHandler::class, $this->probeUriHandler);
+        $this->assertInstanceOf(UrlHandler::class, $this->probeUriHandler);
     }
 }

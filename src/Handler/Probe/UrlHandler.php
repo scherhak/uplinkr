@@ -1,6 +1,6 @@
 <?php
 
-namespace Uplinkr\Handler;
+namespace Uplinkr\Handler\Probe;
 
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Arr;
@@ -10,12 +10,12 @@ use Uplinkr\Objects\Config\UplinkrConfig;
 use Uplinkr\Support\Sanitizer;
 
 /**
- * Class ProbeUrlHandler
+ * Class UrlHandler
  * @package Uplinkr\Handler
  *
  * @author Sascha Scherhak <sascha@uplinkr.dev>
  */
-class ProbeUrlHandler
+class UrlHandler
 {
     /**
      * @var array $data
@@ -116,7 +116,7 @@ class ProbeUrlHandler
     {
         $requestResult = $this->getRequestResult($request);
 
-        return (new ProbeResultHandler($requestResult))->build(
+        return (new ResultHandler($requestResult))->build(
             durationTime: $durationTime,
             probeMessage: $probeMessage,
             probeStatus: $probeStatus,

@@ -1,6 +1,6 @@
 <?php
 
-namespace Uplinkr\Handler;
+namespace Uplinkr\Handler\Storage;
 
 use Carbon\Carbon;
 use Exception;
@@ -9,12 +9,12 @@ use InvalidArgumentException;
 use Uplinkr\Objects\Config\UplinkrConfig;
 
 /**
- * Class StoragePruneHandler
+ * Class PruneHandler
  * @package Uplinkr\Handler
  *
  * @author Sascha Scherhak <sascha@uplinkr.dev>
  */
-class StoragePruneHandler
+class PruneHandler
 {
     public function __construct(
         private readonly UplinkrConfig $config

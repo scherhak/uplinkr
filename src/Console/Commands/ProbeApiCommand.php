@@ -6,7 +6,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\Console\Command\Command as CommandAlias;
-use Uplinkr\Handler\ProbeApiHandler;
+use Uplinkr\Handler\Probe\ApiHandler;
 use Uplinkr\Objects\Config\UplinkrConfig;
 use Uplinkr\Traits\HandlesProbeOutput;
 
@@ -49,7 +49,7 @@ class ProbeApiCommand extends Command
      */
     protected $description = 'Run an API probe with headers, method and optional body';
 
-    public function handle(ProbeApiHandler $probeApiHandler, UplinkrConfig $config): int
+    public function handle(ApiHandler $probeApiHandler, UplinkrConfig $config): int
     {
         $endpoint = $this->option('endpoint');
         $method = $this->option('method');

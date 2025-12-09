@@ -1,17 +1,17 @@
 <?php
 
-namespace Uplinkr\Handler;
+namespace Uplinkr\Handler\Probe;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 
 /**
- * Class ProbeResultHandler
+ * Class ResultHandler
  * @package Uplinkr\Handler
  *
  * @author Sascha Scherhak <sascha@uplinkr.dev>
  */
-class ProbeResultHandler
+class ResultHandler
 {
     /**
      * @param array $result

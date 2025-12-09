@@ -7,7 +7,7 @@ use Illuminate\Console\ConfirmableTrait;
 use Illuminate\Support\Facades\Storage;
 use InvalidArgumentException;
 use Symfony\Component\Console\Command\Command as CommandAlias;
-use Uplinkr\Handler\StoragePruneHandler;
+use Uplinkr\Handler\Storage\PruneHandler;
 use Uplinkr\Objects\Config\UplinkrConfig;
 
 /**
@@ -43,7 +43,7 @@ class StoragePruneCommand extends Command
      *             - CommandAlias::FAILURE if the process encounters an error.
      *             - CommandAlias::INVALID if no action is performed.
      */
-    public function handle(UplinkrConfig $config, StoragePruneHandler $storagePruneHandler): int
+    public function handle(UplinkrConfig $config, PruneHandler $storagePruneHandler): int
     {
         $project = $this->option('project');
         $before = $this->option('before');

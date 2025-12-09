@@ -1,0 +1,441 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://uplinkr.dev/schema/summary.json",
+  "title": "Uplinkr Probe Summary",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["meta", "overview", "performance", "status_codes", "urls"],
+  "properties": {
+    "meta": {
+      "type": "object",
+      "description": "Metadaten zur erzeugten Auswertung",
+      "additionalProperties": false,
+      "required": ["project", "generated_at", "time_range", "version"],
+      "properties": {
+        "project": {
+          "type": "string",
+          "description": "Projekt-Name wie in Uplinkr konfiguriert"
+        },
+        "generated_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Zeitpunkt der Generierung der Summary (ISO 8601)"
+        },
+        "time_range": {
+          "type": "object",
+          "description": "Zeitraum, über den aggregiert wurde",
+          "additionalProperties": false,
+          "required": ["from", "to"],
+          "properties": {
+            "from": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Startzeitpunkt (inklusive)"
+            },
+            "to": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Endzeitpunkt (exklusive oder inklusive, je nach Definition)"
+            }
+          }
+        },
+        "version": {
+          "type": "string",
+          "description": "Schema- bzw. Formatversion dieser Summary (z. B. '1.0.0')"
+        },
+        "source": {
+          "type": "object",
+          "description": "Optionale Infos zu den zugrunde liegenden Rohdaten",
+          "additionalProperties": false,
+          "required": ["files_count", "probes_count"],
+          "properties": {
+            "files_count": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Anzahl der eingelesenen Logdateien"
+            },
+            "probes_count": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Anzahl der insgesamt ausgewerteten Probes"
+            }
+          }
+        }
+      }
+    },
+
+    "overview": {
+      "type": "object",
+      "description": "Gesamtüberblick zur Verfügbarkeit",
+      "additionalProperties": false,
+      "required": [
+        "total_probes",
+        "reachable",
+        "unreachable",
+        "uptime_percent",
+        "urls_monitored",
+        "incidents_count"
+      ],
+      "properties": {
+        "total_probes": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Gesamtzahl der Probes im Zeitraum"
+        },
+        "reachable": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Anzahl Probes mit probe_status = 'reachable'"
+        },
+        "unreachable": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Anzahl Probes mit probe_status != 'reachable'"
+        },
+        "uptime_percent": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Uptime in Prozent im angegebenen Zeitraum"
+        },
+        "urls_monitored": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Anzahl unterschiedlicher überwachten URLs"
+        },
+        "incidents_count": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Gesamtzahl erkannter Incidents"
+        }
+      }
+    },
+
+    "performance": {
+      "type": "object",
+      "description": "Globale Performance-Kennzahlen über alle Probes im Zeitraum",
+      "additionalProperties": false,
+      "required": [
+        "duration_ms",
+        "sample_size"
+      ],
+      "properties": {
+        "duration_ms": {
+          "type": "object",
+          "description": "Statistiken zur Dauer der Probes in Millisekunden",
+          "additionalProperties": false,
+          "required": ["avg", "p50", "p95", "min", "max"],
+          "properties": {
+            "avg": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Durchschnittliche Dauer in ms"
+            },
+            "p50": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Median (50. Perzentil) der Dauer in ms"
+            },
+            "p95": {
+              "type": "number",
+              "minimum": 0,
+              "description": "95. Perzentil der Dauer in ms"
+            },
+            "min": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Kleinste gemessene Dauer in ms"
+            },
+            "max": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Größte gemessene Dauer in ms"
+            }
+          }
+        },
+        "sample_size": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Anzahl Probes, die in die Performance-Berechnung eingegangen sind"
+        }
+      }
+    },
+
+    "status_codes": {
+      "type": "object",
+      "description": "Aggregationen der HTTP-Statuscodes",
+      "additionalProperties": false,
+      "required": ["codes", "classes"],
+      "properties": {
+        "codes": {
+          "type": "object",
+          "description": "Zählung je konkretem HTTP-Statuscode",
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "classes": {
+          "type": "object",
+          "description": "Zählung je Statusklasse (z. B. '2xx', '4xx')",
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "properties": {
+            "1xx": { "type": "integer", "minimum": 0 },
+            "2xx": { "type": "integer", "minimum": 0 },
+            "3xx": { "type": "integer", "minimum": 0 },
+            "4xx": { "type": "integer", "minimum": 0 },
+            "5xx": { "type": "integer", "minimum": 0 }
+          }
+        }
+      }
+    },
+
+    "incidents": {
+      "type": "array",
+      "description": "Liste erkannter Störungen im Zeitraum (optional leer)",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "url", "start_at", "end_at", "status", "probe_count"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Interne Incident-ID (z. B. UUID oder laufende Nummer)"
+          },
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "description": "Betroffene URL"
+          },
+          "start_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Zeitpunkt, an dem die Störung begonnen hat"
+          },
+          "end_at": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "Zeitpunkt, an dem die Störung endete (null = noch aktiv)"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["open", "resolved"],
+            "description": "Aktueller Status des Incidents"
+          },
+          "duration_seconds": {
+            "type": ["number", "null"],
+            "minimum": 0,
+            "description": "Gesamtdauer der Störung in Sekunden, falls berechenbar"
+          },
+          "probe_count": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Anzahl Probes, die zu diesem Incident gehören"
+          },
+          "dominant_status_code": {
+            "type": ["integer", "null"],
+            "minimum": 100,
+            "maximum": 599,
+            "description": "Typischer/überwiegender HTTP-Statuscode während des Incidents, falls vorhanden"
+          }
+        }
+      },
+      "default": []
+    },
+
+    "urls": {
+      "type": "array",
+      "description": "URL-bezogene Statistiken",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "url",
+          "total_probes",
+          "reachable",
+          "unreachable",
+          "uptime_percent",
+          "current_status",
+          "current_http_status",
+          "current_duration_ms",
+          "last_probe_at",
+          "incidents_count",
+          "performance",
+          "status_codes"
+        ],
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "description": "Überwachte URL"
+          },
+          "label": {
+            "type": "string",
+            "description": "Optionale sprechende Bezeichnung der URL"
+          },
+          "total_probes": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "reachable": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "unreachable": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "uptime_percent": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "current_status": {
+            "type": "string",
+            "enum": ["reachable", "unreachable", "unknown"],
+            "description": "Aktueller Status basierend auf dem letzten Probe"
+          },
+          "current_http_status": {
+            "type": ["integer", "null"],
+            "minimum": 100,
+            "maximum": 599,
+            "description": "HTTP-Statuscode des letzten Probe (null, wenn kein Status vorliegt)"
+          },
+          "current_duration_ms": {
+            "type": ["number", "null"],
+            "minimum": 0,
+            "description": "Dauer des letzten Probe in ms"
+          },
+          "last_probe_at": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "Zeitpunkt des letzten Probes"
+          },
+          "incidents_count": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Anzahl Incidents, die diese URL im Zeitraum hatte"
+          },
+          "performance": {
+            "type": "object",
+            "description": "Performance-Kennzahlen nur für diese URL",
+            "additionalProperties": false,
+            "required": ["duration_ms", "sample_size"],
+            "properties": {
+              "duration_ms": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["avg", "p50", "p95", "min", "max"],
+                "properties": {
+                  "avg": { "type": "number", "minimum": 0 },
+                  "p50": { "type": "number", "minimum": 0 },
+                  "p95": { "type": "number", "minimum": 0 },
+                  "min": { "type": "number", "minimum": 0 },
+                  "max": { "type": "number", "minimum": 0 }
+                }
+              },
+              "sample_size": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          },
+          "status_codes": {
+            "type": "object",
+            "description": "Statuscode-Verteilung nur für diese URL",
+            "additionalProperties": false,
+            "required": ["codes", "classes"],
+            "properties": {
+              "codes": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              },
+              "classes": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "properties": {
+                  "1xx": { "type": "integer", "minimum": 0 },
+                  "2xx": { "type": "integer", "minimum": 0 },
+                  "3xx": { "type": "integer", "minimum": 0 },
+                  "4xx": { "type": "integer", "minimum": 0 },
+                  "5xx": { "type": "integer", "minimum": 0 }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "timeseries": {
+      "type": "object",
+      "description": "Optionale zeitliche Aggregation (z. B. für Diagramme)",
+      "additionalProperties": false,
+      "required": ["bucket_size", "buckets"],
+      "properties": {
+        "bucket_size": {
+          "type": "string",
+          "enum": ["minute", "hour", "day"],
+          "description": "Größe der Zeit-Buckets"
+        },
+        "buckets": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "start",
+              "end",
+              "probe_count",
+              "reachable_count",
+              "unreachable_count",
+              "avg_duration_ms",
+              "p95_duration_ms"
+            ],
+            "properties": {
+              "start": {
+                "type": "string",
+                "format": "date-time",
+                "description": "Beginn des Buckets"
+              },
+              "end": {
+                "type": "string",
+                "format": "date-time",
+                "description": "Ende des Buckets"
+              },
+              "probe_count": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "reachable_count": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "unreachable_count": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "avg_duration_ms": {
+                "type": ["number", "null"],
+                "minimum": 0
+              },
+              "p95_duration_ms": {
+                "type": ["number", "null"],
+                "minimum": 0
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

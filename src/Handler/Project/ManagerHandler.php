@@ -1,6 +1,6 @@
 <?php
 
-namespace Uplinkr\Handler;
+namespace Uplinkr\Handler\Project;
 
 use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Support\Facades\File;
@@ -8,12 +8,12 @@ use Illuminate\Support\Facades\Storage;
 use Uplinkr\Objects\Config\UplinkrConfig;
 
 /**
- * Class ProjectManagerHandler
+ * Class ManagerHandler
  * @package Uplinkr\Handler
  *
  * @author Sascha Scherhak <sascha@uplinkr.dev>
  */
-class ProjectManagerHandler
+class ManagerHandler
 {
     /**
      * @var Filesystem $storage
@@ -59,7 +59,7 @@ class ProjectManagerHandler
     }
 
     /**
-     * TODO: (0.1.0) Replace/Use this in StoragePruneHandler->deleteDirectory
+     * TODO: (0.1.0) Replace/Use this in PruneHandler->deleteDirectory
      *
      * Deletes a directory corresponding to the specified project name.
      *

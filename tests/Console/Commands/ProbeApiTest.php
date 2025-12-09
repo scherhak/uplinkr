@@ -4,7 +4,7 @@ namespace Uplinkr\Tests\Console\Commands;
 
 use Illuminate\Console\Command;
 use Mockery\MockInterface;
-use Uplinkr\Handler\ProbeApiHandler;
+use Uplinkr\Handler\Probe\ApiHandler;
 use Uplinkr\Objects\Config\UplinkrConfig;
 use Uplinkr\Tests\TestCase;
 
@@ -26,7 +26,7 @@ class ProbeApiTest extends TestCase
     {
         // We mock the handler so that the dependency can be resolved,
         // even if we expect the code not to reach the call.
-        $this->mock(ProbeApiHandler::class);
+        $this->mock(ApiHandler::class);
 
         // Case 1: No URL
         $this->artisan('uplinkr:probe-api')
@@ -44,7 +44,7 @@ class ProbeApiTest extends TestCase
     {
         $endpoint = 'https://api.example.com';
 
-        $this->mock(ProbeApiHandler::class, function (MockInterface $mock) use ($endpoint) {
+        $this->mock(ApiHandler::class, function (MockInterface $mock) use ($endpoint) {
             $mock->shouldReceive('with')
                 ->once()
                 ->withArgs(function ($data) use ($endpoint) {
@@ -77,7 +77,7 @@ class ProbeApiTest extends TestCase
         $body = '{"key":"value"}';
         $project = 'my-project';
 
-        $this->mock(ProbeApiHandler::class, function (MockInterface $mock) use ($endpoint, $method, $headers, $body, $project) {
+        $this->mock(ApiHandler::class, function (MockInterface $mock) use ($endpoint, $method, $headers, $body, $project) {
             $mock->shouldReceive('with')
                 ->once()
                 ->with([
@@ -112,7 +112,7 @@ class ProbeApiTest extends TestCase
         $endpoint = 'https://api.example.com';
 
         // Handler should NOT be called
-        $this->mock(ProbeApiHandler::class, function (MockInterface $mock) {
+        $this->mock(ApiHandler::class, function (MockInterface $mock) {
             $mock->shouldNotReceive('with');
             $mock->shouldNotReceive('handle');
         });
@@ -132,7 +132,7 @@ class ProbeApiTest extends TestCase
     {
         $endpoint = 'https://api.example.com';
 
-        $this->mock(ProbeApiHandler::class, function (MockInterface $mock) {
+        $this->mock(ApiHandler::class, function (MockInterface $mock) {
             $mock->shouldReceive('with')->once()->andReturnSelf();
             $mock->shouldReceive('handle')->once()->andReturn([]);
         });

@@ -4,7 +4,7 @@ namespace Uplinkr\Tests\Handler;
 
 use Illuminate\Support\Facades\Storage;
 use InvalidArgumentException;
-use Uplinkr\Handler\StoragePruneHandler;
+use Uplinkr\Handler\Storage\PruneHandler;
 use Uplinkr\Objects\Config\UplinkrConfig;
 use Uplinkr\Tests\TestCase;
 
@@ -14,11 +14,11 @@ use Uplinkr\Tests\TestCase;
  */
 class StoragePruneHandlerTest extends TestCase
 {
-    private StoragePruneHandler $handler;
+    private PruneHandler $handler;
 
     /**
      * Initializes the test setup by creating an instance of the configuration file
-     * and setting up the StoragePruneHandler with the provided configuration.
+     * and setting up the PruneHandler with the provided configuration.
      *
      * @return void
      */
@@ -37,7 +37,7 @@ class StoragePruneHandlerTest extends TestCase
             fileExtension: 'log'
         );
 
-        $this->handler = new StoragePruneHandler($config);
+        $this->handler = new PruneHandler($config);
     }
 
     /**
