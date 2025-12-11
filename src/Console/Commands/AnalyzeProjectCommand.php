@@ -47,14 +47,19 @@ class AnalyzeProjectCommand extends Command
 
         $files   = $analyzeHandler->probeResultsList($project, $from, $to);
 
-//        foreach ($files as $file) {
-//            echo $file . "\n";
-//        }
-
-
         Log::debug('Analyse result: ', [
             'files' => $files,
         ]);
+
+        foreach ($files as $file) {
+            $lines = $analyzeHandler->readProbeResultFile($file);
+            foreach ($lines as $line) {
+                Log::debug('Analyse result: ', [
+                    'result' => json_decode($line, true),
+                ]);
+            }
+        }
+
 
 
         return CommandAlias::INVALID;

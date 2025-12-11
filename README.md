@@ -8,8 +8,8 @@ php artisan vendor:publish --tag=uplinkr-config
 php artisan vendor:publish --tag=uplinkr-lang
 
 # Artisan Command
-php artisan uplinkr:probe-api --endpoint=https://uplinkr.dev/api/health --method=GET --project=upkr-api-test
 php artisan uplinkr:probe-url --url=https://uplinkr.dev --project=upnkr-url-test
+php artisan uplinkr:probe-api --endpoint=https://uplinkr.dev/api/health --method=GET --project=upkr-api-test
 php artisan uplinkr:project --list
 php artisan uplinkr:project --project=scherhak-com --archive
 php artisan uplinkr:prune {--project=} {--before=} {--wipe-all} {--force}

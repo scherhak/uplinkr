@@ -4,6 +4,7 @@ namespace Uplinkr\Handler\Project;
 
 use DateTimeImmutable;
 use Exception;
+use Illuminate\Support\LazyCollection;
 use Storage;
 use Uplinkr\Objects\Config\UplinkrConfig;
 
@@ -58,10 +59,37 @@ class AnalyzeHandler
         return array_values($files);
     }
 
-//    public function readProbeResultFile(string $path)
-//    {
-//        return Storage::disk($this->config->getStorageDisc())->get($path);
-//    }
+    /**
+     * Reads a probe result file and returns its content line by line as an array.
+     * Each line in the file is expected to be a JSON string.
+     *
+     * @param string $path
+     * @return array
+     */
+    public function readProbeResultFile(string $path): array
+    {
+        $disk = Storage::disk($this->config->getStorageDisc());
+
+        // Prefer Laravel-style API when available
+        if (method_exists($disk, 'lines')) {
+            $lazy = $disk->lines($path);
+            return $lazy
+                ->map(static fn($l) => is_string($l) ? trim($l) : $l)
+                ->filter(static fn($l) => $l !== '')
+                ->values()
+                ->all();
+        }
+
+        // Use Storage::get() to read the file content
+        $content = $disk->get($path);
+        if ($content === null || $content === '') {
+            return [];
+        }
+
+        $lines = preg_split('/\r\n|\r|\n/', $content) ?: [];
+
+        return array_values(array_filter(array_map('trim', $lines), fn($l) => $l !== ''));
+    }
 
 
     /**
@@ -87,16 +115,12 @@ class AnalyzeHandler
 
             $fileDate = new DateTimeImmutable($date);
 
-            if ((null !== $fromDate)) {
-                if($fileDate < new DateTimeImmutable($fromDate)) {
-                    return false;
-                }
+            if ((null !== $fromDate) && $fileDate < new DateTimeImmutable($fromDate)) {
+                return false;
             }
 
-            if ((null !== $toDate)) {
-                if($fileDate > new DateTimeImmutable($toDate)) {
-                    return false;
-                }
+            if ((null !== $toDate) && $fileDate > new DateTimeImmutable($toDate)) {
+                return false;
             }
 
             return true;
