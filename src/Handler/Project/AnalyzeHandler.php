@@ -84,6 +84,13 @@ class AnalyzeHandler
             ->all();
     }
 
+    /**
+     * Decodes and filters an array of JSON-encoded probe result lines.
+     *
+     * @param array $lines An array of strings, each representing a JSON-encoded probe result line.
+     *
+     * @return array An array of successfully decoded associative arrays, filtered to remove invalid and empty lines.
+     */
     public function decodeProbeResultLines(array $lines): array
     {
         return collect($lines)
@@ -94,10 +101,11 @@ class AnalyzeHandler
                     return null;
                 }
 
-                $decoded = json_decode($line, true);
+                $decoded = json_decode($line, true, 512, JSON_THROW_ON_ERROR);
 
-                if (json_last_error() !== JSON_ERROR_NONE || !is_array($decoded)) {
-                    // Optional: Log::warning('Invalid probe result JSON line', ['line' => $line]);
+                if (!is_array($decoded) || json_last_error() !== JSON_ERROR_NONE) {
+                    // TODO Think about logging invalid lines
+                    // Log::warning('Invalid probe result JSON line', ['line' => $line]);
                     return null;
                 }
 

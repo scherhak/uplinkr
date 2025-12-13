@@ -3,11 +3,11 @@
 namespace Uplinkr\Storage;
 
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use JsonException;
 use Uplinkr\Interfaces\StorageInterface;
 use Uplinkr\Objects\Config\UplinkrConfig;
+use Uplinkr\Support\Sanitizer;
 
 /**
  * Class FileStorage
@@ -25,7 +25,8 @@ class FileStorage implements StorageInterface
      * @return void
      */
     public function __construct(
-        private readonly UplinkrConfig $config
+        private readonly UplinkrConfig $config,
+        private readonly Sanitizer     $sanitizer,
     )
     {
     }
@@ -136,22 +137,7 @@ class FileStorage implements StorageInterface
             return $this->config->getStandardProject();
         }
 
-        // Ensure that a scheme exists so that parse_url works reliably.
-        if (!preg_match('#^[a-zA-Z][a-zA-Z0-9+.-]*://#', $rawUrl)) {
-            $rawUrl = 'http://' . ltrim($rawUrl, '/');
-        }
-
-        // Extract only the host (domain), e.g., "scherhak.com"
-        $host = parse_url($rawUrl, PHP_URL_HOST) ?: $rawUrl;
-        $host = preg_replace('/^www\./i', '', $host);
-
-        // Everything that is not a letter/number should be changed to "_"
-        $sanitized = preg_replace('/[^A-Za-z0-9]+/', '_', $host);
-
-        // Shrink multiple "_" lines and trim edges
-        $sanitized = trim(preg_replace('/_+/', '_', $sanitized), '_');
-
-        return strtolower($sanitized);
+        return $this->sanitizer->url($rawUrl);
     }
 
     /**

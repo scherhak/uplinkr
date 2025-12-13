@@ -12,6 +12,7 @@ final class ProbeResultsSummary
     /**
      * Constructor for the class.
      *
+     * @param string $url The URL of the probe.
      * @param int $total The total count of items.
      * @param int $reachable The count of reachable items.
      * @param int $unreachable The count of unreachable items.
@@ -24,14 +25,16 @@ final class ProbeResultsSummary
      * @return void
      */
     public function __construct(
+        public readonly string  $url,
         public readonly int     $total,
         public readonly int     $reachable,
         public readonly int     $unreachable,
+        public readonly int     $error,
         public readonly int     $unknown,
         public readonly ?string $firstExecutedAt,
         public readonly ?string $lastExecutedAt,
         public readonly ?float  $avgDurationMs,
-        public readonly array   $statusHeaderCounts, // e.g. [200 => 10, 503 => 2]
+        public readonly array   $statusHeaderCounts,
     )
     {
     }
@@ -40,9 +43,11 @@ final class ProbeResultsSummary
      * Converts the object properties to an associative array.
      *
      * @return array An array containing the object's properties:
+     *               - 'url': string, the URL of the probe.
      *               - 'total': int, the total count of items.
      *               - 'reachable': int, the count of reachable items.
      *               - 'unreachable': int, the count of unreachable items.
+     *               - 'error': int, the count of error items.
      *               - 'unknown': int, the count of items with unknown status.
      *               - 'first_executed_at': ?string, the timestamp of the first execution, or null if not applicable.
      *               - 'last_executed_at': ?string, the timestamp of the last execution, or null if not applicable.
@@ -52,9 +57,11 @@ final class ProbeResultsSummary
     public function toArray(): array
     {
         return [
+            'url' => $this->url,
             'total' => $this->total,
             'reachable' => $this->reachable,
             'unreachable' => $this->unreachable,
+            'error' => $this->error,
             'unknown' => $this->unknown,
             'first_executed_at' => $this->firstExecutedAt,
             'last_executed_at' => $this->lastExecutedAt,

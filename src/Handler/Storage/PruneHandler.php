@@ -36,8 +36,8 @@ class PruneHandler
             $beforeDate = Carbon::createFromFormat('Y-m-d', $beforeDateString)?->startOfDay();
         } catch (Exception $e) {
             throw new InvalidArgumentException(sprintf('Invalid date format: %s (ex: %s)',
-                $beforeDateString,
-                $e->getMessage())
+                    $beforeDateString,
+                    $e->getMessage())
             );
         }
 

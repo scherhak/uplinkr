@@ -34,7 +34,7 @@ class AnalyzeProjectCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Lists projects and/or archives them';
+    protected $description = 'Analyzes and evaluates the results of URL queries';
 
     /**
      * @throws Exception
@@ -49,9 +49,9 @@ class AnalyzeProjectCommand extends Command
         $files = $analyzeHandler->probeResultsList($project, $from, $to);
 
         foreach ($files as $file) {
-            $lines = $analyzeHandler->readProbeResultFile($file);
-            $results = $analyzeHandler->decodeProbeResultLines($lines);
-            $summary = $summaryHandler->summarizeProbeResults($results);
+            $lines = $analyzeHandler->readProbeResultFile(path: $file);
+            $results = $analyzeHandler->decodeProbeResultLines(lines: $lines);
+            $summary = $summaryHandler->summarizeProbeResults(decodedLines: $results);
 
             Log::debug('summary: ', [
                 'summary' => $summary,

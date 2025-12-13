@@ -6,6 +6,7 @@ use Exception;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Http;
+use Str;
 use Uplinkr\Interfaces\StorageInterface;
 use Uplinkr\Objects\Config\UplinkrConfig;
 use Uplinkr\Support\Sanitizer;
@@ -61,7 +62,7 @@ class UrlHandler
         $request = null;
         $startTime = microtime(true);
 
-        $method = strtoupper($this->getMethod());
+        $method = Str::upper($this->getMethod());
 
         // default
         $probeStatus = 'error';

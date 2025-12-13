@@ -120,7 +120,7 @@ class StoragePruneCommand extends Command
                 }
             } elseif ($wipeAll) {
 
-                if($config->allowCompleteWipe()) {
+                if ($config->allowCompleteWipe()) {
                     $storagePruneHandler->deleteDirectory($config->getStoragePath());
                     if (!$force) {
                         $this->warn(__('uplinkr::messages.prune_wipe_all_success'));

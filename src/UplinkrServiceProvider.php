@@ -11,6 +11,7 @@ use Uplinkr\Console\Commands\StoragePruneCommand;
 use Uplinkr\Interfaces\StorageInterface;
 use Uplinkr\Objects\Config\UplinkrConfig;
 use Uplinkr\Storage\FileStorage;
+use Uplinkr\Support\Sanitizer;
 
 /**
  * Class UplinkrServiceProvider
@@ -59,7 +60,9 @@ class UplinkrServiceProvider extends ServiceProvider
 
         $this->app->singleton(StorageInterface::class, function ($app) {
             $config = $app->make(UplinkrConfig::class);
-            return new FileStorage($config);
+            $sanitizer = $app->make(Sanitizer::class);
+
+            return new FileStorage($config, $sanitizer);
         });
 
         $this->app->singleton(UplinkrConfig::class, function () {

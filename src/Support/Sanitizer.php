@@ -43,4 +43,29 @@ class Sanitizer
 
         return strtolower($sanitized);
     }
+
+    /**
+     * Sanitizes the provided URL by normalizing its scheme and extracting the host, replacing non-alphanumeric characters with underscores.
+     *
+     * @param string $url The input URL to be sanitized. If the URL does not include a scheme, "http://" is prepended by default.
+     * @return string The sanitized host portion of the URL in lowercase, with non-alphanumeric characters replaced by underscores.
+     */
+    public function url(string $url): string
+    {
+        if (!preg_match('#^[a-zA-Z][a-zA-Z0-9+.-]*://#', $url)) {
+            $url = 'http://' . ltrim($url, '/');
+        }
+
+        // Extract only the host (domain), e.g., "scherhak.com"
+        $host = parse_url($url, PHP_URL_HOST) ?: $url;
+        $host = preg_replace('/^www\./i', '', $host);
+
+        // Everything that is not a letter/number should be changed to "_"
+        $sanitized = preg_replace('/[^A-Za-z0-9]+/', '_', $host);
+
+        // Shrink multiple "_" lines and trim edges
+        $sanitized = trim(preg_replace('/_+/', '_', $sanitized), '_');
+
+        return strtolower($sanitized);
+    }
 }
