@@ -6,6 +6,7 @@ use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 use Uplinkr\Handler\Project\AnalyzeHandler;
+use Uplinkr\Handler\Project\SummaryHandler;
 
 /**
  * Class ProjectManagerCommand
@@ -38,7 +39,7 @@ class AnalyzeProjectCommand extends Command
     /**
      * @throws Exception
      */
-    public function handle(AnalyzeHandler $analyzeHandler): int
+    public function handle(AnalyzeHandler $analyzeHandler, SummaryHandler $summaryHandler): int
     {
         $project = $this->option('project');
         $from = $this->option('from');
@@ -47,18 +48,25 @@ class AnalyzeProjectCommand extends Command
 
         $files = $analyzeHandler->probeResultsList($project, $from, $to);
 
-        Log::debug('Analyse result: ', [
-            'files' => $files,
-        ]);
+//        Log::debug('Analyse result: ', [
+//            'files' => $files,
+//        ]);
 
         foreach ($files as $file) {
             $lines = $analyzeHandler->readProbeResultFile($file);
+            $results = $analyzeHandler->decodeProbeResultLines($lines);
+//            $summary = $summaryHandler->summarizeProbeResults($results);
+            $summary = $summaryHandler->summarizeProbeResults($results);
 
-            foreach ($lines as $line) {
-                Log::debug('Analyse result: ', [
-                    'result' => json_decode($line, true),
-                ]);
-            }
+            Log::debug('summary: ', [
+                'summary' => $summary,
+            ]);
+
+//            foreach ($lines as $line) {
+//                Log::debug('Analyse result: ', [
+//                    'result' => json_decode($line, true),
+//                ]);
+//            }
         }
 
         // In Laravel 12, console commands should return one of the built-in status codes

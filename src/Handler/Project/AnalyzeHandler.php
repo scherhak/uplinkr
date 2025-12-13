@@ -84,6 +84,30 @@ class AnalyzeHandler
             ->all();
     }
 
+    public function decodeProbeResultLines(array $lines): array
+    {
+        return collect($lines)
+            ->map(static function (string $line): ?array {
+                $line = trim($line);
+
+                if ($line === '') {
+                    return null;
+                }
+
+                $decoded = json_decode($line, true);
+
+                if (json_last_error() !== JSON_ERROR_NONE || ! is_array($decoded)) {
+                    // Optional: Log::warning('Invalid probe result JSON line', ['line' => $line]);
+                    return null;
+                }
+
+                return $decoded;
+            })
+            ->filter(static fn ($decoded) => is_array($decoded))
+            ->values()
+            ->all();
+    }
+
     /**
      * Filters an array of file paths based on a specified date range.
      *
