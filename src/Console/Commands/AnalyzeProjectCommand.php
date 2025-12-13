@@ -2,9 +2,9 @@
 
 namespace Uplinkr\Console\Commands;
 
+use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
-use Symfony\Component\Console\Command\Command as CommandAlias;
 use Uplinkr\Handler\Project\AnalyzeHandler;
 
 /**
@@ -36,7 +36,7 @@ class AnalyzeProjectCommand extends Command
     protected $description = 'Lists projects and/or archives them';
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function handle(AnalyzeHandler $analyzeHandler): int
     {
@@ -45,7 +45,7 @@ class AnalyzeProjectCommand extends Command
         $to = $this->option('to');
         $force = $this->option('force');
 
-        $files   = $analyzeHandler->probeResultsList($project, $from, $to);
+        $files = $analyzeHandler->probeResultsList($project, $from, $to);
 
         Log::debug('Analyse result: ', [
             'files' => $files,
@@ -53,6 +53,7 @@ class AnalyzeProjectCommand extends Command
 
         foreach ($files as $file) {
             $lines = $analyzeHandler->readProbeResultFile($file);
+
             foreach ($lines as $line) {
                 Log::debug('Analyse result: ', [
                     'result' => json_decode($line, true),
@@ -60,8 +61,8 @@ class AnalyzeProjectCommand extends Command
             }
         }
 
-
-
-        return CommandAlias::INVALID;
+        // In Laravel 12, console commands should return one of the built-in status codes
+        // to indicate successful execution.
+        return self::SUCCESS;
     }
 }

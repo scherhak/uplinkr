@@ -5,6 +5,7 @@ namespace Uplinkr\Handler\Project;
 use Carbon\CarbonImmutable;
 use Exception;
 use Illuminate\Support\Facades\Storage;
+use Throwable;
 use Uplinkr\Objects\Config\UplinkrConfig;
 
 /**
@@ -77,8 +78,8 @@ class AnalyzeHandler
         $lines = preg_split('/\r\n|\r|\n/', $content) ?: [];
 
         return collect($lines)
-            ->map(fn ($line) => trim($line))
-            ->filter(fn ($line) => $line !== '')
+            ->map(fn($line) => trim($line))
+            ->filter(fn($line) => $line !== '')
             ->values()
             ->all();
     }
@@ -96,7 +97,7 @@ class AnalyzeHandler
     private function filterFilesByDateRange(array $files, ?string $fromDate, ?string $toDate): array
     {
         $from = $fromDate ? CarbonImmutable::parse($fromDate)->startOfDay() : null;
-        $to   = $toDate ? CarbonImmutable::parse($toDate)->endOfDay() : null;
+        $to = $toDate ? CarbonImmutable::parse($toDate)->endOfDay() : null;
 
         return collect($files)
             ->filter(function (string $file) use ($from, $to) {
@@ -107,7 +108,7 @@ class AnalyzeHandler
 
                 try {
                     $fileDate = CarbonImmutable::parse($dateStr);
-                } catch (\Throwable) {
+                } catch (Throwable) {
                     return false;
                 }
 
