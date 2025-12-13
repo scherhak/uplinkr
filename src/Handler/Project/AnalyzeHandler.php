@@ -2,10 +2,9 @@
 
 namespace Uplinkr\Handler\Project;
 
-use DateTimeImmutable;
+use Carbon\CarbonImmutable;
 use Exception;
-use Illuminate\Support\LazyCollection;
-use Storage;
+use Illuminate\Support\Facades\Storage;
 use Uplinkr\Objects\Config\UplinkrConfig;
 
 /**
@@ -96,27 +95,34 @@ class AnalyzeHandler
      */
     private function filterFilesByDateRange(array $files, ?string $fromDate, ?string $toDate): array
     {
-        return array_filter($files, function (string $file) use ($fromDate, $toDate) {
+        $from = $fromDate ? CarbonImmutable::parse($fromDate)->startOfDay() : null;
+        $to   = $toDate ? CarbonImmutable::parse($toDate)->endOfDay() : null;
 
-            $date = $this->extractDateFromFilename($file);
+        return collect($files)
+            ->filter(function (string $file) use ($from, $to) {
+                $dateStr = $this->extractDateFromFilename($file);
+                if ($dateStr === null) {
+                    return false;
+                }
 
-            // Skip files that do not contain a parsable date
-            if (null === $date) {
-                return false;
-            }
+                try {
+                    $fileDate = CarbonImmutable::parse($dateStr);
+                } catch (\Throwable) {
+                    return false;
+                }
 
-            $fileDate = new DateTimeImmutable($date);
+                if ($from && $fileDate->lt($from)) {
+                    return false;
+                }
 
-            if ((null !== $fromDate) && $fileDate < new DateTimeImmutable($fromDate)) {
-                return false;
-            }
+                if ($to && $fileDate->gt($to)) {
+                    return false;
+                }
 
-            if ((null !== $toDate) && $fileDate > new DateTimeImmutable($toDate)) {
-                return false;
-            }
-
-            return true;
-        });
+                return true;
+            })
+            ->values()
+            ->all();
     }
 
     /**
