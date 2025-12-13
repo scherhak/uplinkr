@@ -96,14 +96,14 @@ class AnalyzeHandler
 
                 $decoded = json_decode($line, true);
 
-                if (json_last_error() !== JSON_ERROR_NONE || ! is_array($decoded)) {
+                if (json_last_error() !== JSON_ERROR_NONE || !is_array($decoded)) {
                     // Optional: Log::warning('Invalid probe result JSON line', ['line' => $line]);
                     return null;
                 }
 
                 return $decoded;
             })
-            ->filter(static fn ($decoded) => is_array($decoded))
+            ->filter(static fn($decoded) => is_array($decoded))
             ->values()
             ->all();
     }
