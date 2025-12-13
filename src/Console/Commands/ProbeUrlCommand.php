@@ -3,6 +3,7 @@
 namespace Uplinkr\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\Console\Command\Command as CommandAlias;
 use Uplinkr\Handler\Probe\UrlHandler;
@@ -36,6 +37,9 @@ class ProbeUrlCommand extends Command
     protected $signature = 'uplinkr:probe-url 
                             {--url= : Target URL}
                             {--project= : Optional project name} 
+                            {--method=GET : HTTP method (GET, POST, PUT, DELETE, ...)} 
+                            {--header=* : Additional headers, e.g. "Authorization: Bearer xxx"} 
+                            {--body= : JSON body as string} 
                             {--force}';
 
     /**
@@ -63,6 +67,9 @@ class ProbeUrlCommand extends Command
     {
         $url = $this->option('url');
         $project = $this->option('project');
+        $method = $this->option('method');
+        $headers = $this->option('header');
+        $body = $this->option('body');
         $force = $this->option('force');
 
         // url validating
@@ -90,6 +97,9 @@ class ProbeUrlCommand extends Command
                 $result = $probeUrlHandler->with(data: [
                     'url' => $url,
                     'project' => $project,
+                    'method' => $method,
+                    'headers' => Arr::wrap($headers),
+                    'body' => $body,
                 ])->handle();
 
                 if (!$force) {
