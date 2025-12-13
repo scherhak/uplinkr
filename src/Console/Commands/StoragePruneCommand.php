@@ -119,18 +119,21 @@ class StoragePruneCommand extends Command
                     }
                 }
             } elseif ($wipeAll) {
-                $storagePruneHandler->deleteDirectory($config->getStoragePath());
-                if (!$force) {
-                    $this->warn(__('uplinkr::messages.prune_wipe_all_success'));
+
+                if($config->allowCompleteWipe()) {
+                    $storagePruneHandler->deleteDirectory($config->getStoragePath());
+                    if (!$force) {
+                        $this->warn(__('uplinkr::messages.prune_wipe_all_success'));
+                    }
+                    $storagePruneHandler->makeDirectory($config->getStoragePath());
+                    if (!$force) {
+                        $this->info(__('uplinkr::messages.prune_wipe_all_new_folder_created'));
+                    }
+                } else {
+                    $this->error(__('uplinkr::messages.prune_wipe_all_not_allowed'));
                 }
-                $storagePruneHandler->makeDirectory($config->getStoragePath());
-                if (!$force) {
-                    $this->info(__('uplinkr::messages.prune_wipe_all_new_folder_created'));
-                }
-            } else {
-                if (!$force) {
-                    $this->warn(__('uplinkr::messages.prune_wipe_all_no_files_wiped'));
-                }
+            } else if (!$force) {
+                $this->warn(__('uplinkr::messages.prune_wipe_all_no_files_wiped'));
             }
 
             return CommandAlias::SUCCESS;

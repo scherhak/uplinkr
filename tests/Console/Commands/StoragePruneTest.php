@@ -39,7 +39,9 @@ class StoragePruneTest extends TestCase
             standardProject: 'test_project',
             probeResultsPath: 'probes',
             probeFilenameSeparator: '@',
-            fileExtension: 'log'
+            fileExtension: 'log',
+            archivedFolder: 'archived',
+            allowCompleteWipe: true,
         );
 
         // We bind the config into the container

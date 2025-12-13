@@ -50,17 +50,7 @@ return [
         | CAPTION
         |--------------------------------------------------------------------------
         |
-        | TODO Check if driver is still needed or can be removed
-        |
-        */
-        'file_type' => 'json',
-
-        /*
-        |--------------------------------------------------------------------------
-        | CAPTION
-        |--------------------------------------------------------------------------
-        |
-        | TODO Check if driver is still needed or can be removed
+        | DESCRIBE
         |
         */
         'file_extension' => 'log',
@@ -83,6 +73,6 @@ return [
         | - DESCRIPTION FOLLOWS -
         |
         */
-        'allow_complete_deletion' => true,
+        'allow_complete_wipe' => false,
     ]
 ];

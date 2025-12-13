@@ -34,7 +34,9 @@ class StoragePruneHandlerTest extends TestCase
             standardProject: 'test_project',
             probeResultsPath: 'probes',
             probeFilenameSeparator: '@',
-            fileExtension: 'log'
+            fileExtension: 'log',
+            archivedFolder: 'archived',
+            allowCompleteWipe: true,
         );
 
         $this->handler = new PruneHandler($config);

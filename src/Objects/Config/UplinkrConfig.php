@@ -20,6 +20,7 @@ final class UplinkrConfig
         public string $probeFilenameSeparator = '@',
         public string $fileExtension = 'log',
         public string $archivedFolder = 'archived',
+        public bool   $allowCompleteWipe = false,
     )
     {
     }
@@ -39,6 +40,7 @@ final class UplinkrConfig
             probeFilenameSeparator: config('uplinkr.storage.probe_filename_separator', '@'),
             fileExtension: config('uplinkr.storage.file_extension', 'log'),
             archivedFolder: config('uplinkr.storage.archive_folder', 'archived'),
+            allowCompleteWipe: config('uplinkr.storage.allow_complete_wipe', false),
         );
     }
 
@@ -96,8 +98,19 @@ final class UplinkrConfig
         return $this->probeFilenameSeparator;
     }
 
+    /**
+     * @return string
+     */
     public function getArchivedFolder(): string
     {
         return $this->archivedFolder;
+    }
+
+    /**
+     * @return bool
+     */
+    public function allowCompleteWipe(): bool
+    {
+        return $this->allowCompleteWipe;
     }
 }
