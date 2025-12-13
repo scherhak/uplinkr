@@ -68,6 +68,7 @@ class UrlHandler
 
         try {
             $pendingRequest = Http::withHeaders([
+                // TODO (0.1.0) Insert a proper and correct name for the URL check.
                 'User-Agent' => 'uplinkr-url-probe-0.1.0',
             ])->withHeaders($this->getParsedHeaders());
 

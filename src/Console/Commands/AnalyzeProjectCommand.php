@@ -48,25 +48,14 @@ class AnalyzeProjectCommand extends Command
 
         $files = $analyzeHandler->probeResultsList($project, $from, $to);
 
-//        Log::debug('Analyse result: ', [
-//            'files' => $files,
-//        ]);
-
         foreach ($files as $file) {
             $lines = $analyzeHandler->readProbeResultFile($file);
             $results = $analyzeHandler->decodeProbeResultLines($lines);
-//            $summary = $summaryHandler->summarizeProbeResults($results);
             $summary = $summaryHandler->summarizeProbeResults($results);
 
             Log::debug('summary: ', [
                 'summary' => $summary,
             ]);
-
-//            foreach ($lines as $line) {
-//                Log::debug('Analyse result: ', [
-//                    'result' => json_decode($line, true),
-//                ]);
-//            }
         }
 
         // In Laravel 12, console commands should return one of the built-in status codes

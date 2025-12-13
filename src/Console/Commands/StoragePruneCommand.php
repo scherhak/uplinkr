@@ -25,7 +25,11 @@ class StoragePruneCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'uplinkr:prune {--project=} {--before=} {--wipe-all} {--force}';
+    protected $signature = 'uplinkr:prune 
+                            {--project= : Optional project name to prune} 
+                            {--before= : Before date to prune files, e.g. 2021-01-01} 
+                            {--wipe-all : Wipe all files from storage} 
+                            {--force : Force execution without confirmation}';
 
     /**
      * The console command description.

@@ -172,12 +172,11 @@ class FileStorage implements StorageInterface
      */
     private function findTargetUrl(array $data): ?string
     {
-        Log::debug('findTargetUrl data: ', [$data]);
-
         if (Arr::has($data, 'settings.url')) {
             return (string)Arr::get($data, 'settings.url');
         }
 
+        // TODO (0.1.0) Remove this fallback once the API endpoint is mandatory.
         if (Arr::has($data, 'settings.endpoint')) {
             return (string)Arr::get($data, 'settings.endpoint');
         }
