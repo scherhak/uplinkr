@@ -147,6 +147,9 @@ class UrlHandler
     /**
      * Processes the given response and extracts relevant data into an array.
      *
+     * TODO Consider whether the content of the page or the request plays a role in availability.
+     * TODO If this is relevant, then it should appear in the command. ('body' => $request->body())
+     *
      * @param mixed $request The response object containing status, headers, and optionally a body.
      * @return array Returns an array with the response status, headers, and optionally a body if specified.
      */
@@ -156,7 +159,6 @@ class UrlHandler
             return [
                 'status_header' => $request->getStatusCode(),
                 'headers' => $request->headers(),
-                'body' => $request->body(),
             ];
         }
 
