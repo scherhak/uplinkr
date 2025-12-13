@@ -69,28 +69,20 @@ class AnalyzeHandler
     public function readProbeResultFile(string $path): array
     {
         $disk = Storage::disk($this->config->getStorageDisc());
-
-        // Prefer Laravel-style API when available
-        if (method_exists($disk, 'lines')) {
-            $lazy = $disk->lines($path);
-            return $lazy
-                ->map(static fn($l) => is_string($l) ? trim($l) : $l)
-                ->filter(static fn($l) => $l !== '')
-                ->values()
-                ->all();
-        }
-
-        // Use Storage::get() to read the file content
         $content = $disk->get($path);
+
         if ($content === null || $content === '') {
             return [];
         }
 
         $lines = preg_split('/\r\n|\r|\n/', $content) ?: [];
 
-        return array_values(array_filter(array_map('trim', $lines), fn($l) => $l !== ''));
+        return collect($lines)
+            ->map(fn ($line) => trim($line))
+            ->filter(fn ($line) => $line !== '')
+            ->values()
+            ->all();
     }
-
 
     /**
      * Filters an array of file paths based on a specified date range.
