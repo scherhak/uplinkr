@@ -3,6 +3,7 @@
 namespace Uplinkr;
 
 use Illuminate\Support\ServiceProvider;
+use Uplinkr\Console\Commands\AnalyzeProjectCommand;
 use Uplinkr\Console\Commands\ProbeApiCommand;
 use Uplinkr\Console\Commands\ProbeUrlCommand;
 use Uplinkr\Console\Commands\ProjectManagerCommand;
@@ -42,6 +43,7 @@ class UplinkrServiceProvider extends ServiceProvider
                 ProbeApiCommand::class,
                 StoragePruneCommand::class,
                 ProjectManagerCommand::class,
+                AnalyzeProjectCommand::class,
             ]);
         }
     }
