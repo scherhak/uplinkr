@@ -19,23 +19,22 @@ trait HandlesProbeOutput
      * @param array $result The result array containing probe status and related information.
      * @param string|null $project The specific project name, or null to use the default project from the configuration.
      * @param UplinkrConfig $config The configuration object providing access to settings such as the default project.
-     * @param string $probeType The type of probe used in the operation (e.g., HTTP, Ping).
      * @return void
      */
-    protected function resultMessages(array $result, string|null $project, UplinkrConfig $config, string $probeType): void
+    protected function resultMessages(array $result, string|null $project, UplinkrConfig $config): void
     {
         if (Arr::get($result, 'probe_status') === 'reachable') {
-            $this->info(__(sprintf('uplinkr::messages.%s_reachable', $probeType), [
+            $this->info(__('uplinkr::messages.url_reachable', [
                 'time_in_ms' => Arr::get($result, 'probe_message.duration_ms'),
             ]));
         } else {
-            $this->error(__(sprintf('uplinkr::messages.%s_unreachable', $probeType), [
+            $this->error(__('uplinkr::messages.url_unreachable', [
                 'status_header' => Arr::get($result, 'status_header'),
                 'time_in_ms' => Arr::get($result, 'probe_message.duration_ms'),
             ]));
         }
 
         $defaultProject = $config->getStandardProject();
-        $this->info(__('uplinkr::messages.api_stored', ['project' => $project ?? $defaultProject]));
+        $this->info(__('uplinkr::messages.url_stored', ['project' => $project ?? $defaultProject]));
     }
 }

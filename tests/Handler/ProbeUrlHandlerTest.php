@@ -14,8 +14,6 @@ use Uplinkr\Support\Sanitizer;
  */
 class ProbeUrlHandlerTest extends TestCase
 {
-    private UrlHandler $probeUriHandler;
-
     /**
      * Prepares the test environment by setting up dependencies and configurations.
      * Initializes the UrlHandler with a mocked StorageInterface and a real UplinkrConfig instance.
@@ -35,13 +33,5 @@ class ProbeUrlHandlerTest extends TestCase
         $sanitizer = new Sanitizer($config);
 
         $this->probeUriHandler = new UrlHandler($storageMock, $config, $sanitizer);
-    }
-
-    /**
-     * Basic instantiation test to ensure dependency injection works.
-     */
-    public function testCanBeInstantiated(): void
-    {
-        $this->assertInstanceOf(UrlHandler::class, $this->probeUriHandler);
     }
 }

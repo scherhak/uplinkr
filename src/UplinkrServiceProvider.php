@@ -40,7 +40,6 @@ class UplinkrServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 ProbeUrlCommand::class,
-                ProbeApiCommand::class,
                 StoragePruneCommand::class,
                 ProjectManagerCommand::class,
                 AnalyzeProjectCommand::class,

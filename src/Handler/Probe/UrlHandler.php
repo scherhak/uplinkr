@@ -2,6 +2,7 @@
 
 namespace Uplinkr\Handler\Probe;
 
+use Exception;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Http;
@@ -50,23 +51,35 @@ class UrlHandler
     }
 
     /**
-     * Executes the URI probe process to determine its reachability.
+     * Handles the processing of an HTTP request, including sending the request, handling response,
+     * and building and saving the probe result.
      *
-     * The method performs an HTTP head request to the given URI, measures the time
-     * taken to perform this request, and evaluates the reachability status. It
-     * builds a probe result based on the response and logs the outcome.
-     *
-     * @return array|null Does not return a value.
+     * @return array|null The resulting data from the probe, or null if the process fails.
      */
     public function handle(): ?array
     {
         $request = null;
-        $startTime = microtime(as_float: true);
+        $startTime = microtime(true);
+
+        $method = strtoupper($this->getMethod());
+
+        // default
+        $probeStatus = 'error';
 
         try {
-            $request = Http::withHeaders([
+            $pendingRequest = Http::withHeaders([
                 'User-Agent' => 'uplinkr-url-probe-0.1.0',
-            ])->head($this->getUrl());
+            ])->withHeaders($this->getParsedHeaders());
+
+            // Optional body for methods that support it
+            $body = $this->getBody();
+            if ($body && in_array($method, ['POST', 'PUT', 'PATCH', 'DELETE'])) {
+                $content = is_array($body) ? json_encode($body, JSON_THROW_ON_ERROR) : $body;
+                $pendingRequest->withBody($content, contentType: 'application/json');
+            }
+
+            // Send request to URL
+            $request = $pendingRequest->send($method, $this->getUrl());
 
             if ($request->successful()) {
                 $probeStatus = 'reachable';
@@ -80,9 +93,13 @@ class UrlHandler
                 ];
             }
         } catch (ConnectionException $ce) {
-            $probeStatus = 'error';
             $probeMessage = [
                 'exception' => $ce->getMessage(),
+                'lang_key' => 'messages.url_error',
+            ];
+        } catch (Exception $e) {
+            $probeMessage = [
+                'exception' => $e->getMessage(),
                 'lang_key' => 'messages.url_error',
             ];
         }
@@ -139,6 +156,7 @@ class UrlHandler
             return [
                 'status_header' => $request->getStatusCode(),
                 'headers' => $request->headers(),
+                'body' => $request->body(),
             ];
         }
 
@@ -169,5 +187,39 @@ class UrlHandler
     private function getUrl(): string
     {
         return Arr::get($this->data, 'url');
+    }
+
+    /**
+     * Retrieves the HTTP method from the data array or defaults to 'GET'.
+     */
+    private function getMethod(): string
+    {
+        return Arr::get($this->data, 'method', 'HEAD');
+    }
+
+    /**
+     * Parses and returns headers provided as ["Key: Value", ...] to an assoc array.
+     */
+    private function getParsedHeaders(): array
+    {
+        $headers = Arr::get($this->data, 'headers', []);
+        $parsed = [];
+
+        foreach ($headers as $header) {
+            if (is_string($header) && str_contains($header, ':')) {
+                [$key, $value] = explode(':', $header, 2);
+                $parsed[trim($key)] = trim($value);
+            }
+        }
+
+        return $parsed;
+    }
+
+    /**
+     * Returns the optional request body.
+     */
+    private function getBody(): string|array|null
+    {
+        return Arr::get($this->data, 'body');
     }
 }

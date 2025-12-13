@@ -23,13 +23,6 @@ class ProbeUrlCommand extends Command
     use HandlesProbeOutput;
 
     /**
-     * The type of the probe, indicating the probe category or method.
-     *
-     * @var string
-     */
-    public const PROBE_TYPE = 'url';
-
-    /**
      * The name and signature of the console command.
      *
      * @var string
@@ -103,7 +96,7 @@ class ProbeUrlCommand extends Command
                 ])->handle();
 
                 if (!$force) {
-                    $this->resultMessages(result: $result, project: $project, config: $config, probeType: self::PROBE_TYPE);
+                    $this->resultMessages(result: $result, project: $project, config: $config);
                 }
 
                 return CommandAlias::SUCCESS;
