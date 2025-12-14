@@ -53,20 +53,23 @@ class UplinkrServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        // merge config with standard config
-        $this->mergeConfigFrom(
-            __DIR__ . '/../config/uplinkr.php', 'uplinkr'
-        );
+        $this->mergeConfigFrom(__DIR__ . '/../config/uplinkr.php', 'uplinkr');
+
+        $this->app->singleton(UplinkrConfig::class, function () {
+            return UplinkrConfig::fromConfig();
+        });
+
+        $this->app->singleton(Sanitizer::class, function ($app) {
+            return new Sanitizer(
+                config: $app->make(UplinkrConfig::class)
+            );
+        });
 
         $this->app->singleton(StorageInterface::class, function ($app) {
             $config = $app->make(UplinkrConfig::class);
             $sanitizer = $app->make(Sanitizer::class);
 
             return new FileStorage($config, $sanitizer);
-        });
-
-        $this->app->singleton(UplinkrConfig::class, function () {
-            return UplinkrConfig::fromConfig();
         });
     }
 }

@@ -4,6 +4,7 @@ namespace Uplinkr\Console\Commands;
 
 use Exception;
 use Illuminate\Console\Command;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 use Uplinkr\Handler\Project\AnalyzeHandler;
 use Uplinkr\Handler\Project\SummaryHandler;
@@ -48,15 +49,20 @@ class AnalyzeProjectCommand extends Command
 
         $files = $analyzeHandler->probeResultsList($project, $from, $to);
 
+        $load = [];
+
         foreach ($files as $file) {
             $lines = $analyzeHandler->readProbeResultFile(path: $file);
             $results = $analyzeHandler->decodeProbeResultLines(lines: $lines);
             $summary = $summaryHandler->summarizeProbeResults(decodedLines: $results);
 
-            Log::debug('summary: ', [
-                'summary' => $summary,
-            ]);
+            $load[\Arr::get($summary, '0')] = $summary;
+            Log::debug('summary: ', $summary);
         }
+
+        Log::debug('summary: ', [
+            'load' => $load,
+        ]);
 
         // In Laravel 12, console commands should return one of the built-in status codes
         // to indicate successful execution.
