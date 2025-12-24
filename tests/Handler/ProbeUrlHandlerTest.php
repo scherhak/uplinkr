@@ -27,7 +27,7 @@ class ProbeUrlHandlerTest extends TestCase
         $config = new UplinkrConfig(
             storagePath: 'uplinkr',
             standardProject: 'standard_project',
-            fileExtension: 'log'
+            fileExtension: 'json'
         );
 
         $sanitizer = new Sanitizer($config);
