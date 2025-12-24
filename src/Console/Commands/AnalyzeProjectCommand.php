@@ -24,7 +24,7 @@ class AnalyzeProjectCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'uplinkr:analyse  
+    protected $signature = 'uplinkr:analyze  
                             {--project= : Name of the project to analyse}
                             {--from= : From date to analyse}
                             {--to= : To date to analyse}
