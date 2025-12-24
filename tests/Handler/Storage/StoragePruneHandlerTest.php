@@ -1,6 +1,6 @@
 <?php
 
-namespace Uplinkr\Tests\Handler;
+namespace Handler\Storage;
 
 use Illuminate\Support\Facades\Storage;
 use InvalidArgumentException;

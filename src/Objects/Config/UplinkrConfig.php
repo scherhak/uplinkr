@@ -18,7 +18,7 @@ final class UplinkrConfig
         public string $standardProject = 'standard_project',
         public string $probeResultsPath = 'probes',
         public string $probeFilenameSeparator = '@',
-        public string $fileExtension = 'log',
+        public string $fileExtension = 'json',
         public string $archivedFolder = 'archived',
         public bool   $allowCompleteWipe = false,
     )
@@ -38,7 +38,7 @@ final class UplinkrConfig
             standardProject: config('uplinkr.storage.standard_project', 'standard_project'),
             probeResultsPath: config('uplinkr.storage.probe_results', 'probes'),
             probeFilenameSeparator: config('uplinkr.storage.probe_filename_separator', '@'),
-            fileExtension: config('uplinkr.storage.file_extension', 'log'),
+            fileExtension: config('uplinkr.storage.file_extension', 'json'),
             archivedFolder: config('uplinkr.storage.archive_folder', 'archived'),
             allowCompleteWipe: config('uplinkr.storage.allow_complete_wipe', false),
         );

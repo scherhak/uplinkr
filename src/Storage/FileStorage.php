@@ -36,9 +36,23 @@ class FileStorage implements StorageInterface
      */
     public function saveResult(array $resultData): void
     {
-        Storage::disk($this->config->getStorageDisc())->append(
-            $this->buildFilename($resultData),
-            json_encode($resultData, JSON_THROW_ON_ERROR)
+        $filename = $this->buildFilename($resultData);
+        $disk = Storage::disk($this->config->getStorageDisc());
+
+        $existingData = [];
+        if ($disk->exists($filename)) {
+            $content = $disk->get($filename);
+            if (!empty($content)) {
+                $existingData = json_decode($content, true, 512, JSON_THROW_ON_ERROR);
+            }
+        }
+
+        $existingData[] = $resultData;
+
+        $disk->put(
+            $filename,
+//            json_encode($existingData, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR)
+            json_encode($existingData, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR)
         );
     }
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Uplinkr\Tests\Handler;
+namespace Handler\Probe;
 
 use PHPUnit\Framework\TestCase;
 use Uplinkr\Handler\Probe\UrlHandler;
@@ -27,7 +27,7 @@ class ProbeUrlHandlerTest extends TestCase
         $config = new UplinkrConfig(
             storagePath: 'uplinkr',
             standardProject: 'standard_project',
-            fileExtension: 'log'
+            fileExtension: 'json'
         );
 
         $sanitizer = new Sanitizer($config);

@@ -1,6 +1,6 @@
 <?php
 
-namespace Uplinkr\Tests\Handler;
+namespace Handler\Project;
 
 use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Support\Facades\File;

@@ -60,32 +60,46 @@ class AnalyzeHandler
     }
 
     /**
-     * Reads a probe result file and returns its content line by line as an array.
-     * Each line in the file is expected to be a JSON string.
+     * Reads a probe result file and returns its content as a string.
      *
      * @param string $path
-     * @return array
+     * @return string
      */
-    public function readProbeResultFile(string $path): array
+    public function readProbeResultFile(string $path): string
     {
         $disk = Storage::disk($this->config->getStorageDisc());
-        $content = $disk->get($path);
-
-        if ($content === null || $content === '') {
-            return [];
-        }
-
-        $lines = preg_split('/\r\n|\r|\n/', $content) ?: [];
-
-        return collect($lines)
-            ->map(fn($line) => trim($line))
-            ->filter(fn($line) => $line !== '')
-            ->values()
-            ->all();
+        return $disk->get($path) ?: '';
     }
 
     /**
-     * Decodes and filters an array of JSON-encoded probe result lines.
+     * Decodes a JSON-encoded probe result file content.
+     *
+     * @param string $content The JSON-encoded content of a probe result file.
+     *
+     * @return array An array of probe results.
+     */
+    public function decodeProbeResults(string $content): array
+    {
+        if (empty($content)) {
+            return [];
+        }
+
+        try {
+            $decoded = json_decode($content, true, 512, JSON_THROW_ON_ERROR);
+
+            if (!is_array($decoded)) {
+                return [];
+            }
+
+            return $decoded;
+        } catch (Throwable) {
+            // Falls es noch alte Dateien im JSONL Format gibt, versuchen wir diese zeilenweise zu lesen
+            return $this->decodeProbeResultLines(explode("\n", $content));
+        }
+    }
+
+    /**
+     * Decodes and filters an array of JSON-encoded probe result lines (legacy JSONL support).
      *
      * @param array $lines An array of strings, each representing a JSON-encoded probe result line.
      *
