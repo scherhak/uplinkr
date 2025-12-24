@@ -52,8 +52,8 @@ class AnalyzeProjectCommand extends Command
         $load = [];
 
         foreach ($files as $file) {
-            $lines = $analyzeHandler->readProbeResultFile(path: $file);
-            $results = $analyzeHandler->decodeProbeResultLines(lines: $lines);
+            $content = $analyzeHandler->readProbeResultFile(path: $file);
+            $results = $analyzeHandler->decodeProbeResults(content: $content);
             $summary = $summaryHandler->summarizeProbeResults(decodedLines: $results);
 
             $load[\Arr::get($summary, '0')] = $summary;
