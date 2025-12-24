@@ -1,6 +1,6 @@
 <?php
 
-namespace Uplinkr\Tests\Handler;
+namespace Handler\Probe;
 
 use PHPUnit\Framework\TestCase;
 use Uplinkr\Handler\Probe\ResultHandler;

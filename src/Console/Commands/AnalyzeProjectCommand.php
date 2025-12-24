@@ -2,9 +2,9 @@
 
 namespace Uplinkr\Console\Commands;
 
+use Arr;
 use Exception;
 use Illuminate\Console\Command;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 use Uplinkr\Handler\Project\AnalyzeHandler;
 use Uplinkr\Handler\Project\SummaryHandler;
@@ -56,7 +56,7 @@ class AnalyzeProjectCommand extends Command
             $results = $analyzeHandler->decodeProbeResults(content: $content);
             $summary = $summaryHandler->summarizeProbeResults(decodedLines: $results);
 
-            $load[\Arr::get($summary, '0')] = $summary;
+            $load[Arr::get($summary, '0')] = $summary;
             Log::debug('summary: ', $summary);
         }
 
