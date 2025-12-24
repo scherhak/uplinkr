@@ -6,7 +6,8 @@ use Illuminate\Support\ServiceProvider;
 use Uplinkr\Console\Commands\AnalyzeProjectCommand;
 use Uplinkr\Console\Commands\ProbeApiCommand;
 use Uplinkr\Console\Commands\ProbeUrlCommand;
-use Uplinkr\Console\Commands\ProjectManagerCommand;
+use Uplinkr\Console\Commands\Project\ProjectArchiveCommand;
+use Uplinkr\Console\Commands\Project\ProjectListCommand;
 use Uplinkr\Console\Commands\StoragePruneCommand;
 use Uplinkr\Interfaces\StorageInterface;
 use Uplinkr\Objects\Config\UplinkrConfig;
@@ -42,8 +43,9 @@ class UplinkrServiceProvider extends ServiceProvider
             $this->commands([
                 ProbeUrlCommand::class,
                 StoragePruneCommand::class,
-                ProjectManagerCommand::class,
                 AnalyzeProjectCommand::class,
+                ProjectListCommand::class,
+                ProjectArchiveCommand::class,
             ]);
         }
     }

@@ -1,30 +1,28 @@
 <?php
 
-namespace Uplinkr\Console\Commands;
+namespace Uplinkr\Console\Commands\Project;
 
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Command\Command as CommandAlias;
 use Uplinkr\Handler\Project\ManagerHandler;
 
 /**
- * Class ProjectManagerCommand
+ * Class ProjectArchiveCommand
  * @package Uplinkr\Commands
  *
- * This class is responsible for handling the execution of the `uplinkr:probe-api` command.
+ * This class is responsible for handling the execution of the `uplinkr:project:archive` command.
  *
  * @author Sascha Scherhak <sascha@uplinkr.dev>
  */
-class ProjectManagerCommand extends Command
+class ProjectArchiveCommand extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'uplinkr:project 
-                            {--list : List all existing projects},
+    protected $signature = 'uplinkr:project:archive 
                             {--project= : Name of the project to archive}
-                            {--archive : Rename a project}
                             {--force : Force execution without confirmation}';
 
     /**
@@ -32,82 +30,59 @@ class ProjectManagerCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Lists projects and/or archives them';
+    protected $description = 'Archives a project or lists all available projects';
 
     public function handle(ManagerHandler $projectManagerHandler): int
     {
-        $list = $this->option('list');
-        $archive = $this->option('archive');
         $project = $this->option('project');
         $force = $this->option('force');
 
-        if ($list) {
-            $projects = $projectManagerHandler->listAll();
+        $exists = $projectManagerHandler->exists(projectName: $project);
 
-            foreach ($projects as $project) {
-                $name = basename($project);
-                $count = $projectManagerHandler->getProbesCount(path: $project);
-                $this->info(sprintf('%s [%s]', $name, $count));
-            }
-
-            return CommandAlias::SUCCESS;
+        if (!$force) {
+            $this->info(__('uplinkr::messages.project_archive_start', [
+                'project' => $project,
+            ]));
         }
 
-        if ($archive && $project) {
+        if ($exists) {
 
-            $exists = $projectManagerHandler->exists(projectName: $project);
-
-            if (!$force) {
-                $this->info(__('uplinkr::messages.project_archive_start', [
+            if ($force) {
+                $execute = true;
+            } else {
+                $execute = $this->confirm(__('uplinkr::messages.project_archive_start', [
                     'project' => $project,
                 ]));
             }
 
-            if ($exists) {
+            if ($execute) {
+                $copied = $projectManagerHandler->archive(projectName: $project);
 
-                if ($force) {
-                    $execute = true;
-                } else {
-                    $execute = $this->confirm(__('uplinkr::messages.project_archive_start', [
-                        'project' => $project,
-                    ]));
-                }
-
-                if ($execute) {
-                    $copied = $projectManagerHandler->archive(projectName: $project);
-
-                    if ($copied) {
-
-                        if (!$force) {
-                            $this->info(__('uplinkr::messages.project_archive_success', [
-                                'project' => $project,
-                            ]));
-                        }
-
-                        return CommandAlias::SUCCESS;
-                    }
+                if ($copied) {
 
                     if (!$force) {
-                        $this->error(__('uplinkr::messages.project_archive_failed', [
+                        $this->info(__('uplinkr::messages.project_archive_success', [
                             'project' => $project,
                         ]));
                     }
+
+                    return CommandAlias::SUCCESS;
                 }
 
-                return CommandAlias::INVALID;
-            }
-
-            if (!$force) {
-                $this->error(__('uplinkr::messages.project_not_found', [
-                    'project' => $project,
-                ]));
+                if (!$force) {
+                    $this->error(__('uplinkr::messages.project_archive_failed', [
+                        'project' => $project,
+                    ]));
+                }
             }
 
             return CommandAlias::INVALID;
         }
 
-        if (!$archive && $project) {
-            $this->warn(__('uplinkr::messages.project_archive_option_missing'));
+        if (!$force) {
+            $this->error(__('uplinkr::messages.project_not_found', [
+                'project' => $project,
+            ]));
         }
 
         return CommandAlias::INVALID;

@@ -10,7 +10,7 @@ use Uplinkr\Handler\Project\AnalyzeHandler;
 use Uplinkr\Handler\Project\SummaryHandler;
 
 /**
- * Class ProjectManagerCommand
+ * Class AnalyzeProjectCommand
  * @package Uplinkr\Commands
  *
  * This class is responsible for handling the execution of the `uplinkr:probe-api` command.
