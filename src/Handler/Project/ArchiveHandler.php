@@ -8,12 +8,12 @@ use Illuminate\Support\Facades\Storage;
 use Uplinkr\Objects\Config\UplinkrConfig;
 
 /**
- * Class ManagerHandler
+ * Class ArchiveHandler
  * @package Uplinkr\Handler
  *
  * @author Sascha Scherhak <sascha@uplinkr.dev>
  */
-class ManagerHandler
+class ArchiveHandler
 {
     /**
      * @var Filesystem $storage

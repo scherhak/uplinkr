@@ -4,7 +4,7 @@ namespace Uplinkr\Console\Commands\Project;
 
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Command\Command as CommandAlias;
-use Uplinkr\Handler\Project\ManagerHandler;
+use Uplinkr\Handler\Project\ArchiveHandler;
 
 /**
  * Class ProjectArchiveCommand
@@ -32,12 +32,12 @@ class ProjectArchiveCommand extends Command
      */
     protected $description = 'Archives a project or lists all available projects';
 
-    public function handle(ManagerHandler $projectManagerHandler): int
+    public function handle(ArchiveHandler $archiveHandler): int
     {
         $project = $this->option('project');
         $force = $this->option('force');
 
-        $exists = $projectManagerHandler->exists(projectName: $project);
+        $exists = $archiveHandler->exists(projectName: $project);
 
         if (!$force) {
             $this->info(__('uplinkr::messages.project_archive_start', [
@@ -56,7 +56,7 @@ class ProjectArchiveCommand extends Command
             }
 
             if ($execute) {
-                $copied = $projectManagerHandler->archive(projectName: $project);
+                $copied = $archiveHandler->archive(projectName: $project);
 
                 if ($copied) {
 
