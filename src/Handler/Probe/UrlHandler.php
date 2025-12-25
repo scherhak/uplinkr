@@ -7,7 +7,7 @@ use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Http;
 use Str;
-use Uplinkr\Interfaces\StorageInterface;
+use Uplinkr\Interfaces\ProbeResultsStorageInterface;
 use Uplinkr\Objects\Config\UplinkrConfig;
 use Uplinkr\Support\Sanitizer;
 
@@ -27,13 +27,13 @@ class UrlHandler
     /**
      * Constructor method.
      *
-     * @param StorageInterface $storage An instance of StorageInterface to handle storage operations.
+     * @param ProbeResultsStorageInterface $storage An instance of ProbeResultsStorageInterface to handle storage operations.
      * @return void
      */
     public function __construct(
-        private readonly StorageInterface $storage,
-        private readonly UplinkrConfig    $config,
-        private readonly Sanitizer        $sanitizer
+        private readonly ProbeResultsStorageInterface $storage,
+        private readonly UplinkrConfig                $config,
+        private readonly Sanitizer                    $sanitizer
     )
     {
     }

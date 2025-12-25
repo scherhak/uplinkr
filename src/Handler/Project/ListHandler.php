@@ -13,6 +13,12 @@ use Uplinkr\Objects\Config\UplinkrConfig;
  */
 class ListHandler
 {
+    /**
+     * Constructor method.
+     *
+     * @param UplinkrConfig $config Configuration instance.
+     * @return void
+     */
     public function __construct(
         private readonly UplinkrConfig $config
     )

@@ -5,17 +5,17 @@ namespace Uplinkr\Storage;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
 use JsonException;
-use Uplinkr\Interfaces\StorageInterface;
+use Uplinkr\Interfaces\ProbeResultsStorageInterface;
 use Uplinkr\Objects\Config\UplinkrConfig;
 use Uplinkr\Support\Sanitizer;
 
 /**
- * Class FileStorage
+ * Class FileProbeResultsStorage
  * @package Uplinkr\Storage
  *
  * @author Sascha Scherhak <sascha@uplinkr.dev>
  */
-class FileStorage implements StorageInterface
+class FileProbeResultsStorage implements ProbeResultsStorageInterface
 {
     /**
      * Constructor method for initializing the class with configuration.
@@ -51,7 +51,6 @@ class FileStorage implements StorageInterface
 
         $disk->put(
             $filename,
-//            json_encode($existingData, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR)
             json_encode($existingData, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR)
         );
     }

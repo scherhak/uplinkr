@@ -4,13 +4,13 @@ namespace Uplinkr\Tests\Storage;
 
 use Illuminate\Support\Facades\Storage;
 use Uplinkr\Objects\Config\UplinkrConfig;
-use Uplinkr\Storage\FileStorage;
+use Uplinkr\Storage\FileProbeResultsStorage;
 use Uplinkr\Support\Sanitizer;
 use Uplinkr\Tests\TestCase;
 
 class FileStorageTest extends TestCase
 {
-    private FileStorage $fileStorage;
+    private FileProbeResultsStorage $fileStorage;
     private UplinkrConfig $config;
 
     protected function setUp(): void
@@ -27,7 +27,7 @@ class FileStorageTest extends TestCase
         );
 
         $sanitizer = new Sanitizer($this->config);
-        $this->fileStorage = new FileStorage($this->config, $sanitizer);
+        $this->fileStorage = new FileProbeResultsStorage($this->config, $sanitizer);
     }
 
     public function test_it_saves_result_as_valid_json_array(): void

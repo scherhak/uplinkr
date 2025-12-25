@@ -4,7 +4,7 @@ namespace Handler\Probe;
 
 use PHPUnit\Framework\TestCase;
 use Uplinkr\Handler\Probe\UrlHandler;
-use Uplinkr\Interfaces\StorageInterface;
+use Uplinkr\Interfaces\ProbeResultsStorageInterface;
 use Uplinkr\Objects\Config\UplinkrConfig;
 use Uplinkr\Support\Sanitizer;
 
@@ -16,12 +16,12 @@ class ProbeUrlHandlerTest extends TestCase
 {
     /**
      * Prepares the test environment by setting up dependencies and configurations.
-     * Initializes the UrlHandler with a mocked StorageInterface and a real UplinkrConfig instance.
+     * Initializes the UrlHandler with a mocked ProbeResultsStorageInterface and a real UplinkrConfig instance.
      * @return void
      */
     protected function setUp(): void
     {
-        $storageMock = $this->createMock(StorageInterface::class);
+        $storageMock = $this->createMock(ProbeResultsStorageInterface::class);
 
         // Use a real config instance with default values for testing
         $config = new UplinkrConfig(

@@ -7,7 +7,7 @@ namespace Uplinkr\Interfaces;
  *
  * @author Sascha Scherhak <sascha@uplinkr.dev>
  */
-interface StorageInterface
+interface ProbeResultsStorageInterface
 {
     /**
      * Saves the provided result data.
