@@ -7,11 +7,11 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Mockery;
 use Mockery\MockInterface;
-use Uplinkr\Handler\Project\ManagerHandler;
+use Uplinkr\Handler\Project\ArchiveHandler;
 use Uplinkr\Objects\Config\UplinkrConfig;
 use Uplinkr\Tests\TestCase;
 
-class ProjectManagerHandlerTest extends TestCase
+class ProjectArchiveHandlerTest extends TestCase
 {
     private UplinkrConfig $config;
     private MockInterface|Filesystem $filesystemMock;
@@ -51,7 +51,7 @@ class ProjectManagerHandlerTest extends TestCase
             ->once()
             ->andReturnTrue();
 
-        $handler = new ManagerHandler($this->config);
+        $handler = new ArchiveHandler($this->config);
         
         $this->assertTrue($handler->exists($projectName));
     }
@@ -66,7 +66,7 @@ class ProjectManagerHandlerTest extends TestCase
             ->with('uplinkr_projects/' . $projectName)
             ->andReturnFalse();
 
-        $handler = new ManagerHandler($this->config);
+        $handler = new ArchiveHandler($this->config);
 
         $this->assertFalse($handler->exists($projectName));
     }
@@ -95,7 +95,7 @@ class ProjectManagerHandlerTest extends TestCase
             ->once()
             ->andReturnTrue();
 
-        $handler = new ManagerHandler($this->config);
+        $handler = new ArchiveHandler($this->config);
 
         $this->assertTrue($handler->archive($projectName));
     }
@@ -117,45 +117,9 @@ class ProjectManagerHandlerTest extends TestCase
             ->once()
             ->andReturnTrue();
 
-        $handler = new ManagerHandler($this->config);
+        $handler = new ArchiveHandler($this->config);
 
         $this->assertTrue($handler->delete($projectName));
     }
 
-    public function testListAllReturnsDirectories(): void
-    {
-        $expectedDirectories = ['dir1', 'dir2'];
-
-        // 1x constructor, 1x listAll
-        Storage::shouldReceive('disk')->times(2)->andReturn($this->filesystemMock);
-
-        $this->filesystemMock->shouldReceive('directories')
-            ->with('uplinkr_projects')
-            ->once()
-            ->andReturn($expectedDirectories);
-
-        $handler = new ManagerHandler($this->config);
-
-        $this->assertEquals($expectedDirectories, $handler->listAll());
-    }
-
-    public function testGetProbesCountReturnsCountOfFiles(): void
-    {
-        $path = 'some/project/path';
-        
-        // 1x constructor, 1x getProbesCount
-        Storage::shouldReceive('disk')->times(2)->andReturn($this->filesystemMock);
-
-        // Mock returns 3 files
-        $files = ['file1.json', 'file2.json', 'file3.json'];
-
-        $this->filesystemMock->shouldReceive('allFiles')
-            ->with($path . '/probes') // 'probes' comes from our config instance
-            ->once()
-            ->andReturn($files);
-
-        $handler = new ManagerHandler($this->config);
-
-        $this->assertEquals(3, $handler->getProbesCount($path));
-    }
 }

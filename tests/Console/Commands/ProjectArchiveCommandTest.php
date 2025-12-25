@@ -4,20 +4,20 @@ namespace Uplinkr\Tests\Console\Commands;
 
 use Mockery;
 use Mockery\MockInterface;
-use Uplinkr\Handler\Project\ManagerHandler;
+use Uplinkr\Handler\Project\ArchiveHandler;
 use Uplinkr\Tests\TestCase;
 use Symfony\Component\Console\Command\Command as CommandAlias;
 
 class ProjectArchiveCommandTest extends TestCase
 {
-    private MockInterface|ManagerHandler $managerHandlerMock;
+    private MockInterface|ArchiveHandler $archiveHandlerMock;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->managerHandlerMock = Mockery::mock(ManagerHandler::class);
-        $this->app->instance(ManagerHandler::class, $this->managerHandlerMock);
+        $this->archiveHandlerMock = Mockery::mock(ArchiveHandler::class);
+        $this->app->instance(ArchiveHandler::class, $this->archiveHandlerMock);
     }
 
     /**
@@ -27,12 +27,12 @@ class ProjectArchiveCommandTest extends TestCase
     {
         $project = 'test-project';
 
-        $this->managerHandlerMock->shouldReceive('exists')
+        $this->archiveHandlerMock->shouldReceive('exists')
             ->with($project)
             ->once()
             ->andReturnTrue();
 
-        $this->managerHandlerMock->shouldReceive('archive')
+        $this->archiveHandlerMock->shouldReceive('archive')
             ->with($project)
             ->once()
             ->andReturnTrue();
@@ -50,12 +50,12 @@ class ProjectArchiveCommandTest extends TestCase
     {
         $project = 'test-project';
 
-        $this->managerHandlerMock->shouldReceive('exists')
+        $this->archiveHandlerMock->shouldReceive('exists')
             ->with($project)
             ->once()
             ->andReturnTrue();
 
-        $this->managerHandlerMock->shouldReceive('archive')
+        $this->archiveHandlerMock->shouldReceive('archive')
             ->with($project)
             ->once()
             ->andReturnTrue();
@@ -76,12 +76,12 @@ class ProjectArchiveCommandTest extends TestCase
     {
         $project = 'test-project';
 
-        $this->managerHandlerMock->shouldReceive('exists')
+        $this->archiveHandlerMock->shouldReceive('exists')
             ->with($project)
             ->once()
             ->andReturnTrue();
 
-        $this->managerHandlerMock->shouldNotReceive('archive');
+        $this->archiveHandlerMock->shouldNotReceive('archive');
 
         $this->artisan('uplinkr:project:archive', ['--project' => $project])
             ->expectsConfirmation(__('uplinkr::messages.project_archive_start', ['project' => $project]), 'no')
@@ -95,7 +95,7 @@ class ProjectArchiveCommandTest extends TestCase
     {
         $project = 'non-existent-project';
 
-        $this->managerHandlerMock->shouldReceive('exists')
+        $this->archiveHandlerMock->shouldReceive('exists')
             ->with($project)
             ->once()
             ->andReturnFalse();
@@ -112,12 +112,12 @@ class ProjectArchiveCommandTest extends TestCase
     {
         $project = 'test-project';
 
-        $this->managerHandlerMock->shouldReceive('exists')
+        $this->archiveHandlerMock->shouldReceive('exists')
             ->with($project)
             ->once()
             ->andReturnTrue();
 
-        $this->managerHandlerMock->shouldReceive('archive')
+        $this->archiveHandlerMock->shouldReceive('archive')
             ->with($project)
             ->once()
             ->andReturnFalse();

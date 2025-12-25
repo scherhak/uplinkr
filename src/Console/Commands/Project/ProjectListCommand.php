@@ -4,7 +4,7 @@ namespace Uplinkr\Console\Commands\Project;
 
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Command\Command as CommandAlias;
-use Uplinkr\Handler\Project\ManagerHandler;
+use Uplinkr\Handler\Project\ListHandler;
 
 /**
  * Class ProjectListCommand
@@ -28,13 +28,13 @@ class ProjectListCommand extends Command
      */
     protected $description = 'Lists all available projects with the number of probes';
 
-    public function handle(ManagerHandler $projectManagerHandler): int
+    public function handle(ListHandler $listHandler): int
     {
-        $projects = $projectManagerHandler->listAll();
+        $projects = $listHandler->listAll();
 
         foreach ($projects as $project) {
             $name = basename($project);
-            $count = $projectManagerHandler->getProbesCount(path: $project);
+            $count = $listHandler->getProbesCount(path: $project);
             $this->info(sprintf('%s [%s]', $name, $count));
         }
 
