@@ -122,40 +122,4 @@ class ProjectManagerHandlerTest extends TestCase
         $this->assertTrue($handler->delete($projectName));
     }
 
-    public function testListAllReturnsDirectories(): void
-    {
-        $expectedDirectories = ['dir1', 'dir2'];
-
-        // 1x constructor, 1x listAll
-        Storage::shouldReceive('disk')->times(2)->andReturn($this->filesystemMock);
-
-        $this->filesystemMock->shouldReceive('directories')
-            ->with('uplinkr_projects')
-            ->once()
-            ->andReturn($expectedDirectories);
-
-        $handler = new ManagerHandler($this->config);
-
-        $this->assertEquals($expectedDirectories, $handler->listAll());
-    }
-
-    public function testGetProbesCountReturnsCountOfFiles(): void
-    {
-        $path = 'some/project/path';
-        
-        // 1x constructor, 1x getProbesCount
-        Storage::shouldReceive('disk')->times(2)->andReturn($this->filesystemMock);
-
-        // Mock returns 3 files
-        $files = ['file1.json', 'file2.json', 'file3.json'];
-
-        $this->filesystemMock->shouldReceive('allFiles')
-            ->with($path . '/probes') // 'probes' comes from our config instance
-            ->once()
-            ->andReturn($files);
-
-        $handler = new ManagerHandler($this->config);
-
-        $this->assertEquals(3, $handler->getProbesCount($path));
-    }
 }

@@ -72,31 +72,6 @@ class ManagerHandler
     }
 
     /**
-     * Retrieves a list of all directories within the specified storage path.
-     *
-     * @return array An array of directory paths present in the configured storage disk and path.
-     */
-    public function listAll(): array
-    {
-        return Storage::disk($this->config->getStorageDisc())->directories($this->config->getStoragePath());
-    }
-
-    /**
-     * Retrieves the count of probe files stored in the specified path.
-     *
-     * @param string $path The base directory path where probe files are located.
-     * @return int The total number of probe files found in the specified directory.
-     */
-    public function getProbesCount(string $path): int
-    {
-        return count(Storage::disk($this->config->getStorageDisc())->allFiles(
-            sprintf('%s/%s',
-                $path,
-                $this->config->getProbeResultsPath()
-            )));
-    }
-
-    /**
      * Retrieves the full storage path for a specified project.
      *
      * @param string $projectName The name of the project for which to get the path.
