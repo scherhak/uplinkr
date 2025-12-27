@@ -82,6 +82,51 @@ class FileProjectStorage implements ProjectStorageInterface
         }
     }
 
+    public function addToProject(array $probeData): void
+    {
+        $projectName = $probeData['project'] ?? null;
+        if (empty($projectName)) {
+            return;
+        }
+
+        $project = $this->findProject($projectName);
+        if (!$project) {
+            return;
+        }
+
+        $probes = $project['probes'] ?? [];
+        $found = false;
+
+        foreach ($probes as $key => $probe) {
+            if ($probe['url'] === $probeData['url']) {
+                $probes[$key] = [
+                    'url' => $probeData['url'],
+                    'project' => $projectName,
+                    'method' => $probeData['method'] ?? 'GET',
+                    'header' => $probeData['headers'] ?? null,
+                    'body' => $probeData['body'] ?? null,
+                ];
+                $found = true;
+                break;
+            }
+        }
+
+        if (!$found) {
+            $probes[] = [
+                'url' => $probeData['url'],
+                'project' => $projectName,
+                'method' => $probeData['method'] ?? 'GET',
+                'header' => $probeData['headers'] ?? null,
+                'body' => $probeData['body'] ?? null,
+            ];
+        }
+
+        $project['probes'] = $probes;
+        $project['updated_at'] = now()->toDateTimeString();
+
+        $this->saveProject($project);
+    }
+
     private function buildProjectDir(string $project): string
     {
         return sprintf(

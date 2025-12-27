@@ -24,17 +24,17 @@ trait HandlesProbeOutput
     protected function resultMessages(array $result, string|null $project, UplinkrConfig $config): void
     {
         if (Arr::get($result, 'probe_status') === 'reachable') {
-            $this->info(__('uplinkr::messages.url_reachable', [
+            $this->info(__('uplinkr::messages.probe_reachable', [
                 'time_in_ms' => Arr::get($result, 'probe_message.duration_ms'),
             ]));
         } else {
-            $this->error(__('uplinkr::messages.url_unreachable', [
+            $this->error(__('uplinkr::messages.probe_unreachable', [
                 'status_header' => Arr::get($result, 'status_header'),
                 'time_in_ms' => Arr::get($result, 'probe_message.duration_ms'),
             ]));
         }
 
         $defaultProject = $config->getStandardProject();
-        $this->info(__('uplinkr::messages.url_stored', ['project' => $project ?? $defaultProject]));
+        $this->info(__('uplinkr::messages.probe_stored', ['project' => $project ?? $defaultProject]));
     }
 }

@@ -4,6 +4,7 @@ namespace Uplinkr\Console\Commands\Project;
 
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Validator;
 use Symfony\Component\Console\Command\Command as CommandAlias;
 use Uplinkr\Handler\Project\InitHandler;
 
@@ -40,13 +41,58 @@ class ProjectInitCommand extends Command
         $description = $this->option('description');
         $force = $this->option('force');
 
-        $initHandler->handle(options: [
-            'project' => $project,
-            'label' => $label,
-            'description' => $description,
-        ]);
+        $validate = Validator::make(
+            [
+                'project' => $project,
+                'label' => $label,
+                'description' => $description
+            ],
+            [
+                'project' => 'required|string',
+                'label' => 'nullable|string',
+                'description' => 'nullable|string',
+            ],
+        );
 
+        if ($validate->passes()) {
 
-        return CommandAlias::SUCCESS;
+            // if force isset - just let it through
+            if ($force) {
+                $execute = true;
+            } else {
+                $execute = $this->confirm(__('uplinkr::messages.project_init_start',
+                    [
+                        'project' => $project
+                    ]
+                ));
+            }
+
+            if ($execute) {
+                $initHandler->handle(options: [
+                    'project' => $project,
+                    'label' => $label,
+                    'description' => $description,
+                ]);
+
+                if (!$force) {
+                    $this->info(__('uplinkr::messages.project_init_success', [ 'project' => $project ]));
+                }
+
+                return CommandAlias::SUCCESS;
+            }
+
+            if (!$force) {
+                $this->warn(__('uplinkr::messages.common_process_aborted'));
+            }
+
+            return CommandAlias::INVALID;
+
+        }
+
+        if (!$force) {
+            $this->error(__('uplinkr::messages.project_init_failed'));
+        }
+
+        return CommandAlias::INVALID;
     }
 }

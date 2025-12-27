@@ -5,27 +5,32 @@ return [
     /*
      * Common messages
      */
-    'no_url_provided' => 'No URL provided.',
-
+    'common_process_aborted' => 'The process was aborted.',
 
     /*
-     * URL probe parts
+     * Probe parts
      */
-    'url_checking' => 'Should the check of :url be started?',
-    'url_reachable' => 'Target URL is currently reachable (Response time: :time_in_ms ms)',
-    'url_unreachable' => 'Target URL is currently NOT reachable (Status response: :status_header with response time: :time_in_ms ms)',
-    'url_error' => 'An error is occurred.',
-    'url_stored' => 'Result stored successfully in project :project.',
-
+    'probe_checking' => 'Should the check of :url be started?',
+    'probe_reachable' => 'Target URL is currently reachable (Response time: :time_in_ms ms)',
+    'probe_unreachable' => 'Target URL is currently NOT reachable (Status response: :status_header with response time: :time_in_ms ms)',
+    'probe_error' => 'An error is occurred.',
+    'probe_no_url_provided' => 'No URL provided.',
+    'probe_stored' => 'Result stored successfully in project :project.',
 
     /*
-     * URL probe parts
+     * Projects parts
      */
     'project_archive_start' => 'Should project :project now be archived?',
     'project_archive_failed' => 'Archiving of Project :project failed.',
     'project_archive_success' => 'Project :project archived successfully.',
     'project_not_found' => 'Project :project not found.',
     'project_archive_option_missing' => 'The archive option seems to be missing.',
+    'project_add_probe_start' => 'Should URL :url be added to or updated in project :project now?',
+    'project_add_probe_failed' => 'Adding failed. Please check the URL and project name. These are required fields.',
+    'project_add_probe_success' => 'Probe for URL :url added or updated to project :project successfully.',
+    'project_init_start' => 'Should project :project be created and initialized now?',
+    'project_init_failed' => 'Initialization failed. Please check the project name.',
+    'project_init_success' => 'Initialization of project :project successful.',
 
     /*
      * Prune project and probes results
