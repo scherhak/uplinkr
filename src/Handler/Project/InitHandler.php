@@ -37,8 +37,8 @@ class InitHandler
             'project' => Arr::get($options, 'project'),
             'label' => Arr::get($options, 'label'),
             'description' => Arr::get($options, 'description'),
-            'created_at' => Carbon::now()->toDateTimeString(),
-            'updated_at' => Carbon::now()->toDateTimeString(),
+            'created_at' => now()->toDateTimeString(),
+            'updated_at' => now()->toDateTimeString(),
             'probes' => [],
         ]);
 
