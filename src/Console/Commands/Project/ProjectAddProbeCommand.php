@@ -2,10 +2,10 @@
 
 namespace Uplinkr\Console\Commands\Project;
 
-use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\Console\Command\Command as CommandAlias;
+use Uplinkr\Handler\Project\AddProbeHandler;
 use Uplinkr\Handler\Project\InitHandler;
 
 /**
@@ -14,17 +14,19 @@ use Uplinkr\Handler\Project\InitHandler;
  *
  * @author Sascha Scherhak <sascha@uplinkr.dev>
  */
-class ProjectInitCommand extends Command
+class ProjectAddProbeCommand extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'uplinkr:project:init 
-                            {--project= : Name of the project to initialize}
-                            {--label= : Optional project name}
-                            {--description= : Optional project description}
+    protected $signature = 'uplinkr:project:add:probe
+                            {--url= : Target URL}
+                            {--project= : Project name}
+                            {--method=GET : HTTP method (GET, POST, PUT, DELETE, ...)} 
+                            {--header=* : Additional headers, e.g. "Authorization: Bearer xxx"} 
+                            {--body= : JSON body as string} 
                             {--force : Force execution without confirmation}';
 
     /**
@@ -32,25 +34,26 @@ class ProjectInitCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Initializes a new project and creates the necessary JSON-Data and store it in the configured storage location.';
+    protected $description = 'Add a new probe command to the project';
 
-    public function handle(InitHandler $initHandler): int
+    public function handle(AddProbeHandler $addProbeHandler): int
     {
+        $url = $this->option('url');
         $project = $this->option('project');
-        $label = $this->option('label');
-        $description = $this->option('description');
+        $method = $this->option('method');
+        $headers = $this->option('header');
+        $body = $this->option('body');
         $force = $this->option('force');
 
+        // url validating
         $validate = Validator::make(
             [
-                'project' => $project,
-                'label' => $label,
-                'description' => $description
+                'url' => $url,
+                'project' => $project
             ],
             [
-                'project' => 'required|string',
-                'label' => 'nullable|string',
-                'description' => 'nullable|string',
+                'url' => 'required|url',
+                'project' => 'required|string'
             ],
         );
 
@@ -60,22 +63,25 @@ class ProjectInitCommand extends Command
             if ($force) {
                 $execute = true;
             } else {
-                $execute = $this->confirm(__('uplinkr::messages.project_init_start',
+                $execute = $this->confirm(__('uplinkr::messages.project_add_probe_start',
                     [
+                        'url' => $url,
                         'project' => $project
                     ]
                 ));
             }
 
             if ($execute) {
-                $initHandler->handle(options: [
+                $addProbeHandler->handle(options: [
+                    'url' => $url,
                     'project' => $project,
-                    'label' => $label,
-                    'description' => $description,
+                    'method' => $method,
+                    'headers' => $headers,
+                    'body' => $body,
                 ]);
 
                 if (!$force) {
-                    $this->info(__('uplinkr::messages.project_init_success', [ 'project' => $project ]));
+                    $this->info(__('uplinkr::messages.project_add_probe_success'));
                 }
 
                 return CommandAlias::SUCCESS;
@@ -86,11 +92,10 @@ class ProjectInitCommand extends Command
             }
 
             return CommandAlias::INVALID;
-
         }
 
         if (!$force) {
-            $this->error(__('uplinkr::messages.project_init_failed'));
+            $this->error(__('uplinkr::messages.project_add_probe_failed'));
         }
 
         return CommandAlias::INVALID;

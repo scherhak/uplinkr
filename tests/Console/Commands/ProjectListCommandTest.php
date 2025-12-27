@@ -30,16 +30,16 @@ class ProjectListCommandTest extends TestCase
             'path/to/project2'
         ];
 
-        $this->listHandlerMock->shouldReceive('listAll')
+        $this->listHandlerMock->shouldReceive('all')
             ->once()
             ->andReturn($projects);
 
-        $this->listHandlerMock->shouldReceive('getProbesCount')
+        $this->listHandlerMock->shouldReceive('countProbes')
             ->with('project1')
             ->once()
             ->andReturn(5);
 
-        $this->listHandlerMock->shouldReceive('getProbesCount')
+        $this->listHandlerMock->shouldReceive('countProbes')
             ->with('path/to/project2')
             ->once()
             ->andReturn(10);
@@ -55,7 +55,7 @@ class ProjectListCommandTest extends TestCase
      */
     public function test_it_handles_no_projects(): void
     {
-        $this->listHandlerMock->shouldReceive('listAll')
+        $this->listHandlerMock->shouldReceive('all')
             ->once()
             ->andReturn([]);
 

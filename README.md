@@ -1,36 +1,99 @@
-# uplinkr [--WIP--]
+# Uplinkr
 
-* composer update scherhak/uplinkr -W
-* composer dump-autoload -o
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/scherhak/uplinkr.svg?style=flat-square)](https://packagist.org/packages/scherhak/uplinkr)
+[![Total Downloads](https://img.shields.io/packagist/dt/scherhak/uplinkr.svg?style=flat-square)](https://packagist.org/packages/scherhak/uplinkr)
+[![License](https://img.shields.io/packagist/l/scherhak/uplinkr.svg?style=flat-square)](https://packagist.org/packages/scherhak/uplinkr)
 
-# Publish
+Uplinkr is a lightweight, file-based Laravel package for monitoring website availability with zero external dependencies. It allows you to define projects and probes (URLs) to monitor their uptime and response times, storing results directly in your local filesystem.
 
-* php artisan vendor:publish --tag=uplinkr-config
-* php artisan vendor:publish --tag=uplinkr-lang
+For more information, visit the official homepage: [uplinkr.dev](https://uplinkr.dev)
 
-# Artisan Command
+## Features
 
-* php artisan uplinkr:probe-url --url=https://uplinkr.dev --project=upnkr-url-test
-* php artisan uplinkr:probe-url --url=https://uplinkr.dev/api/health --method=GET --project=upkr-api-test
-* php artisan uplinkr:project:list
-* php artisan uplinkr:project:archive --project=scherhak-com
-* php artisan uplinkr:prune {--project=} {--before=} {--wipe-all} {--force}
-* php artisan uplinkr:analyze --project=scherhak-com
-* php artisan uplinkr:analyze --project=scherhak-com --from=2025-12-09 --to=2025-12-10
+- **Project-based organization**: Group your probes into logical projects.
+- **File-based storage**: No database required. All configurations and results are stored as JSON files.
+- **Detailed analysis**: Analyze response times, status codes, and reachability.
+- **Flexible commands**: Manage projects and probes easily via Artisan commands.
+- **Customizable**: Configure storage paths, disks, and more.
 
-# Upcoming commands
+## Installation
 
-Project lifecycle / metadata
-* uplinkr:project:init — Initialize a new project (creates the project container + metadata)
-* uplinkr:project:update — Update project metadata (e.g. display name, notes, status)
+You can install the package via composer:
 
-Project probe management (URLs, fully compatible with uplinkr:probe-url options)
-* uplinkr:project:probe:list — List all probes (URLs) defined for a project
-* uplinkr:project:probe:add — Add a new URL probe definition to a project (url, method, header, body, force, enabled)
-* uplinkr:project:probe:update — Update an existing probe definition (by id) within a project
-* uplinkr:project:probe:remove — Remove a probe definition from a project (by id)
-(optional alternative naming: ...:delete)
+```bash
+composer require scherhak/uplinkr
+```
 
-Optional
-* uplinkr:project:probe:enable — Enable a probe definition
-* uplinkr:project:probe:disable — Disable a probe definition
+The service provider will automatically register itself. You can publish the configuration file with:
+
+```bash
+php artisan vendor:publish --provider="Uplinkr\UplinkrServiceProvider" --tag="config"
+```
+
+## Usage
+
+Uplinkr provides several Artisan commands to manage your monitoring.
+
+### Project Management
+
+#### Initialize a New Project
+Create a new project to start monitoring URLs.
+```bash
+php artisan uplinkr:project:init --project=my-website --label="My Website" --description="Main company website monitoring"
+```
+
+#### List Projects
+List all active projects and the number of probes they contain.
+```bash
+php artisan uplinkr:project:list
+```
+
+#### Archive a Project
+Move a project and its results to the archive folder.
+```bash
+php artisan uplinkr:project:archive --project=my-website
+```
+
+### Probe Management
+
+#### Add a Probe to a Project
+Add a URL to be monitored under a specific project.
+```bash
+php artisan uplinkr:project:add:probe --project=my-website --url=https://example.com --method=GET
+```
+
+#### Manual URL Probing
+Probe a specific URL directly and optionally assign it to a project.
+```bash
+php artisan uplinkr:probe:url --url=https://example.com --project=my-website
+```
+
+### Analysis and Maintenance
+
+#### Analyze Results
+Generate a summary of probe results for a project, including average response times and status code distribution.
+```bash
+php artisan uplinkr:analyze --project=my-website
+```
+
+#### Prune Storage
+Clean up old probe results or wipe all data.
+```bash
+# Delete results for a project before a specific date
+php artisan uplinkr:prune --project=my-website --before=2023-01-01
+
+# Wipe all Uplinkr data (requires 'allow_complete_wipe' to be true in config)
+php artisan uplinkr:prune --wipe-all
+```
+
+## Configuration
+
+The configuration file is located at `config/uplinkr.php`. Here you can customize:
+
+- `storage.disk`: The Laravel filesystem disk to use (default: `local`).
+- `storage.path`: The base path for storing Uplinkr data.
+- `storage.allow_complete_wipe`: Safety setting to prevent accidental deletion of all data.
+
+## License
+
+The MIT License (MIT). Please see [LICENCE.md](LICENCE.md) for more information.

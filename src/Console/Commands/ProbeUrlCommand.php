@@ -27,13 +27,13 @@ class ProbeUrlCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'uplinkr:probe-url 
+    protected $signature = 'uplinkr:probe:url 
                             {--url= : Target URL}
                             {--project= : Optional project name} 
                             {--method=GET : HTTP method (GET, POST, PUT, DELETE, ...)} 
                             {--header=* : Additional headers, e.g. "Authorization: Bearer xxx"} 
                             {--body= : JSON body as string} 
-                            {--force}';
+                            {--force : Force execution without confirmation}';
 
     /**
      * The console command description.
@@ -79,7 +79,7 @@ class ProbeUrlCommand extends Command
                 $execute = true;
             } else {
                 $execute = $this->confirm(sprintf(
-                    __('uplinkr::messages.url_checking', ['url' => $url]),
+                    __('uplinkr::messages.probe_checking', ['url' => $url]),
                     $url,
                 ));
             }
@@ -105,7 +105,7 @@ class ProbeUrlCommand extends Command
             return CommandAlias::INVALID;
         }
 
-        $this->error(__('uplinkr::messages.no_url_provided'));
+        $this->error(__('uplinkr::messages.probe_no_url_provided'));
 
         return CommandAlias::INVALID;
     }

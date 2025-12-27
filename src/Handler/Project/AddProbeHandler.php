@@ -7,12 +7,12 @@ use Carbon\Carbon;
 use Uplinkr\Interfaces\ProjectStorageInterface;
 
 /**
- * Class InitHandler
+ * Class AddProbeHandler
  * @package Uplinkr\Handler\Project
  *
  * @author Sascha Scherhak <sascha@uplinkr.dev>
  */
-class InitHandler
+class AddProbeHandler
 {
     /**
      * Constructor method for initializing the class with a project storage instance.
@@ -26,21 +26,14 @@ class InitHandler
     {}
 
     /**
-     * Creates and saves a new project with the provided options.
+     * Adds a probe to an existing project.
      *
-     * @param array $options An associative array containing project details such as 'project', 'label', and 'description'.
+     * @param array $options An associative array containing probe details: 'url', 'project', 'method', 'headers', 'body'.
      * @return bool
      */
     public function handle(array $options): bool
     {
-        $this->projectStorage->saveProject([
-            'project' => Arr::get($options, 'project'),
-            'label' => Arr::get($options, 'label'),
-            'description' => Arr::get($options, 'description'),
-            'created_at' => Carbon::now()->toDateTimeString(),
-            'updated_at' => Carbon::now()->toDateTimeString(),
-            'probes' => [],
-        ]);
+        $this->projectStorage->addToProject($options);
 
         return true;
     }

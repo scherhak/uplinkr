@@ -30,11 +30,11 @@ class ProjectListCommand extends Command
 
     public function handle(ListHandler $listHandler): int
     {
-        $projects = $listHandler->listAll();
+        $projects = $listHandler->all();
 
         foreach ($projects as $project) {
             $name = basename($project);
-            $count = $listHandler->getProbesCount(path: $project);
+            $count = $listHandler->countProbes(path: $project);
             $this->info(sprintf('%s [%s]', $name, $count));
         }
 

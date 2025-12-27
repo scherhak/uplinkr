@@ -86,23 +86,23 @@ class UrlHandler
             if ($request->successful()) {
                 $probeStatus = 'reachable';
                 $probeMessage = [
-                    'lang_key' => 'messages.url_reachable',
+                    'lang_key' => 'messages.probe_reachable',
                 ];
             } else {
                 $probeStatus = 'unreachable';
                 $probeMessage = [
-                    'lang_key' => 'messages.url_unreachable',
+                    'lang_key' => 'messages.probe_unreachable',
                 ];
             }
         } catch (ConnectionException $ce) {
             $probeMessage = [
                 'exception' => $ce->getMessage(),
-                'lang_key' => 'messages.url_error',
+                'lang_key' => 'messages.probe_error',
             ];
         } catch (Exception $e) {
             $probeMessage = [
                 'exception' => $e->getMessage(),
-                'lang_key' => 'messages.url_error',
+                'lang_key' => 'messages.probe_error',
             ];
         }
 
