@@ -12,7 +12,7 @@ use Uplinkr\Interfaces\ProjectStorageInterface;
  *
  * @author Sascha Scherhak <sascha@uplinkr.dev>
  */
-class InitHandler
+class AddProbeHandler
 {
     /**
      * Constructor method for initializing the class with a project storage instance.
@@ -33,7 +33,7 @@ class InitHandler
      */
     public function handle(array $options): bool
     {
-        $this->projectStorage->saveProject([
+        $this->projectStorage->addToProject([
             'project' => Arr::get($options, 'project'),
             'label' => Arr::get($options, 'label'),
             'description' => Arr::get($options, 'description'),

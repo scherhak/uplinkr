@@ -29,7 +29,7 @@ class ListHandler
      *
      * @return array An array of directory paths present in the configured storage disk and path.
      */
-    public function listAll(): array
+    public function all(): array
     {
         return Storage::disk($this->config->getStorageDisc())->directories($this->config->getStoragePath());
     }
@@ -40,7 +40,7 @@ class ListHandler
      * @param string $path The base directory path where probe files are located.
      * @return int The total number of probe files found in the specified directory.
      */
-    public function getProbesCount(string $path): int
+    public function countProbes(string $path): int
     {
         return count(Storage::disk($this->config->getStorageDisc())->allFiles(
             sprintf('%s/%s',

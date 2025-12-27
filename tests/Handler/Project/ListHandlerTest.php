@@ -45,7 +45,7 @@ class ListHandlerTest extends TestCase
 
         $handler = new ListHandler($this->config);
 
-        $this->assertEquals($expectedDirectories, $handler->listAll());
+        $this->assertEquals($expectedDirectories, $handler->all());
     }
 
     public function testGetProbesCountReturnsCountOfFiles(): void
@@ -66,6 +66,6 @@ class ListHandlerTest extends TestCase
 
         $handler = new ListHandler($this->config);
 
-        $this->assertEquals(3, $handler->getProbesCount($path));
+        $this->assertEquals(3, $handler->countProbes($path));
     }
 }

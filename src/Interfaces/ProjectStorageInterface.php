@@ -9,14 +9,13 @@ namespace Uplinkr\Interfaces;
  */
 interface ProjectStorageInterface
 {
-
+    /**
+     * Saves the given project data to the database or storage system.
+     *
+     * @param array $projectData An associative array containing the project information to be saved.
+     * @return void
+     */
     public function saveProject(array $projectData): void;
 
-
-    public function findProject(string $project): ?array;
-
-
-    public function listProjects(): array;
-
-    public function deleteProject(string $project): void;
+    public function addToProject(array $probeData): void;
 }
