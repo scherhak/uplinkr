@@ -129,8 +129,43 @@ class FileProjectStorage implements ProjectStorageInterface
             ];
         }
 
+        // TODO (0.1.1) Check why the unit test fails here when Arr:add is used.
         $project['probes'] = $probes;
-        $project['updated_at'] = now()->toDateTimeString();
+        $project = Arr::add($project, 'updated_at', now()->toDateTimeString());
+
+        $this->saveProject($project);
+    }
+
+    /**
+     * Removes a probe from the specified project.
+     *
+     * @param array $probeData An associative array containing:
+     *                         - 'project': The name of the project.
+     *                         - 'url': The URL of the probe to be removed.
+     *
+     * @return void
+     * @throws JsonException
+     */
+    public function removeFromProject(array $probeData): void
+    {
+        $projectName = Arr::get($probeData, 'project');
+        if (empty($projectName)) {
+            return;
+        }
+
+        $project = $this->findProject($projectName);
+        if (!$project) {
+            return;
+        }
+
+        $probes = Arr::get($project, 'probes', []);
+        $urlToRemove = Arr::get($probeData, 'url');
+
+        $project['probes'] = array_values(array_filter($probes, static function ($probe) use ($urlToRemove) {
+            return Arr::get($probe, 'url') !== $urlToRemove;
+        }));
+
+        $project = Arr::add($project, 'updated_at', now()->toDateTimeString());
 
         $this->saveProject($project);
     }

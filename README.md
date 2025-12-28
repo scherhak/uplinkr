@@ -62,6 +62,12 @@ Add a URL to be monitored under a specific project.
 php artisan uplinkr:project:add:probe --project=my-website --url=https://example.com --method=GET
 ```
 
+#### Remove a Probe from a Project
+Remove a URL from a specific project.
+```bash
+php artisan uplinkr:project:remove:probe --project=my-website --url=https://example.com
+```
+
 #### Manual URL Probing
 Probe a specific URL directly and optionally assign it to a project.
 ```bash

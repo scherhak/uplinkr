@@ -19,10 +19,11 @@
 * php artisan uplinkr:analyze --project=scherhak-com --from=2025-12-09 --to=2025-12-10
 * php artisan uplinkr:project:init --project=my-test-project --label="My Test Project" --description="This is a test project for uplinkr."
 * php artisan uplinkr:project:add:probe --url=https://uplinkr.dev --method=GET --project=my-test-project
+*php artisan uplinkr:project:remove:probe --url=https://uplinkr.dev/foo --project=my-test-projec
 
 # Wip commands
 
-* uplinkr:project:remove:probe — Remove a probe definition from a project (by id) 
+
 
 # Upcoming commands
 

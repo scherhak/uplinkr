@@ -18,4 +18,6 @@ interface ProjectStorageInterface
     public function saveProject(array $projectData): void;
 
     public function addToProject(array $probeData): void;
+
+    public function removeFromProject(array $probeData): void;
 }
