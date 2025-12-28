@@ -8,12 +8,12 @@ use JsonException;
 use Uplinkr\Interfaces\ProjectStorageInterface;
 
 /**
- * Class InitHandler
+ * Class UpdateHandler
  * @package Uplinkr\Handler\Project
  *
  * @author Sascha Scherhak <sascha@uplinkr.dev>
  */
-class InitHandler
+class UpdateHandler
 {
     /**
      * Constructor method for initializing the class with a project storage instance.
@@ -27,7 +27,7 @@ class InitHandler
     {}
 
     /**
-     * Creates and saves a new project with the provided options.
+     * Updates an existing project with the provided options, keeping 'probes' untouched.
      *
      * @param array $options An associative array containing project details such as 'project', 'label', and 'description'.
      * @return bool
@@ -36,18 +36,26 @@ class InitHandler
     public function handle(array $options): bool
     {
         $projectName = Arr::get($options, 'project');
-        $existingProject = $this->projectStorage->findProject($projectName);
+        if (!$projectName) {
+            return false;
+        }
 
-        $data = [
-            'project' => $projectName,
-            'label' => Arr::get($options, 'label'),
-            'description' => Arr::get($options, 'description'),
-            'created_at' => $existingProject['created_at'] ?? now()->toDateTimeString(),
-            'updated_at' => now()->toDateTimeString(),
-            'probes' => $existingProject['probes'] ?? [],
-        ];
+        $projectData = $this->projectStorage->findProject($projectName);
+        if (!$projectData) {
+            return false;
+        }
 
-        $this->projectStorage->saveProject($data);
+        if (Arr::has($options, 'label')) {
+            $projectData['label'] = Arr::get($options, 'label');
+        }
+
+        if (Arr::has($options, 'description')) {
+            $projectData['description'] = Arr::get($options, 'description');
+        }
+
+        $projectData['updated_at'] = now()->toDateTimeString();
+
+        $this->projectStorage->saveProject($projectData);
 
         return true;
     }

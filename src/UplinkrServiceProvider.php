@@ -10,6 +10,7 @@ use Uplinkr\Console\Commands\Project\ProjectAddProbeCommand;
 use Uplinkr\Console\Commands\Project\ProjectRemoveProbeCommand;
 use Uplinkr\Console\Commands\Project\ProjectArchiveCommand;
 use Uplinkr\Console\Commands\Project\ProjectInitCommand;
+use Uplinkr\Console\Commands\Project\ProjectUpdateCommand;
 use Uplinkr\Console\Commands\Project\ProjectListCommand;
 use Uplinkr\Console\Commands\StoragePruneCommand;
 use Uplinkr\Interfaces\ProbeResultsStorageInterface;
@@ -50,6 +51,7 @@ class UplinkrServiceProvider extends ServiceProvider
                 StoragePruneCommand::class,
                 AnalyzeProjectCommand::class,
                 ProjectInitCommand::class,
+                ProjectUpdateCommand::class,
                 ProjectListCommand::class,
                 ProjectArchiveCommand::class,
                 ProjectAddProbeCommand::class,

@@ -131,7 +131,7 @@ class FileProjectStorage implements ProjectStorageInterface
 
         // TODO (0.1.1) Check why the unit test fails here when Arr:add is used.
         $project['probes'] = $probes;
-        $project = Arr::add($project, 'updated_at', now()->toDateTimeString());
+        $project['updated_at'] = now()->toDateTimeString();
 
         $this->saveProject($project);
     }
@@ -165,7 +165,7 @@ class FileProjectStorage implements ProjectStorageInterface
             return Arr::get($probe, 'url') !== $urlToRemove;
         }));
 
-        $project = Arr::add($project, 'updated_at', now()->toDateTimeString());
+        $project['updated_at'] = now()->toDateTimeString();
 
         $this->saveProject($project);
     }
