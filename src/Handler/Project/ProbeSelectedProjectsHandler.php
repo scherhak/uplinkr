@@ -3,19 +3,20 @@
 namespace Uplinkr\Handler\Project;
 
 use Arr;
+use JsonException;
 use Uplinkr\Handler\Probe\UrlHandler;
 use Uplinkr\Interfaces\ProjectStorageInterface;
 
 /**
- * Class ProbeAllProjectsHandler
+ * Class ProbeSelectedProjectsHandler
  * @package Uplinkr\Handler\Project
  *
  * @author Sascha Scherhak <sascha@uplinkr.dev>
  */
-class ProbeAllProjectsHandler
+class ProbeSelectedProjectsHandler
 {
     /**
-     * ProbeAllProjectsHandler constructor.
+     * ProbeSelectedProjectsHandler constructor.
      *
      * @param ProjectStorageInterface $projectStorage
      * @param UrlHandler $urlHandler
@@ -26,34 +27,21 @@ class ProbeAllProjectsHandler
     ) {}
 
     /**
-     * Iterates through all projects and executes their defined probes.
+     * Executes all probes for a selected project.
      *
+     * @param string $projectName
      * @param callable|null $callback Optional callback for each result.
-     * @return array Returns an array of results for each project.
+     * @return array|null Returns an array of results or null if project not found.
+     * @throws JsonException
      */
-    public function handle(?callable $callback = null): array
+    public function handle(string $projectName, ?callable $callback = null): ?array
     {
-        $projects = $this->projectStorage->allProjects();
-        $results = [];
+        $project = $this->projectStorage->findProject($projectName);
 
-        foreach ($projects as $project) {
-            $projectName = Arr::get($project, 'project', 'unknown');
-            $results[$projectName] = $this->handleProject($project, $callback);
+        if (!$project) {
+            return null;
         }
 
-        return $results;
-    }
-
-    /**
-     * Executes all probes for a single project.
-     *
-     * @param array $project
-     * @param callable|null $callback
-     * @return array
-     */
-    public function handleProject(array $project, ?callable $callback = null): array
-    {
-        $projectName = Arr::get($project, 'project', 'unknown');
         $probes = Arr::get($project, 'probes', []);
         $results = [];
 
