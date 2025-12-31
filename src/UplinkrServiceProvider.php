@@ -11,6 +11,7 @@ use Uplinkr\Console\Commands\Project\ProjectArchiveCommand;
 use Uplinkr\Console\Commands\Project\ProjectInitCommand;
 use Uplinkr\Console\Commands\Project\ProjectListCommand;
 use Uplinkr\Console\Commands\Project\ProjectRemoveProbeCommand;
+use Uplinkr\Console\Commands\Project\ProjectRunProbesCommand;
 use Uplinkr\Console\Commands\Project\ProjectUpdateCommand;
 use Uplinkr\Console\Commands\Prune\PruneStorageCommand;
 use Uplinkr\Interfaces\ProbeResultsStorageInterface;
@@ -56,6 +57,7 @@ class UplinkrServiceProvider extends ServiceProvider
                 ProjectArchiveCommand::class,
                 ProjectAddProbeCommand::class,
                 ProjectRemoveProbeCommand::class,
+                ProjectRunProbesCommand::class,
             ]);
         }
     }

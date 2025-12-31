@@ -20,4 +20,16 @@ interface ProjectStorageInterface
     public function addToProject(array $probeData): void;
 
     public function removeFromProject(array $probeData): void;
+
+    /**
+     * Retrieves all projects from storage.
+     *
+     * @return array An array of projects, where each project is an associative array of its settings.
+     */
+    public function allProjects(): array;
+
+    /**
+     * @return string
+     */
+    public function getStoragePath(): string;
 }

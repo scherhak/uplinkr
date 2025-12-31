@@ -39,6 +39,12 @@ return [
     'project_remove_probe_start' => 'Should URL :url be removed from project :project now?',
     'project_remove_probe_failed' => 'Removal failed. Please check the URL and project name. These are required fields.',
     'project_remove_probe_success' => 'The Probe has been successfully removed from the project.',
+    'project_run_probes_confirm' => 'Should all probes for all projects be executed?',
+    'project_run_probes_start' => 'Running all probes...',
+    'project_run_probes_no_projects' => 'No projects found in :path.',
+    'project_run_probes_no_probes' => 'No probes found for project :project.',
+    'project_run_probes_running_for_project' => 'Running :count probes for project :project...',
+    'project_run_probes_success' => 'All probes have been executed.',
 
     /*
      * Prune project and probes results

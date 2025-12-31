@@ -125,4 +125,24 @@ class FileProjectStorageTest extends TestCase
         $this->assertCount(1, $updatedProject['probes']);
         $this->assertEquals('http://other.com', $updatedProject['probes'][0]['url']);
     }
+
+    public function test_it_retrieves_all_projects(): void
+    {
+        // 1. Setup multiple projects
+        $project1 = ['project' => 'project-1', 'label' => 'Project 1'];
+        $project2 = ['project' => 'project-2', 'label' => 'Project 2'];
+        
+        $this->storage->saveProject($project1);
+        $this->storage->saveProject($project2);
+
+        // 2. Retrieve all projects
+        $allProjects = $this->storage->allProjects();
+
+        // 3. Verify
+        $this->assertCount(2, $allProjects);
+        
+        $projectNames = array_column($allProjects, 'project');
+        $this->assertContains('project-1', $projectNames);
+        $this->assertContains('project-2', $projectNames);
+    }
 }
