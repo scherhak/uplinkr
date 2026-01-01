@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Storage;
 use JsonException;
 use Uplinkr\Interfaces\ProbeResultsStorageInterface;
 use Uplinkr\Objects\Config\UplinkrConfig;
+use Uplinkr\Objects\Project\ProjectValues;
 use Uplinkr\Support\Sanitizer;
 
 /**
@@ -113,11 +114,15 @@ class FileProbeResultsStorage implements ProbeResultsStorageInterface
      */
     private function getProjectPath(array $data): string
     {
-        return Arr::get(
-            $data,
-            'settings.project',
-            $this->config->getStandardProject()
-        );
+        $projectValues = new ProjectValues(Arr::get($data, 'settings', []));
+
+        $project = $projectValues->getName();
+
+        if ($project === 'unknown') {
+            $project = $this->config->getStandardProject();
+        }
+
+        return $project;
     }
 
     /**

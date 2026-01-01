@@ -71,7 +71,7 @@ class ProjectRemoveProbeCommand extends Command
                 ]);
 
                 if (!$force) {
-                    $this->info(__('uplinkr::messages.project_remove_probe_success'), );
+                    $this->info(__('uplinkr::messages.project_remove_probe_success'));
                 }
 
                 return CommandAlias::SUCCESS;

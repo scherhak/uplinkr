@@ -6,6 +6,7 @@ use Arr;
 use JsonException;
 use Uplinkr\Handler\Probe\UrlHandler;
 use Uplinkr\Interfaces\ProjectStorageInterface;
+use Uplinkr\Objects\Project\ProjectValues;
 
 /**
  * Class ProbeSelectedProjectsHandler
@@ -24,7 +25,9 @@ class ProbeSelectedProjectsHandler
     public function __construct(
         private readonly ProjectStorageInterface $projectStorage,
         public readonly UrlHandler               $urlHandler
-    ) {}
+    )
+    {
+    }
 
     /**
      * Executes all probes for a selected project.
@@ -42,7 +45,8 @@ class ProbeSelectedProjectsHandler
             return null;
         }
 
-        $probes = Arr::get($project, 'probes', []);
+        $projectValues = new ProjectValues($project);
+        $probes = $projectValues->getProbes();
         $results = [];
 
         foreach ($probes as $probe) {

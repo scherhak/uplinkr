@@ -5,6 +5,7 @@ namespace Uplinkr\Handler\Project;
 use Arr;
 use Uplinkr\Handler\Probe\UrlHandler;
 use Uplinkr\Interfaces\ProjectStorageInterface;
+use Uplinkr\Objects\Project\ProjectValues;
 
 /**
  * Class ProbeAllProjectsHandler
@@ -23,7 +24,9 @@ class ProbeAllProjectsHandler
     public function __construct(
         private readonly ProjectStorageInterface $projectStorage,
         public readonly UrlHandler               $urlHandler
-    ) {}
+    )
+    {
+    }
 
     /**
      * Iterates through all projects and executes their defined probes.
@@ -37,7 +40,8 @@ class ProbeAllProjectsHandler
         $results = [];
 
         foreach ($projects as $project) {
-            $projectName = Arr::get($project, 'project', 'unknown');
+            $projectValues = new ProjectValues($project);
+            $projectName = $projectValues->getName();
             $results[$projectName] = $this->handleProject($project, $callback);
         }
 
@@ -53,8 +57,9 @@ class ProbeAllProjectsHandler
      */
     public function handleProject(array $project, ?callable $callback = null): array
     {
-        $projectName = Arr::get($project, 'project', 'unknown');
-        $probes = Arr::get($project, 'probes', []);
+        $projectValues = new ProjectValues($project);
+        $projectName = $projectValues->getName();
+        $probes = $projectValues->getProbes();
         $results = [];
 
         foreach ($probes as $probe) {

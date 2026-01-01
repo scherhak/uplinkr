@@ -7,6 +7,7 @@ use Symfony\Component\Console\Command\Command as CommandAlias;
 use Uplinkr\Handler\Project\ProbeAllProjectsHandler;
 use Uplinkr\Interfaces\ProjectStorageInterface;
 use Uplinkr\Objects\Config\UplinkrConfig;
+use Uplinkr\Objects\Project\ProjectValues;
 use Uplinkr\Traits\HandlesProbeOutput;
 
 /**
@@ -65,8 +66,9 @@ class ProjectRunProbesCommand extends Command
         }
 
         foreach ($projects as $project) {
-            $projectName = $project['project'] ?? 'unknown';
-            $probes = $project['probes'] ?? [];
+            $projectValues = new ProjectValues($project);
+            $projectName = $projectValues->getName();
+            $probes = $projectValues->getProbes();
 
             if (empty($probes)) {
                 $this->line(__('uplinkr::messages.project_run_probes_no_probes', ['project' => $projectName]));

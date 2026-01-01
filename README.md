@@ -74,6 +74,20 @@ Remove a URL from a specific project.
 php artisan uplinkr:project:remove:probe --project=my-website --url=https://example.com
 ```
 
+### Executing Probes
+
+#### Run All Probes for All Projects
+Execute every defined probe across all active projects.
+```bash
+php artisan uplinkr:project:run-probes
+```
+
+#### Run All Probes for a Specific Project
+Execute all defined probes for a single selected project.
+```bash
+php artisan uplinkr:project:run-selected-probe --project=my-website
+```
+
 #### Manual URL Probing
 Probe a specific URL directly and optionally assign it to a project.
 ```bash

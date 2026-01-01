@@ -4,6 +4,7 @@ namespace Uplinkr\Objects\Summary;
 
 /**
  * Class ProbeResultsSummary
+ * @package Uplinkr\Objects\Summary
  *
  * @author Sascha Scherhak <sascha@uplinkr.dev>
  */

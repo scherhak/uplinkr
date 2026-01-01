@@ -4,6 +4,7 @@ namespace Uplinkr\Console\Commands\Project;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Validator;
+use JsonException;
 use Symfony\Component\Console\Command\Command as CommandAlias;
 use Uplinkr\Handler\Project\UpdateHandler;
 
@@ -34,7 +35,7 @@ class ProjectUpdateCommand extends Command
     protected $description = 'Updates an existing project and its JSON-Data.';
 
     /**
-     * @throws \JsonException
+     * @throws JsonException
      */
     public function handle(UpdateHandler $updateHandler): int
     {
@@ -78,12 +79,12 @@ class ProjectUpdateCommand extends Command
 
                 if ($success) {
                     if (!$force) {
-                        $this->info(__('uplinkr::messages.project_update_success', [ 'project' => $project ]));
+                        $this->info(__('uplinkr::messages.project_update_success', ['project' => $project]));
                     }
                     return CommandAlias::SUCCESS;
                 }
 
-                $this->error(__('uplinkr::messages.project_update_failed', [ 'project' => $project ]));
+                $this->error(__('uplinkr::messages.project_update_failed', ['project' => $project]));
                 return CommandAlias::FAILURE;
             }
 

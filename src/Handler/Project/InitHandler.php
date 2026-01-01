@@ -2,10 +2,9 @@
 
 namespace Uplinkr\Handler\Project;
 
-use Arr;
-use Carbon\Carbon;
 use JsonException;
 use Uplinkr\Interfaces\ProjectStorageInterface;
+use Uplinkr\Objects\Project\ProjectValues;
 
 /**
  * Class InitHandler
@@ -24,7 +23,8 @@ class InitHandler
     public function __construct(
         private readonly ProjectStorageInterface $projectStorage
     )
-    {}
+    {
+    }
 
     /**
      * Creates and saves a new project with the provided options.
@@ -35,16 +35,18 @@ class InitHandler
      */
     public function handle(array $options): bool
     {
-        $projectName = Arr::get($options, 'project');
+        $optionsValues = new ProjectValues($options);
+        $projectName = $optionsValues->getName();
         $existingProject = $this->projectStorage->findProject($projectName);
+        $projectValues = $existingProject ? new ProjectValues($existingProject) : null;
 
         $data = [
             'project' => $projectName,
-            'label' => Arr::get($options, 'label'),
-            'description' => Arr::get($options, 'description'),
-            'created_at' => $existingProject['created_at'] ?? now()->toDateTimeString(),
+            'label' => $optionsValues->getLabel(),
+            'description' => $optionsValues->getDescription(),
+            'created_at' => ($projectValues?->getCreatedAt()) ?? now()->toDateTimeString(),
             'updated_at' => now()->toDateTimeString(),
-            'probes' => $existingProject['probes'] ?? [],
+            'probes' => $projectValues ? $projectValues->getProbes() : [],
         ];
 
         $this->projectStorage->saveProject($data);

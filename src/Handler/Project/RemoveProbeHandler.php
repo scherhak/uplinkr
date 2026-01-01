@@ -21,7 +21,8 @@ class RemoveProbeHandler
     public function __construct(
         private readonly ProjectStorageInterface $projectStorage
     )
-    {}
+    {
+    }
 
     /**
      * Removes a probe from an existing project.

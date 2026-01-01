@@ -17,6 +17,12 @@ interface ProjectStorageInterface
      */
     public function saveProject(array $projectData): void;
 
+    /**
+     * Adds the provided probe data to the project.
+     *
+     * @param array $probeData An associative array containing the data to be added to the project.
+     * @return void
+     */
     public function addToProject(array $probeData): void;
 
     public function removeFromProject(array $probeData): void;

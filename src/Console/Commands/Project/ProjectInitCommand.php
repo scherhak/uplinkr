@@ -2,9 +2,9 @@
 
 namespace Uplinkr\Console\Commands\Project;
 
-use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Validator;
+use JsonException;
 use Symfony\Component\Console\Command\Command as CommandAlias;
 use Uplinkr\Handler\Project\InitHandler;
 use Uplinkr\Interfaces\ProjectStorageInterface;
@@ -36,7 +36,7 @@ class ProjectInitCommand extends Command
     protected $description = 'Initializes a new project and creates the necessary JSON-Data and store it in the configured storage location.';
 
     /**
-     * @throws \JsonException
+     * @throws JsonException
      */
     public function handle(InitHandler $initHandler, ProjectStorageInterface $projectStorage): int
     {
@@ -66,7 +66,7 @@ class ProjectInitCommand extends Command
             if ($force) {
                 $execute = true;
             } else {
-                $message = $existingProject 
+                $message = $existingProject
                     ? __('uplinkr::messages.project_init_exists_confirm', ['project' => $project])
                     : __('uplinkr::messages.project_init_start', ['project' => $project]);
 
@@ -81,7 +81,7 @@ class ProjectInitCommand extends Command
                 ]);
 
                 if (!$force) {
-                    $this->info(__('uplinkr::messages.project_init_success', [ 'project' => $project ]));
+                    $this->info(__('uplinkr::messages.project_init_success', ['project' => $project]));
                 }
 
                 return CommandAlias::SUCCESS;

@@ -2,8 +2,6 @@
 
 namespace Uplinkr\Handler\Project;
 
-use Arr;
-use Carbon\Carbon;
 use Uplinkr\Interfaces\ProjectStorageInterface;
 
 /**
@@ -23,7 +21,8 @@ class AddProbeHandler
     public function __construct(
         private readonly ProjectStorageInterface $projectStorage
     )
-    {}
+    {
+    }
 
     /**
      * Adds a probe to an existing project.

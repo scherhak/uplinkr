@@ -3,9 +3,9 @@
 namespace Uplinkr\Handler\Project;
 
 use Arr;
-use Carbon\Carbon;
 use JsonException;
 use Uplinkr\Interfaces\ProjectStorageInterface;
+use Uplinkr\Objects\Project\ProjectValues;
 
 /**
  * Class UpdateHandler
@@ -24,7 +24,8 @@ class UpdateHandler
     public function __construct(
         private readonly ProjectStorageInterface $projectStorage
     )
-    {}
+    {
+    }
 
     /**
      * Updates an existing project with the provided options, keeping 'probes' untouched.
@@ -35,8 +36,9 @@ class UpdateHandler
      */
     public function handle(array $options): bool
     {
-        $projectName = Arr::get($options, 'project');
-        if (!$projectName) {
+        $optionsValues = new ProjectValues($options);
+        $projectName = $optionsValues->getName();
+        if ($projectName === 'unknown') {
             return false;
         }
 
@@ -46,11 +48,11 @@ class UpdateHandler
         }
 
         if (Arr::has($options, 'label')) {
-            $projectData['label'] = Arr::get($options, 'label');
+            $projectData['label'] = $optionsValues->getLabel();
         }
 
         if (Arr::has($options, 'description')) {
-            $projectData['description'] = Arr::get($options, 'description');
+            $projectData['description'] = $optionsValues->getDescription();
         }
 
         $projectData['updated_at'] = now()->toDateTimeString();

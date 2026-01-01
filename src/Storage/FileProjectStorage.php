@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Storage;
 use JsonException;
 use Uplinkr\Interfaces\ProjectStorageInterface;
 use Uplinkr\Objects\Config\UplinkrConfig;
+use Uplinkr\Objects\Project\ProjectValues;
 use Uplinkr\Support\Sanitizer;
 
 /**
@@ -28,7 +29,9 @@ class FileProjectStorage implements ProjectStorageInterface
     public function __construct(
         private readonly UplinkrConfig $config,
         private readonly Sanitizer     $sanitizer,
-    ) {}
+    )
+    {
+    }
 
     /**
      * Saves the project data to the configured storage.
@@ -102,7 +105,8 @@ class FileProjectStorage implements ProjectStorageInterface
             return;
         }
 
-        $probes = Arr::get($project, 'probes', []);
+        $projectValues = new ProjectValues($project);
+        $probes = $projectValues->getProbes();
         $found = false;
 
         foreach ($probes as $key => $probe) {
@@ -158,7 +162,8 @@ class FileProjectStorage implements ProjectStorageInterface
             return;
         }
 
-        $probes = Arr::get($project, 'probes', []);
+        $projectValues = new ProjectValues($project);
+        $probes = $projectValues->getProbes();
         $urlToRemove = Arr::get($probeData, 'url');
 
         $project['probes'] = array_values(array_filter($probes, static function ($probe) use ($urlToRemove) {
@@ -254,13 +259,14 @@ class FileProjectStorage implements ProjectStorageInterface
      */
     private function extractProjectName(array $data): string
     {
-        $project = Arr::get($data, 'project', Arr::get($data, 'name'));
+        $projectValues = new ProjectValues($data);
+        $project = $projectValues->getName();
 
-        if (empty($project)) {
+        if ($project === 'unknown') {
             return $this->config->getStandardProject();
         }
 
-        return $this->sanitizeProjectName((string) $project);
+        return $this->sanitizeProjectName($project);
     }
 
     /**
@@ -276,7 +282,7 @@ class FileProjectStorage implements ProjectStorageInterface
     private function sanitizeProjectName(string $project): string
     {
         if (method_exists($this->sanitizer, 'slug')) {
-            return (string) $this->sanitizer->slug($project);
+            return (string)$this->sanitizer->slug($project);
         }
 
         return preg_replace('/[^a-z0-9\-_]+/', '-', strtolower(trim($project)))

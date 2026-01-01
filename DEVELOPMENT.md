@@ -21,6 +21,8 @@
 * php artisan uplinkr:project:update --project=my-test-project --label="My first UPLINKR Test Project" --description="This is a update for the test project for uplinkr 9000000."
 * php artisan uplinkr:project:add:probe --url=https://uplinkr.dev --method=GET --project=my-test-project
 * php artisan uplinkr:project:remove:probe --url=https://uplinkr.dev/foo --project=my-test-project
+* php artisan uplinkr:project:run-probes
+* php artisan uplinkr:project:run-selected-probe --project=my-test-project
 
 # Wip commands
 
