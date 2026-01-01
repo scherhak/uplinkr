@@ -3,14 +3,18 @@
 namespace Uplinkr;
 
 use Illuminate\Support\ServiceProvider;
-use Uplinkr\Console\Commands\AnalyzeProjectCommand;
+use Uplinkr\Console\Commands\Probe\ProbeUrlCommand;
 use Uplinkr\Console\Commands\ProbeApiCommand;
-use Uplinkr\Console\Commands\ProbeUrlCommand;
 use Uplinkr\Console\Commands\Project\ProjectAddProbeCommand;
+use Uplinkr\Console\Commands\Project\ProjectAnalyzeCommand;
 use Uplinkr\Console\Commands\Project\ProjectArchiveCommand;
 use Uplinkr\Console\Commands\Project\ProjectInitCommand;
 use Uplinkr\Console\Commands\Project\ProjectListCommand;
-use Uplinkr\Console\Commands\StoragePruneCommand;
+use Uplinkr\Console\Commands\Project\ProjectRemoveProbeCommand;
+use Uplinkr\Console\Commands\Project\ProjectRunProbesCommand;
+use Uplinkr\Console\Commands\Project\ProjectRunSelectedProbeCommand;
+use Uplinkr\Console\Commands\Project\ProjectUpdateCommand;
+use Uplinkr\Console\Commands\Prune\PruneStorageCommand;
 use Uplinkr\Interfaces\ProbeResultsStorageInterface;
 use Uplinkr\Interfaces\ProjectStorageInterface;
 use Uplinkr\Objects\Config\UplinkrConfig;
@@ -46,12 +50,16 @@ class UplinkrServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 ProbeUrlCommand::class,
-                StoragePruneCommand::class,
-                AnalyzeProjectCommand::class,
+                PruneStorageCommand::class,
+                ProjectAnalyzeCommand::class,
                 ProjectInitCommand::class,
+                ProjectUpdateCommand::class,
                 ProjectListCommand::class,
                 ProjectArchiveCommand::class,
                 ProjectAddProbeCommand::class,
+                ProjectRemoveProbeCommand::class,
+                ProjectRunProbesCommand::class,
+                ProjectRunSelectedProbeCommand::class,
             ]);
         }
     }

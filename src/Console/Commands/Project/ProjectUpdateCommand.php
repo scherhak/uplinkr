@@ -6,24 +6,23 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Validator;
 use JsonException;
 use Symfony\Component\Console\Command\Command as CommandAlias;
-use Uplinkr\Handler\Project\InitHandler;
-use Uplinkr\Interfaces\ProjectStorageInterface;
+use Uplinkr\Handler\Project\UpdateHandler;
 
 /**
- * Class ProjectInitCommand
+ * Class ProjectUpdateCommand
  * @package Uplinkr\Commands
  *
  * @author Sascha Scherhak <sascha@uplinkr.dev>
  */
-class ProjectInitCommand extends Command
+class ProjectUpdateCommand extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'uplinkr:project:init 
-                            {--project= : Name of the project to initialize}
+    protected $signature = 'uplinkr:project:update 
+                            {--project= : Name of the project to update}
                             {--label= : Optional project name}
                             {--description= : Optional project description}
                             {--force : Force execution without confirmation}';
@@ -33,12 +32,12 @@ class ProjectInitCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Initializes a new project and creates the necessary JSON-Data and store it in the configured storage location.';
+    protected $description = 'Updates an existing project and its JSON-Data.';
 
     /**
      * @throws JsonException
      */
-    public function handle(InitHandler $initHandler, ProjectStorageInterface $projectStorage): int
+    public function handle(UpdateHandler $updateHandler): int
     {
         $project = $this->option('project');
         $label = $this->option('label');
@@ -60,31 +59,33 @@ class ProjectInitCommand extends Command
 
         if ($validate->passes()) {
 
-            $existingProject = $projectStorage->findProject($project);
-
             // if force isset - just let it through
             if ($force) {
                 $execute = true;
             } else {
-                $message = $existingProject
-                    ? __('uplinkr::messages.project_init_exists_confirm', ['project' => $project])
-                    : __('uplinkr::messages.project_init_start', ['project' => $project]);
-
-                $execute = $this->confirm($message);
+                $execute = $this->confirm(__('uplinkr::messages.project_update_start',
+                    [
+                        'project' => $project
+                    ]
+                ));
             }
 
             if ($execute) {
-                $initHandler->handle(options: [
+                $success = $updateHandler->handle(options: [
                     'project' => $project,
                     'label' => $label,
                     'description' => $description,
                 ]);
 
-                if (!$force) {
-                    $this->info(__('uplinkr::messages.project_init_success', ['project' => $project]));
+                if ($success) {
+                    if (!$force) {
+                        $this->info(__('uplinkr::messages.project_update_success', ['project' => $project]));
+                    }
+                    return CommandAlias::SUCCESS;
                 }
 
-                return CommandAlias::SUCCESS;
+                $this->error(__('uplinkr::messages.project_update_failed', ['project' => $project]));
+                return CommandAlias::FAILURE;
             }
 
             if (!$force) {
@@ -96,7 +97,7 @@ class ProjectInitCommand extends Command
         }
 
         if (!$force) {
-            $this->error(__('uplinkr::messages.project_init_failed'));
+            $this->error(__('uplinkr::messages.project_update_failed_validation'));
         }
 
         return CommandAlias::INVALID;

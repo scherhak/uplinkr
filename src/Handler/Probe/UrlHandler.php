@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Http;
 use Str;
 use Uplinkr\Interfaces\ProbeResultsStorageInterface;
 use Uplinkr\Objects\Config\UplinkrConfig;
+use Uplinkr\Objects\Project\ProjectValues;
 use Uplinkr\Support\Sanitizer;
 
 /**
@@ -174,11 +175,12 @@ class UrlHandler
      */
     private function getProject(): string
     {
-        $project = Arr::get(
-            $this->data,
-            'project',
-            $this->config->getStandardProject()
-        );
+        $projectValues = new ProjectValues($this->data);
+        $project = $projectValues->getName();
+
+        if ($project === 'unknown') {
+            $project = $this->config->getStandardProject();
+        }
 
         return $this->sanitizer->project($project);
     }

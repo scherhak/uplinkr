@@ -2,17 +2,18 @@
 
 namespace Uplinkr\Handler\Project;
 
+use Arr;
 use JsonException;
 use Uplinkr\Interfaces\ProjectStorageInterface;
 use Uplinkr\Objects\Project\ProjectValues;
 
 /**
- * Class InitHandler
+ * Class UpdateHandler
  * @package Uplinkr\Handler\Project
  *
  * @author Sascha Scherhak <sascha@uplinkr.dev>
  */
-class InitHandler
+class UpdateHandler
 {
     /**
      * Constructor method for initializing the class with a project storage instance.
@@ -27,7 +28,7 @@ class InitHandler
     }
 
     /**
-     * Creates and saves a new project with the provided options.
+     * Updates an existing project with the provided options, keeping 'probes' untouched.
      *
      * @param array $options An associative array containing project details such as 'project', 'label', and 'description'.
      * @return bool
@@ -37,19 +38,26 @@ class InitHandler
     {
         $optionsValues = new ProjectValues($options);
         $projectName = $optionsValues->getName();
-        $existingProject = $this->projectStorage->findProject($projectName);
-        $projectValues = $existingProject ? new ProjectValues($existingProject) : null;
+        if ($projectName === 'unknown') {
+            return false;
+        }
 
-        $data = [
-            'project' => $projectName,
-            'label' => $optionsValues->getLabel(),
-            'description' => $optionsValues->getDescription(),
-            'created_at' => ($projectValues?->getCreatedAt()) ?? now()->toDateTimeString(),
-            'updated_at' => now()->toDateTimeString(),
-            'probes' => $projectValues ? $projectValues->getProbes() : [],
-        ];
+        $projectData = $this->projectStorage->findProject($projectName);
+        if (!$projectData) {
+            return false;
+        }
 
-        $this->projectStorage->saveProject($data);
+        if (Arr::has($options, 'label')) {
+            $projectData['label'] = $optionsValues->getLabel();
+        }
+
+        if (Arr::has($options, 'description')) {
+            $projectData['description'] = $optionsValues->getDescription();
+        }
+
+        $projectData['updated_at'] = now()->toDateTimeString();
+
+        $this->projectStorage->saveProject($projectData);
 
         return true;
     }

@@ -2,17 +2,15 @@
 
 namespace Uplinkr\Handler\Project;
 
-use Arr;
-use Carbon\Carbon;
 use Uplinkr\Interfaces\ProjectStorageInterface;
 
 /**
- * Class AddProbeHandler
+ * Class RemoveProbeHandler
  * @package Uplinkr\Handler\Project
  *
  * @author Sascha Scherhak <sascha@uplinkr.dev>
  */
-class AddProbeHandler
+class RemoveProbeHandler
 {
     /**
      * Constructor method for initializing the class with a project storage instance.
@@ -27,16 +25,15 @@ class AddProbeHandler
     }
 
     /**
-     * Adds a probe to an existing project.
+     * Removes a probe from an existing project.
      *
-     * @param array $options An associative array containing probe details: 'url', 'project', 'method', 'headers', 'body'.
+     * @param array $options An associative array containing probe details: 'url', 'project'.
      * @return bool
      */
     public function handle(array $options): bool
     {
-        $this->projectStorage->addToProject($options);
+        $this->projectStorage->removeFromProject($options);
 
         return true;
     }
-
 }

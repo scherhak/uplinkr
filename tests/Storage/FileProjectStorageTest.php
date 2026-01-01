@@ -95,4 +95,54 @@ class FileProjectStorageTest extends TestCase
         $this->assertEquals(['X-Test' => 'value'], $updatedProject['probes'][0]['header']);
         $this->assertEquals('test body', $updatedProject['probes'][0]['body']);
     }
+
+    public function test_it_removes_probe_from_project(): void
+    {
+        // 1. Setup project with probes
+        $projectData = [
+            'project' => 'my-test-project',
+            'probes' => [
+                [
+                    'url' => 'http://example.com',
+                    'project' => 'my-test-project',
+                ],
+                [
+                    'url' => 'http://other.com',
+                    'project' => 'my-test-project',
+                ]
+            ]
+        ];
+        $this->storage->saveProject($projectData);
+
+        // 2. Remove a probe
+        $this->storage->removeFromProject([
+            'url' => 'http://example.com',
+            'project' => 'my-test-project'
+        ]);
+
+        // 3. Verify
+        $updatedProject = $this->storage->findProject('my-test-project');
+        $this->assertCount(1, $updatedProject['probes']);
+        $this->assertEquals('http://other.com', $updatedProject['probes'][0]['url']);
+    }
+
+    public function test_it_retrieves_all_projects(): void
+    {
+        // 1. Setup multiple projects
+        $project1 = ['project' => 'project-1', 'label' => 'Project 1'];
+        $project2 = ['project' => 'project-2', 'label' => 'Project 2'];
+
+        $this->storage->saveProject($project1);
+        $this->storage->saveProject($project2);
+
+        // 2. Retrieve all projects
+        $allProjects = $this->storage->allProjects();
+
+        // 3. Verify
+        $this->assertCount(2, $allProjects);
+
+        $projectNames = array_column($allProjects, 'project');
+        $this->assertContains('project-1', $projectNames);
+        $this->assertContains('project-2', $projectNames);
+    }
 }

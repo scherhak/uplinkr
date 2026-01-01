@@ -1,6 +1,6 @@
 <?php
 
-namespace Uplinkr\Console\Commands;
+namespace Uplinkr\Console\Commands\Project;
 
 use Arr;
 use Exception;
@@ -10,14 +10,14 @@ use Uplinkr\Handler\Project\AnalyzeHandler;
 use Uplinkr\Handler\Project\SummaryHandler;
 
 /**
- * Class AnalyzeProjectCommand
+ * Class ProjectAnalyzeCommand
  * @package Uplinkr\Commands
  *
  * This class is responsible for handling the execution of the `uplinkr:probe-api` command.
  *
  * @author Sascha Scherhak <sascha@uplinkr.dev>
  */
-class AnalyzeProjectCommand extends Command
+class ProjectAnalyzeCommand extends Command
 {
     /**
      * The name and signature of the console command.

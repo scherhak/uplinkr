@@ -37,9 +37,15 @@ Uplinkr provides several Artisan commands to manage your monitoring.
 ### Project Management
 
 #### Initialize a New Project
-Create a new project to start monitoring URLs.
+Create a new project to start monitoring URLs. If the project already exists, you will be asked for confirmation to re-initialize it (metadata will be overwritten, but `created_at` and `probes` will be preserved).
 ```bash
 php artisan uplinkr:project:init --project=my-website --label="My Website" --description="Main company website monitoring"
+```
+
+#### Update Project Metadata
+Update the label or description of an existing project without affecting probes or creation date.
+```bash
+php artisan uplinkr:project:update --project=my-website --label="Updated Label" --description="Updated description"
 ```
 
 #### List Projects
@@ -60,6 +66,26 @@ php artisan uplinkr:project:archive --project=my-website
 Add a URL to be monitored under a specific project.
 ```bash
 php artisan uplinkr:project:add:probe --project=my-website --url=https://example.com --method=GET
+```
+
+#### Remove a Probe from a Project
+Remove a URL from a specific project.
+```bash
+php artisan uplinkr:project:remove:probe --project=my-website --url=https://example.com
+```
+
+### Executing Probes
+
+#### Run All Probes for All Projects
+Execute every defined probe across all active projects.
+```bash
+php artisan uplinkr:project:run-probes
+```
+
+#### Run All Probes for a Specific Project
+Execute all defined probes for a single selected project.
+```bash
+php artisan uplinkr:project:run-selected-probe --project=my-website
 ```
 
 #### Manual URL Probing

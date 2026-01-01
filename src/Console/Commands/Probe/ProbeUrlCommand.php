@@ -1,6 +1,6 @@
 <?php
 
-namespace Uplinkr\Console\Commands;
+namespace Uplinkr\Console\Commands\Probe;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;

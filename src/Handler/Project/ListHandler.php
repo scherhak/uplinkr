@@ -22,7 +22,8 @@ class ListHandler
     public function __construct(
         private readonly UplinkrConfig $config
     )
-    {}
+    {
+    }
 
     /**
      * Retrieves a list of all directories within the specified storage path.

@@ -12,7 +12,7 @@ use Uplinkr\Objects\Config\UplinkrConfig;
  * Class AnalyzeHandler
  * @package Uplinkr\Handler\Analysis
  *
- *
+ * @author Sascha Scherhak <sascha@uplinkr.dev>
  */
 class AnalyzeHandler
 {
