@@ -26,6 +26,7 @@
 
 # Wip commands
 
+* uplinkr:project:remove:probe — Remove a probe definition from a project (by id) 
 
 
 # Upcoming commands

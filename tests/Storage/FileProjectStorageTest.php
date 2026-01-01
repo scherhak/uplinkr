@@ -131,7 +131,7 @@ class FileProjectStorageTest extends TestCase
         // 1. Setup multiple projects
         $project1 = ['project' => 'project-1', 'label' => 'Project 1'];
         $project2 = ['project' => 'project-2', 'label' => 'Project 2'];
-        
+
         $this->storage->saveProject($project1);
         $this->storage->saveProject($project2);
 
@@ -140,7 +140,7 @@ class FileProjectStorageTest extends TestCase
 
         // 3. Verify
         $this->assertCount(2, $allProjects);
-        
+
         $projectNames = array_column($allProjects, 'project');
         $this->assertContains('project-1', $projectNames);
         $this->assertContains('project-2', $projectNames);
