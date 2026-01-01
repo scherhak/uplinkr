@@ -62,10 +62,9 @@ class ProjectAddProbeCommand extends Command
             if ($force) {
                 $execute = true;
             } else {
-                $execute = $this->confirm(__('uplinkr::messages.project_add_probe_start',
-                    [
+                $execute = $this->confirm(__('uplinkr::messages.project_add_probe_start', [
                         'url' => $url,
-                        'project' => $project
+                        'project' => $project,
                     ]
                 ));
             }
@@ -80,7 +79,10 @@ class ProjectAddProbeCommand extends Command
                 ]);
 
                 if (!$force) {
-                    $this->info(__('uplinkr::messages.project_add_probe_success'));
+                    $this->info(__('uplinkr::messages.project_add_probe_success', [
+                        'url' => $url,
+                        'project' => $project,
+                    ]));
                 }
 
                 return CommandAlias::SUCCESS;

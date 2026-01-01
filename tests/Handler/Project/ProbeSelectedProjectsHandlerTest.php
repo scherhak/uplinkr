@@ -102,4 +102,32 @@ class ProbeSelectedProjectsHandlerTest extends TestCase
         $this->assertIsArray($result);
         $this->assertEmpty($result);
     }
+
+    public function test_handle_returns_empty_array_if_project_disabled(): void
+    {
+        $storageMock = Mockery::mock(ProjectStorageInterface::class);
+        $urlHandlerMock = Mockery::mock(UrlHandler::class);
+
+        $projectName = 'disabled-project';
+        $project = [
+            'project' => $projectName,
+            'status' => 'disabled',
+            'probes' => [
+                ['url' => 'https://example.com/1', 'method' => 'GET'],
+            ],
+        ];
+
+        $storageMock->shouldReceive('findProject')
+            ->once()
+            ->with($projectName)
+            ->andReturn($project);
+
+        $urlHandlerMock->shouldNotReceive('handle');
+
+        $handler = new ProbeSelectedProjectsHandler($storageMock, $urlHandlerMock);
+        $result = $handler->handle($projectName);
+
+        $this->assertIsArray($result);
+        $this->assertEmpty($result);
+    }
 }

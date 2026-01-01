@@ -59,6 +59,16 @@ class ProjectValues
     }
 
     /**
+     * Retrieves the status of the project from the data array.
+     *
+     * @return string Returns the project status, defaulting to 'enabled'.
+     */
+    public function getStatus(): string
+    {
+        return Arr::get($this->data, 'status', 'enabled');
+    }
+
+    /**
      * Retrieves the label from the data array.
      *
      * @return string|null The label value if it exists, or null if not found.

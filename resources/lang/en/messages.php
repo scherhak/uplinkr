@@ -48,6 +48,7 @@ return [
     'project_disable_start' => 'Should project :project be disabled now?',
     'project_disable_failed' => 'Disabling project :project failed. Project might not exist.',
     'project_disable_success' => 'Project :project disabled successfully.',
+    'project_disabled' => 'Project :project is disabled.',
     'project_enable_start' => 'Should project :project be enabled now?',
     'project_enable_failed' => 'Enabling project :project failed. Project might not exist.',
     'project_enable_success' => 'Project :project enabled successfully.',
