@@ -45,6 +45,9 @@ return [
     'project_run_probes_no_probes' => 'No probes found for project :project.',
     'project_run_probes_running_for_project' => 'Running :count probes for project :project...',
     'project_run_probes_success' => 'All probes have been executed.',
+    'project_disable_start' => 'Should project :project be disabled now?',
+    'project_disable_failed' => 'Disabling project :project failed. Project might not exist.',
+    'project_disable_success' => 'Project :project disabled successfully.',
 
     /*
      * Prune project and probes results

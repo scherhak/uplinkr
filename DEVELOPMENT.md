@@ -28,8 +28,8 @@
 
 ### Project
 
-* php artisan uplinkr:project:enable --project=my-test-project --reason="Maintenance finished"
-* php artisan uplinkr:project:disable --project=my-test-project --reason="Planned downtime"
+* php artisan uplinkr:project:disable --project=my-test-project
+* php artisan uplinkr:project:enable --project=my-test-project
 
 ### Alerts
 
