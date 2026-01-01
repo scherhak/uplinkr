@@ -21,15 +21,12 @@
 * php artisan uplinkr:project:add:probe --url=https://uplinkr.dev --method=GET --project=my-test-project
 * php artisan uplinkr:project:remove:probe --url=https://uplinkr.dev/foo --project=my-test-project
 * php artisan uplinkr:project:archive --project=scherhak-com
+* php artisan uplinkr:project:disable --project=my-test-project
+* php artisan uplinkr:project:enable --project=my-test-project
 * php artisan uplinkr:project:run-probes
 * php artisan uplinkr:project:run-selected-probe --project=my-test-project
 
 # Wip commands
-
-### Project
-
-* php artisan uplinkr:project:disable --project=my-test-project
-* php artisan uplinkr:project:enable --project=my-test-project
 
 ### Alerts
 
