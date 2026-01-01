@@ -9,6 +9,7 @@ use Uplinkr\Console\Commands\Project\ProjectAddProbeCommand;
 use Uplinkr\Console\Commands\Project\ProjectAnalyzeCommand;
 use Uplinkr\Console\Commands\Project\ProjectArchiveCommand;
 use Uplinkr\Console\Commands\Project\ProjectDisableCommand;
+use Uplinkr\Console\Commands\Project\ProjectEnableCommand;
 use Uplinkr\Console\Commands\Project\ProjectInitCommand;
 use Uplinkr\Console\Commands\Project\ProjectListCommand;
 use Uplinkr\Console\Commands\Project\ProjectRemoveProbeCommand;
@@ -55,6 +56,7 @@ class UplinkrServiceProvider extends ServiceProvider
                 ProjectAnalyzeCommand::class,
                 ProjectInitCommand::class,
                 ProjectDisableCommand::class,
+                ProjectEnableCommand::class,
                 ProjectUpdateCommand::class,
                 ProjectListCommand::class,
                 ProjectArchiveCommand::class,

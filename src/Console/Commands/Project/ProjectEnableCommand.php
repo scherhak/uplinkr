@@ -5,23 +5,23 @@ namespace Uplinkr\Console\Commands\Project;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\Console\Command\Command as CommandAlias;
-use Uplinkr\Handler\Project\DisableHandler;
+use Uplinkr\Handler\Project\EnableHandler;
 
 /**
- * Class ProjectDisableCommand
+ * Class ProjectEnableCommand
  * @package Uplinkr\Console\Commands\Project
  *
  * @author Sascha Scherhak <sascha@uplinkr.dev>
  */
-class ProjectDisableCommand extends Command
+class ProjectEnableCommand extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'uplinkr:project:disable
-                            {--project= : Name of the project to disable}
+    protected $signature = 'uplinkr:project:enable
+                            {--project= : Name of the project to enable}
                             {--force : Force execution without confirmation}';
 
     /**
@@ -29,16 +29,16 @@ class ProjectDisableCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Disables a project by setting its status to disabled.';
+    protected $description = 'Enables a project by setting its status to enabled.';
 
     /**
      * Execute the console command.
      *
-     * @param DisableHandler $disableHandler
+     * @param EnableHandler $enableHandler
      * @return int
      * @throws \JsonException
      */
-    public function handle(DisableHandler $disableHandler): int
+    public function handle(EnableHandler $enableHandler): int
     {
         $project = $this->option('project');
         $force = $this->option('force');
@@ -50,21 +50,21 @@ class ProjectDisableCommand extends Command
 
         if ($validate->fails()) {
             if (!$force) {
-                $this->error(__('uplinkr::messages.project_disable_failed', ['project' => $project ?? 'unknown']));
+                $this->error(__('uplinkr::messages.project_enable_failed', ['project' => $project ?? 'unknown']));
             }
             return CommandAlias::INVALID;
         }
 
-        if ($force || $this->confirm(__('uplinkr::messages.project_disable_start', ['project' => $project]))) {
-            if ($disableHandler->handle($project)) {
+        if ($force || $this->confirm(__('uplinkr::messages.project_enable_start', ['project' => $project]))) {
+            if ($enableHandler->handle($project)) {
                 if (!$force) {
-                    $this->info(__('uplinkr::messages.project_disable_success', ['project' => $project]));
+                    $this->info(__('uplinkr::messages.project_enable_success', ['project' => $project]));
                 }
                 return CommandAlias::SUCCESS;
             }
 
             if (!$force) {
-                $this->error(__('uplinkr::messages.project_disable_failed', ['project' => $project]));
+                $this->error(__('uplinkr::messages.project_enable_failed', ['project' => $project]));
             }
             return CommandAlias::FAILURE;
         }
