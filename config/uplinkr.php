@@ -7,7 +7,7 @@ return [
     | Uplinkr
     |--------------------------------------------------------------------------
     |
-    | Description follows
+    | Still to be described
     |
     */
     'storage' => [
@@ -27,30 +27,19 @@ return [
         | Main Storage Path
         |--------------------------------------------------------------------------
         |
-        | - DESCRIPTION FOLLOWS -
+        | Still to be described
         |
         */
         'path' => 'uplinkr',
         'probe_results' => 'probes',
         'probe_filename_separator' => '@',
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Standard Project Name
-        |--------------------------------------------------------------------------
-        |
-        | TODO Check if driver is still needed or can be removed
-        |
-        */
-        'standard_project' => 'standard_project',
-
         /*
         |--------------------------------------------------------------------------
         | CAPTION
         |--------------------------------------------------------------------------
         |
-        | DESCRIBE
+        | Still to be described
         |
         */
         'file_extension' => 'json',
@@ -70,9 +59,33 @@ return [
         | Allow complete deletion of all data
         |--------------------------------------------------------------------------
         |
-        | - DESCRIPTION FOLLOWS -
+        | Still to be described
         |
         */
         'allow_complete_wipe' => false,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Projects
+    |--------------------------------------------------------------------------
+    |
+    | Still to be described
+    |
+    */
+    'projects' => [
+
+        /*
+        |--------------------------------------------------------------------------
+        | Standard Project Name
+        |--------------------------------------------------------------------------
+        |
+        | Still to be described
+        |
+        */
+        'standard_project' => 'standard_project',
+        'standard_project_status' => 'enabled',
+
+
     ]
 ];

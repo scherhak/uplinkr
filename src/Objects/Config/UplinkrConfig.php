@@ -15,12 +15,13 @@ final class UplinkrConfig
     public function __construct(
         public string $storageDisk = 'local',
         public string $storagePath = 'uplinkr',
-        public string $standardProject = 'standard_project',
         public string $probeResultsPath = 'probes',
         public string $probeFilenameSeparator = '@',
         public string $fileExtension = 'json',
         public string $archivedFolder = 'archived',
         public bool   $allowCompleteWipe = false,
+        public string $standardProject = 'standard_project',
+        public string $standardProjectStatus = 'enabled',
     )
     {
     }
@@ -35,12 +36,13 @@ final class UplinkrConfig
         return new self(
             storageDisk: config('uplinkr.storage.disk', 'local'),
             storagePath: config('uplinkr.storage.path', 'uplinkr'),
-            standardProject: config('uplinkr.storage.standard_project', 'standard_project'),
             probeResultsPath: config('uplinkr.storage.probe_results', 'probes'),
             probeFilenameSeparator: config('uplinkr.storage.probe_filename_separator', '@'),
             fileExtension: config('uplinkr.storage.file_extension', 'json'),
             archivedFolder: config('uplinkr.storage.archive_folder', 'archived'),
             allowCompleteWipe: config('uplinkr.storage.allow_complete_wipe', false),
+            standardProject: config('uplinkr.projects.standard_project', 'standard_project'),
+            standardProjectStatus: config('uplinkr.projects.standard_project_status', 'enabled'),
         );
     }
 
@@ -78,6 +80,14 @@ final class UplinkrConfig
     public function getStandardProject(): string
     {
         return $this->standardProject;
+    }
+
+    /**
+     * @return string
+     */
+    public function getStandardProjectStatus(): string
+    {
+        return $this->standardProjectStatus;
     }
 
     /**

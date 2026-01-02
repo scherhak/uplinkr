@@ -42,6 +42,11 @@ class ProbeAllProjectsHandler
         foreach ($projects as $project) {
             $projectValues = new ProjectValues($project);
             $projectName = $projectValues->getName();
+
+            if ($projectValues->getStatus() === 'disabled') {
+                continue;
+            }
+
             $results[$projectName] = $this->handleProject($project, $callback);
         }
 

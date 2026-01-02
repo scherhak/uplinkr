@@ -75,4 +75,49 @@ class ProbeAllProjectsHandlerTest extends TestCase
         $this->assertArrayHasKey('project3', $results);
         $this->assertEmpty($results['project3']);
     }
+
+    public function test_handle_skips_disabled_projects(): void
+    {
+        $storageMock = Mockery::mock(ProjectStorageInterface::class);
+        $urlHandlerMock = Mockery::mock(UrlHandler::class);
+
+        $projects = [
+            [
+                'project' => 'enabled_project',
+                'status' => 'enabled',
+                'probes' => [
+                    ['url' => 'https://example.com/1', 'method' => 'GET'],
+                ],
+            ],
+            [
+                'project' => 'disabled_project',
+                'status' => 'disabled',
+                'probes' => [
+                    ['url' => 'https://example.com/2', 'method' => 'GET'],
+                ],
+            ],
+        ];
+
+        $storageMock->shouldReceive('allProjects')
+            ->once()
+            ->andReturn($projects);
+
+        $urlHandlerMock->shouldReceive('with')
+            ->once()
+            ->with(Mockery::on(function($data) {
+                return $data['project'] === 'enabled_project';
+            }))
+            ->andReturnSelf();
+
+        $urlHandlerMock->shouldReceive('handle')
+            ->once()
+            ->andReturn(['probe_status' => 'reachable']);
+
+        $handler = new ProbeAllProjectsHandler($storageMock, $urlHandlerMock);
+        $results = $handler->handle();
+
+        $this->assertCount(1, $results);
+        $this->assertArrayHasKey('enabled_project', $results);
+        $this->assertArrayNotHasKey('disabled_project', $results);
+    }
 }

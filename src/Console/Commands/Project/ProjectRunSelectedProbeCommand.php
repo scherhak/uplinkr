@@ -5,7 +5,9 @@ namespace Uplinkr\Console\Commands\Project;
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Command\Command as CommandAlias;
 use Uplinkr\Handler\Project\ProbeSelectedProjectsHandler;
+use Uplinkr\Interfaces\ProjectStorageInterface;
 use Uplinkr\Objects\Config\UplinkrConfig;
+use Uplinkr\Objects\Project\ProjectValues;
 use Uplinkr\Traits\HandlesProbeOutput;
 
 /**
@@ -41,9 +43,10 @@ class ProjectRunSelectedProbeCommand extends Command
      *
      * @param ProbeSelectedProjectsHandler $handler
      * @param UplinkrConfig $config
+     * @param ProjectStorageInterface $projectStorage
      * @return int
      */
-    public function handle(ProbeSelectedProjectsHandler $handler, UplinkrConfig $config): int
+    public function handle(ProbeSelectedProjectsHandler $handler, UplinkrConfig $config, ProjectStorageInterface $projectStorage): int
     {
         $projectName = $this->option('project');
         $force = $this->option('force');
@@ -51,6 +54,15 @@ class ProjectRunSelectedProbeCommand extends Command
         if (empty($projectName)) {
             $this->error(__('uplinkr::messages.project_update_failed_validation'));
             return CommandAlias::INVALID;
+        }
+
+        $project = $projectStorage->findProject($projectName);
+        if ($project) {
+            $projectValues = new ProjectValues($project);
+            if ($projectValues->getStatus() === 'disabled') {
+                $this->error(__('uplinkr::messages.project_disabled', ['project' => $projectName]));
+                return CommandAlias::FAILURE;
+            }
         }
 
         if (!$force && !$this->confirm(__('uplinkr::messages.project_run_probes_confirm', ['count' => $projectName]))) {

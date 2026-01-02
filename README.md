@@ -60,6 +60,18 @@ Move a project and its results to the archive folder.
 php artisan uplinkr:project:archive --project=my-website
 ```
 
+#### Disable a Project
+Disable a project to prevent it from being monitored.
+```bash
+php artisan uplinkr:project:disable --project=my-website
+```
+
+#### Enable a Project
+Enable a previously disabled project.
+```bash
+php artisan uplinkr:project:enable --project=my-website
+```
+
 ### Probe Management
 
 #### Add a Probe to a Project

@@ -112,4 +112,30 @@ class ProjectRunProbesCommandTest extends TestCase
             ->expectsOutput('The process was aborted.')
             ->assertExitCode(CommandAlias::INVALID);
     }
+
+    public function test_it_skips_disabled_projects_and_shows_error(): void
+    {
+        $projectData = [
+            ['project' => 'project1', 'status' => 'disabled', 'probes' => [['url' => 'http://test.com']]],
+            ['project' => 'project2', 'status' => 'enabled', 'probes' => [['url' => 'http://test2.com']]],
+        ];
+
+        $this->storageMock->shouldReceive('allProjects')
+            ->once()
+            ->andReturn($projectData);
+
+        $result = ['probe_status' => 'reachable', 'probe_message' => ['duration_ms' => 100]];
+
+        // Should only be called for project2
+        $this->handlerMock->shouldReceive('handleProject')
+            ->once()
+            ->with($projectData[1], Mockery::any())
+            ->andReturn([$result]);
+
+        $this->artisan('uplinkr:project:run-probes', ['--force' => true])
+            ->expectsOutput('Running all probes...')
+            ->expectsOutput('Project project1 is disabled.')
+            ->expectsOutput('Running 1 probes for project project2...')
+            ->assertExitCode(CommandAlias::SUCCESS);
+    }
 }
