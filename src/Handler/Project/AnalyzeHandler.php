@@ -93,7 +93,7 @@ class AnalyzeHandler
 
             return $decoded;
         } catch (Throwable) {
-            // Falls es noch alte Dateien im JSONL Format gibt, versuchen wir diese zeilenweise zu lesen
+            // If there are still old files in JSONL format, we will attempt to read them line by line.
             return $this->decodeProbeResultLines(explode("\n", $content));
         }
     }
@@ -175,7 +175,7 @@ class AnalyzeHandler
     /**
      * Extract "@YYYY-MM-DD" from a filename.
      */
-    private function extractDateFromFilename(string $path): ?string
+    public function extractDateFromFilename(string $path): ?string
     {
         $filename = basename($path);
 
@@ -184,5 +184,47 @@ class AnalyzeHandler
         }
 
         return null;
+    }
+
+    /**
+     * Saves the analyzed results to a file named 'analyzed.json' in the project folder.
+     *
+     * @param string $project The name of the project.
+     * @param array $results The analyzed results to be saved.
+     *
+     * @return void
+     * @throws \JsonException
+     */
+    public function saveAnalyzedResults(string $project, array $results): void
+    {
+        $disk = Storage::disk($this->config->getStorageDisc());
+
+        $path = sprintf(
+            '%s/%s/analyzed.json',
+            $this->config->getStoragePath(),
+            $project
+        );
+
+        $existingData = [];
+        if ($disk->exists($path)) {
+            $content = $disk->get($path);
+            if ($content) {
+                $existingData = json_decode($content, true, 512, JSON_THROW_ON_ERROR) ?: [];
+            }
+        }
+
+        // Deep merge of results into existing data
+        foreach ($results as $urlSlug => $dates) {
+            if (!isset($existingData[$urlSlug])) {
+                $existingData[$urlSlug] = [];
+            }
+            foreach ($dates as $date => $stats) {
+                $existingData[$urlSlug][$date] = $stats;
+            }
+            ksort($existingData[$urlSlug]);
+        }
+        ksort($existingData);
+
+        $disk->put($path, json_encode($existingData, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES));
     }
 }

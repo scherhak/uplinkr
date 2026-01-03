@@ -68,4 +68,37 @@ class AnalyzeHandlerTest extends TestCase
         $result = $this->handler->decodeProbeResults('');
         $this->assertEquals([], $result);
     }
+
+    public function test_save_analyzed_results_saves_json_file()
+    {
+        $project = 'test_project';
+        $results = ['example_com' => ['2023-01-01' => ['url' => 'http://example.com']]];
+        $expectedPath = 'uplinkr/test_project/analyzed.json';
+
+        $this->handler->saveAnalyzedResults($project, $results);
+
+        Storage::disk('local')->assertExists($expectedPath);
+        $this->assertEquals(
+            json_encode($results, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES),
+            Storage::disk('local')->get($expectedPath)
+        );
+    }
+
+    public function test_save_analyzed_results_merges_with_existing_data()
+    {
+        $project = 'test_project';
+        $existingPath = 'uplinkr/test_project/analyzed.json';
+        $existingData = ['example_com' => ['2023-01-01' => ['url' => 'http://example.com', 'total' => 1]]];
+        Storage::disk('local')->put($existingPath, json_encode($existingData));
+
+        $newData = ['example_com' => ['2023-01-02' => ['url' => 'http://example.com', 'total' => 2]]];
+        $this->handler->saveAnalyzedResults($project, $newData);
+
+        $savedContent = Storage::disk('local')->get($existingPath);
+        $savedData = json_decode($savedContent, true);
+
+        $this->assertCount(2, $savedData['example_com']);
+        $this->assertEquals(1, $savedData['example_com']['2023-01-01']['total']);
+        $this->assertEquals(2, $savedData['example_com']['2023-01-02']['total']);
+    }
 }

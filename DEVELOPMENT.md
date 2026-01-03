@@ -14,8 +14,8 @@
 * php artisan uplinkr:probe:url --url=https://uplinkr.dev/api/health --method=GET --project=upkr-api-test
 * php artisan uplinkr:project:list
 * php artisan uplinkr:prune {--project=} {--before=} {--wipe-all} {--force}
-* php artisan uplinkr:analyze --project=scherhak-com
-* php artisan uplinkr:analyze --project=scherhak-com --from=2025-12-09 --to=2025-12-10
+* php artisan uplinkr:project:analyze --project=scherhak-com
+* php artisan uplinkr:project:analyze --project=scherhak-com --from=2025-12-09 --to=2025-12-10
 * php artisan uplinkr:project:init --project=my-test-project --label="My Test Project" --description="This is a test project for uplinkr."
 * php artisan uplinkr:project:update --project=my-test-project --label="My first UPLINKR Test Project" --description="This is a update for the test project for uplinkr 9000000."
 * php artisan uplinkr:project:add:probe --url=https://uplinkr.dev --method=GET --project=my-test-project

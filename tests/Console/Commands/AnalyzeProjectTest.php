@@ -32,10 +32,24 @@ class AnalyzeProjectTest extends TestCase
     public function test_analyze_project_success(): void
     {
         $project = 'test-project';
-        $files = ['path/to/file1.log'];
+        $files = ['path/to/test@2023-01-01.json'];
         $content = '{"some":"json"}';
         $results = [['url' => 'http://example.com']];
-        $summary = ['http://example.com' => ['info']];
+        
+        $summaryObj = new \Uplinkr\Objects\Summary\ProbeResultsSummary(
+            url: 'http://example.com',
+            total: 1,
+            reachable: 1,
+            unreachable: 0,
+            error: 0,
+            unknown: 0,
+            firstExecutedAt: '100',
+            lastExecutedAt: '100',
+            avgDurationMs: 100.0,
+            statusHeaderCounts: [200 => 1]
+        );
+        
+        $summary = ['example_com' => $summaryObj];
 
         $this->analyzeHandlerMock->shouldReceive('probeResultsList')
             ->with($project, null, null)
@@ -43,7 +57,7 @@ class AnalyzeProjectTest extends TestCase
             ->andReturn($files);
 
         $this->analyzeHandlerMock->shouldReceive('readProbeResultFile')
-            ->with('path/to/file1.log')
+            ->with('path/to/test@2023-01-01.json')
             ->once()
             ->andReturn($content);
 
@@ -57,10 +71,18 @@ class AnalyzeProjectTest extends TestCase
             ->once()
             ->andReturn($summary);
 
-        // We check if Log::debug is called as the command logs the results.
-        Log::shouldReceive('debug')->atLeast()->once();
+        $this->analyzeHandlerMock->shouldReceive('extractDateFromFilename')
+            ->with('path/to/test@2023-01-01.json')
+            ->once()
+            ->andReturn('2023-01-01');
 
-        $this->artisan('uplinkr:analyze', ['--project' => $project])
+        $this->analyzeHandlerMock->shouldReceive('saveAnalyzedResults')
+            ->with($project, Mockery::on(function($arg) {
+                return isset($arg['example_com']['2023-01-01']) && $arg['example_com']['2023-01-01']['url'] === 'http://example.com';
+            }))
+            ->once();
+
+        $this->artisan('uplinkr:project:analyze', ['--project' => $project])
             ->assertExitCode(CommandAlias::SUCCESS);
     }
 
@@ -78,7 +100,7 @@ class AnalyzeProjectTest extends TestCase
             ->once()
             ->andReturn([]);
 
-        $this->artisan('uplinkr:analyze', [
+        $this->artisan('uplinkr:project:analyze', [
             '--project' => $project,
             '--from' => $from,
             '--to' => $to
@@ -97,7 +119,7 @@ class AnalyzeProjectTest extends TestCase
             ->once()
             ->andReturn([]);
 
-        $this->artisan('uplinkr:analyze', ['--project' => $project])
+        $this->artisan('uplinkr:project:analyze', ['--project' => $project])
             ->assertExitCode(CommandAlias::SUCCESS);
     }
 }

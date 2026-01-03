@@ -111,7 +111,7 @@ php artisan uplinkr:probe:url --url=https://example.com --project=my-website
 #### Analyze Results
 Generate a summary of probe results for a project, including average response times and status code distribution.
 ```bash
-php artisan uplinkr:analyze --project=my-website
+php artisan uplinkr:project:analyze --project=my-website
 ```
 
 #### Prune Storage

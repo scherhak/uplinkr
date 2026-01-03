@@ -2,12 +2,14 @@
 
 namespace Uplinkr\Console\Commands\Project;
 
-use Arr;
 use Exception;
 use Illuminate\Console\Command;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
+use ReflectionClass;
 use Uplinkr\Handler\Project\AnalyzeHandler;
 use Uplinkr\Handler\Project\SummaryHandler;
+use Uplinkr\Objects\Summary\ProbeResultsSummary;
 
 /**
  * Class ProjectAnalyzeCommand
@@ -24,11 +26,10 @@ class ProjectAnalyzeCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'uplinkr:analyze  
+    protected $signature = 'uplinkr:project:analyze  
                             {--project= : Name of the project to analyse}
                             {--from= : From date to analyse}
-                            {--to= : To date to analyse}
-                            {--force : Force execution without confirmation}';
+                            {--to= : To date to analyse}';
 
     /**
      * The console command description.
@@ -45,7 +46,6 @@ class ProjectAnalyzeCommand extends Command
         $project = $this->option('project');
         $from = $this->option('from');
         $to = $this->option('to');
-        $force = $this->option('force');
 
         $files = $analyzeHandler->probeResultsList($project, $from, $to);
 
@@ -56,8 +56,24 @@ class ProjectAnalyzeCommand extends Command
             $results = $analyzeHandler->decodeProbeResults(content: $content);
             $summary = $summaryHandler->summarizeProbeResults(decodedLines: $results);
 
-            $load[Arr::get($summary, '0')] = $summary;
-            Log::debug('summary: ', $summary);
+            $date = $analyzeHandler->extractDateFromFilename($file);
+
+            foreach ($summary as $urlSlug => $probeSummary) {
+                if (!$probeSummary instanceof ProbeResultsSummary) {
+                    continue;
+                }
+
+                if (!isset($load[$urlSlug])) {
+                    $load[$urlSlug] = [];
+                }
+
+                $load[$urlSlug][$date] = $probeSummary->toArray();
+            }
+
+        }
+
+        if ($project && !empty($load)) {
+            $analyzeHandler->saveAnalyzedResults($project, $load);
         }
 
         // In Laravel 12, console commands should return one of the built-in status codes
