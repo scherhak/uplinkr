@@ -78,26 +78,20 @@ class ProjectAddProbeCommand extends Command
                     'body' => $body,
                 ]);
 
-                if (!$force) {
-                    $this->info(__('uplinkr::messages.project_add_probe_success', [
-                        'url' => $url,
-                        'project' => $project,
-                    ]));
-                }
+                $this->info(__('uplinkr::messages.project_add_probe_success', [
+                    'url' => $url,
+                    'project' => $project,
+                ]));
 
                 return CommandAlias::SUCCESS;
             }
 
-            if (!$force) {
-                $this->warn(__('uplinkr::messages.common_process_aborted'));
-            }
+            $this->warn(__('uplinkr::messages.common_process_aborted'));
 
             return CommandAlias::INVALID;
         }
 
-        if (!$force) {
-            $this->error(__('uplinkr::messages.project_add_probe_failed'));
-        }
+        $this->error(__('uplinkr::messages.project_add_probe_failed'));
 
         return CommandAlias::INVALID;
     }

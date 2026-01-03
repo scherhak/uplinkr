@@ -60,10 +60,6 @@ class ProjectAnalyzeCommand extends Command
             Log::debug('summary: ', $summary);
         }
 
-        Log::debug('summary: ', [
-            'load' => $load,
-        ]);
-
         // In Laravel 12, console commands should return one of the built-in status codes
         // to indicate successful execution.
         return self::SUCCESS;

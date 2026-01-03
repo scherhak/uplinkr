@@ -39,11 +39,9 @@ class ProjectArchiveCommand extends Command
 
         $exists = $archiveHandler->exists(projectName: $project);
 
-        if (!$force) {
-            $this->info(__('uplinkr::messages.project_archive_start', [
-                'project' => $project,
-            ]));
-        }
+        $this->info(__('uplinkr::messages.project_archive_start', [
+            'project' => $project,
+        ]));
 
         if ($exists) {
 
@@ -60,30 +58,24 @@ class ProjectArchiveCommand extends Command
 
                 if ($copied) {
 
-                    if (!$force) {
-                        $this->info(__('uplinkr::messages.project_archive_success', [
-                            'project' => $project,
-                        ]));
-                    }
+                    $this->info(__('uplinkr::messages.project_archive_success', [
+                        'project' => $project,
+                    ]));
 
                     return CommandAlias::SUCCESS;
                 }
 
-                if (!$force) {
-                    $this->error(__('uplinkr::messages.project_archive_failed', [
-                        'project' => $project,
-                    ]));
-                }
+                $this->error(__('uplinkr::messages.project_archive_failed', [
+                    'project' => $project,
+                ]));
             }
 
             return CommandAlias::INVALID;
         }
 
-        if (!$force) {
-            $this->error(__('uplinkr::messages.project_not_found', [
-                'project' => $project,
-            ]));
-        }
+        $this->error(__('uplinkr::messages.project_not_found', [
+            'project' => $project,
+        ]));
 
         return CommandAlias::INVALID;
     }

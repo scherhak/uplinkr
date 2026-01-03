@@ -95,9 +95,7 @@ class ProbeUrlCommand extends Command
                     'body' => $body,
                 ])->handle();
 
-                if (!$force) {
-                    $this->resultMessages(result: $result, project: $project, config: $config);
-                }
+                $this->resultMessages(result: $result, project: $project, config: $config);
 
                 return CommandAlias::SUCCESS;
             }

@@ -69,9 +69,7 @@ class PruneStorageCommand extends Command
 
         // execute it
         if ($execute) {
-            if (!$force) {
-                $this->warn(__('uplinkr::messages.prune_start'));
-            }
+            $this->warn(__('uplinkr::messages.prune_start'));
 
             // Projects section
             if ($project) {
@@ -84,17 +82,15 @@ class PruneStorageCommand extends Command
                         // prune files by date
                         $deletedCount = $storagePruneHandler->pruneBeforeDate($project, $before);
 
-                        if (!$force) {
-                            if ($deletedCount > 0) {
-                                $this->info(__('uplinkr::messages.prune_before_count_deleted_files', [
-                                    'deletedCount' => $deletedCount,
-                                    'before' => $before
-                                ]));
-                            } else {
-                                $this->warn(__('uplinkr::messages.prune_before_no_files_found', [
-                                    'before' => $before
-                                ]));
-                            }
+                        if ($deletedCount > 0) {
+                            $this->info(__('uplinkr::messages.prune_before_count_deleted_files', [
+                                'deletedCount' => $deletedCount,
+                                'before' => $before
+                            ]));
+                        } else {
+                            $this->warn(__('uplinkr::messages.prune_before_no_files_found', [
+                                'before' => $before
+                            ]));
                         }
                     } catch (InvalidArgumentException $e) {
                         $this->error(__('uplinkr::messages.prune_before_invalid_date_format'));
@@ -107,32 +103,24 @@ class PruneStorageCommand extends Command
 
                     if ($projectFolderExists) {
                         Storage::disk($config->getStorageDisc())->deleteDirectory($projectPath);
-                        if (!$force) {
-                            $this->info(__('uplinkr::messages.prune_project_by_name_success', ['project' => $project]));
-                        }
+                        $this->info(__('uplinkr::messages.prune_project_by_name_success', ['project' => $project]));
                     } else {
-                        if (!$force) {
-                            $this->error(__('uplinkr::messages.prune_project_folder_does_not_exists', [
-                                'project' => $project
-                            ]));
-                        }
+                        $this->error(__('uplinkr::messages.prune_project_folder_does_not_exists', [
+                            'project' => $project
+                        ]));
                     }
                 }
             } elseif ($wipeAll) {
 
                 if ($config->allowCompleteWipe()) {
                     $storagePruneHandler->deleteDirectory($config->getStoragePath());
-                    if (!$force) {
-                        $this->warn(__('uplinkr::messages.prune_wipe_all_success'));
-                    }
+                    $this->warn(__('uplinkr::messages.prune_wipe_all_success'));
                     $storagePruneHandler->makeDirectory($config->getStoragePath());
-                    if (!$force) {
-                        $this->info(__('uplinkr::messages.prune_wipe_all_new_folder_created'));
-                    }
+                    $this->info(__('uplinkr::messages.prune_wipe_all_new_folder_created'));
                 } else {
                     $this->error(__('uplinkr::messages.prune_wipe_all_not_allowed'));
                 }
-            } else if (!$force) {
+            } else {
                 $this->warn(__('uplinkr::messages.prune_wipe_all_no_files_wiped'));
             }
 

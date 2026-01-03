@@ -49,29 +49,24 @@ class ProjectEnableCommand extends Command
         );
 
         if ($validate->fails()) {
-            if (!$force) {
-                $this->error(__('uplinkr::messages.project_enable_failed', ['project' => $project ?? 'unknown']));
-            }
+            $this->error(__('uplinkr::messages.project_enable_failed', ['project' => $project ?? 'unknown']));
+
             return CommandAlias::INVALID;
         }
 
         if ($force || $this->confirm(__('uplinkr::messages.project_enable_start', ['project' => $project]))) {
             if ($enableHandler->handle($project)) {
-                if (!$force) {
-                    $this->info(__('uplinkr::messages.project_enable_success', ['project' => $project]));
-                }
+                $this->info(__('uplinkr::messages.project_enable_success', ['project' => $project]));
+
                 return CommandAlias::SUCCESS;
             }
 
-            if (!$force) {
-                $this->error(__('uplinkr::messages.project_enable_failed', ['project' => $project]));
-            }
+            $this->error(__('uplinkr::messages.project_enable_failed', ['project' => $project]));
+
             return CommandAlias::FAILURE;
         }
 
-        if (!$force) {
-            $this->warn(__('uplinkr::messages.common_process_aborted'));
-        }
+        $this->warn(__('uplinkr::messages.common_process_aborted'));
 
         return CommandAlias::INVALID;
     }

@@ -80,24 +80,18 @@ class ProjectInitCommand extends Command
                     'description' => $description,
                 ]);
 
-                if (!$force) {
-                    $this->info(__('uplinkr::messages.project_init_success', ['project' => $project]));
-                }
+                $this->info(__('uplinkr::messages.project_init_success', ['project' => $project]));
 
                 return CommandAlias::SUCCESS;
             }
 
-            if (!$force) {
-                $this->warn(__('uplinkr::messages.common_process_aborted'));
-            }
+            $this->warn(__('uplinkr::messages.common_process_aborted'));
 
             return CommandAlias::INVALID;
 
         }
 
-        if (!$force) {
-            $this->error(__('uplinkr::messages.project_init_failed'));
-        }
+        $this->error(__('uplinkr::messages.project_init_failed'));
 
         return CommandAlias::INVALID;
     }

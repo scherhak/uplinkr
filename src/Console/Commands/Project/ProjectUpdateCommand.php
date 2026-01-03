@@ -78,27 +78,23 @@ class ProjectUpdateCommand extends Command
                 ]);
 
                 if ($success) {
-                    if (!$force) {
-                        $this->info(__('uplinkr::messages.project_update_success', ['project' => $project]));
-                    }
+                    $this->info(__('uplinkr::messages.project_update_success', ['project' => $project]));
+
                     return CommandAlias::SUCCESS;
                 }
 
                 $this->error(__('uplinkr::messages.project_update_failed', ['project' => $project]));
+
                 return CommandAlias::FAILURE;
             }
 
-            if (!$force) {
-                $this->warn(__('uplinkr::messages.common_process_aborted'));
-            }
+            $this->warn(__('uplinkr::messages.common_process_aborted'));
 
             return CommandAlias::INVALID;
 
         }
 
-        if (!$force) {
-            $this->error(__('uplinkr::messages.project_update_failed_validation'));
-        }
+        $this->error(__('uplinkr::messages.project_update_failed_validation'));
 
         return CommandAlias::INVALID;
     }
