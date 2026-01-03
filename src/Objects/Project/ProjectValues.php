@@ -39,6 +39,16 @@ class ProjectValues
     }
 
     /**
+     * Retrieves the alerts data from the stored array.
+     *
+     * @return array An array containing the alerts data, or an empty array if not set.
+     */
+    public function getAlerts(): array
+    {
+        return Arr::get($this->data, 'alerts', []);
+    }
+
+    /**
      * Retrieves the creation date from the data array.
      *
      * @return string|null The creation date if it exists, or null if not found.

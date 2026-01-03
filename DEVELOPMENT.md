@@ -25,11 +25,16 @@
 * php artisan uplinkr:project:enable --project=my-test-project
 * php artisan uplinkr:project:run-probes
 * php artisan uplinkr:project:run-selected-probe --project=my-test-project
+* php artisan uplinkr:project:alerts --project=scherhak-com
+* php artisan uplinkr:project:alerts --project=scherhak-com --enabled=true --failures=5 --cooldown=10 --threshold=90 --slow=10 --channels=mail
+* php artisan uplinkr:project:alerts --project=scherhak-com --enabled=true --cooldown=30 --threshold=1000 --slow=10
+
 
 # Wip commands
 
-### Alerts
+* php artisan uplinkr:project:alerts --project=scherhak-com --enabled=true --failures=5 --cooldown=10 --threshold=90 --slow=10 --channels=mail
 
+### Alerts
 * uplinkr:project:alert:add
 * uplinkr:project:alert:list
 * uplinkr:project:alert:remove

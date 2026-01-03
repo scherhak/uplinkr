@@ -6,6 +6,7 @@ use Illuminate\Support\ServiceProvider;
 use Uplinkr\Console\Commands\Probe\ProbeUrlCommand;
 use Uplinkr\Console\Commands\ProbeApiCommand;
 use Uplinkr\Console\Commands\Project\ProjectAddProbeCommand;
+use Uplinkr\Console\Commands\Project\ProjectAlertsCommand;
 use Uplinkr\Console\Commands\Project\ProjectAnalyzeCommand;
 use Uplinkr\Console\Commands\Project\ProjectArchiveCommand;
 use Uplinkr\Console\Commands\Project\ProjectDisableCommand;
@@ -61,6 +62,7 @@ class UplinkrServiceProvider extends ServiceProvider
                 ProjectListCommand::class,
                 ProjectArchiveCommand::class,
                 ProjectAddProbeCommand::class,
+                ProjectAlertsCommand::class,
                 ProjectRemoveProbeCommand::class,
                 ProjectRunProbesCommand::class,
                 ProjectRunSelectedProbeCommand::class,
