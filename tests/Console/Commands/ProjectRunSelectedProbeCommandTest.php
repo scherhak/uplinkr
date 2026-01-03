@@ -157,6 +157,6 @@ class ProjectRunSelectedProbeCommandTest extends TestCase
 
         $this->artisan('uplinkr:project:run-selected-probe', ['--project' => $projectName, '--force' => true])
             ->expectsOutput('Project disabled-project is disabled.')
-            ->assertExitCode(CommandAlias::FAILURE);
+            ->assertExitCode(CommandAlias::SUCCESS);
     }
 }

@@ -2,7 +2,7 @@
 
 namespace Uplinkr\Handler\Project;
 
-use Arr;
+use Illuminate\Support\Arr;
 use JsonException;
 use Uplinkr\Handler\Probe\UrlHandler;
 use Uplinkr\Interfaces\ProjectStorageInterface;

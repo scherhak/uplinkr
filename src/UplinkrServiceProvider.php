@@ -18,6 +18,10 @@ use Uplinkr\Console\Commands\Project\ProjectRunProbesCommand;
 use Uplinkr\Console\Commands\Project\ProjectRunSelectedProbeCommand;
 use Uplinkr\Console\Commands\Project\ProjectUpdateCommand;
 use Uplinkr\Console\Commands\Prune\PruneStorageCommand;
+use Uplinkr\Handler\Probe\ResultHandler;
+use Uplinkr\Handler\Probe\UrlHandler;
+use Uplinkr\Handler\Project\ProbeAllProjectsHandler;
+use Uplinkr\Handler\Project\ProbeSelectedProjectsHandler;
 use Uplinkr\Interfaces\ProbeResultsStorageInterface;
 use Uplinkr\Interfaces\ProjectStorageInterface;
 use Uplinkr\Objects\Config\UplinkrConfig;
@@ -99,6 +103,36 @@ class UplinkrServiceProvider extends ServiceProvider
             $sanitizer = $app->make(Sanitizer::class);
 
             return new FileProjectStorage($config, $sanitizer);
+        });
+
+        $this->app->singleton(ResultHandler::class, function ($app) {
+            return new ResultHandler(
+                $app->make(UplinkrConfig::class),
+                $app->make(Sanitizer::class)
+            );
+        });
+
+        $this->app->singleton(UrlHandler::class, function ($app) {
+            return new UrlHandler(
+                $app->make(ProbeResultsStorageInterface::class),
+                $app->make(UplinkrConfig::class),
+                $app->make(Sanitizer::class),
+                $app->make(ResultHandler::class)
+            );
+        });
+
+        $this->app->singleton(ProbeSelectedProjectsHandler::class, function ($app) {
+            return new ProbeSelectedProjectsHandler(
+                $app->make(ProjectStorageInterface::class),
+                $app->make(UrlHandler::class)
+            );
+        });
+
+        $this->app->singleton(ProbeAllProjectsHandler::class, function ($app) {
+            return new ProbeAllProjectsHandler(
+                $app->make(ProjectStorageInterface::class),
+                $app->make(UrlHandler::class)
+            );
         });
     }
 }

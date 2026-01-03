@@ -1,9 +1,11 @@
 <?php
 
-namespace Handler\Probe;
+namespace Uplinkr\Tests\Handler\Probe;
 
-use PHPUnit\Framework\TestCase;
+use Uplinkr\Tests\TestCase;
 use Uplinkr\Handler\Probe\ResultHandler;
+use Uplinkr\Objects\Config\UplinkrConfig;
+use Uplinkr\Support\Sanitizer;
 
 /**
  * Class ProbeResultHandlerTest
@@ -11,6 +13,15 @@ use Uplinkr\Handler\Probe\ResultHandler;
  */
 class ProbeResultHandlerTest extends TestCase
 {
+    private UplinkrConfig $config;
+    private Sanitizer $sanitizer;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->config = new UplinkrConfig(storageDisk: 'local', storagePath: 'uplinkr');
+        $this->sanitizer = new Sanitizer($this->config);
+    }
     /**
      * Test that the build method correctly constructs the probe result with valid inputs.
      */
@@ -33,10 +44,10 @@ class ProbeResultHandlerTest extends TestCase
             'url' => 'test.com',
         ];
 
-        $handler = new ResultHandler($initialResult);
+        $handler = new ResultHandler($this->config, $this->sanitizer);
 
         // Act
-        $result = $handler->build($durationTime, $probeMessage, $status, $settings);
+        $result = $handler->with($initialResult)->build($durationTime, $probeMessage, $status, $settings);
 
         // Assert
         $this->assertEquals($initialResult['status_header'], $result['status_header']);
@@ -70,10 +81,10 @@ class ProbeResultHandlerTest extends TestCase
             'url' => 'example.com',
         ];
 
-        $handler = new ResultHandler($initialResult);
+        $handler = new ResultHandler($this->config, $this->sanitizer);
 
         // Act
-        $result = $handler->build($durationTime, $probeMessage, $status, $settings);
+        $result = $handler->with($initialResult)->build($durationTime, $probeMessage, $status, $settings);
 
         // Assert
         $this->assertEquals($durationTime, $result['time_to_load']);
@@ -102,10 +113,10 @@ class ProbeResultHandlerTest extends TestCase
             'url' => 'ftp.example.com',
         ];
 
-        $handler = new ResultHandler($initialResult);
+        $handler = new ResultHandler($this->config, $this->sanitizer);
 
         // Act
-        $result = $handler->build($durationTime, $probeMessage, $status, $settings);
+        $result = $handler->with($initialResult)->build($durationTime, $probeMessage, $status, $settings);
 
         // Assert
         $this->assertEquals(1.79, $result['probe_message']['duration_s']);
@@ -129,10 +140,10 @@ class ProbeResultHandlerTest extends TestCase
             'url' => 'nonexistent.com',
         ];
 
-        $handler = new ResultHandler($initialResult);
+        $handler = new ResultHandler($this->config, $this->sanitizer);
 
         // Act
-        $result = $handler->build($durationTime, $probeMessage, $status, $settings);
+        $result = $handler->with($initialResult)->build($durationTime, $probeMessage, $status, $settings);
 
         // Assert
         $this->assertArrayHasKey('previous_data', $result);

@@ -2,7 +2,7 @@
 
 namespace Uplinkr\Objects\Project;
 
-use Arr;
+use Illuminate\Support\Arr;
 
 /**
  * Class ProjectValues
