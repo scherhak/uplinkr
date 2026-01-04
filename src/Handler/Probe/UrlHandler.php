@@ -7,6 +7,7 @@ use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
+use JsonException;
 use Uplinkr\Interfaces\ProbeResultsStorageInterface;
 use Uplinkr\Objects\Config\UplinkrConfig;
 use Uplinkr\Objects\Project\ProjectValues;
@@ -58,6 +59,7 @@ class UrlHandler
      * and building and saving the probe result.
      *
      * @return array|null The resulting data from the probe, or null if the process fails.
+     * @throws JsonException
      */
     public function handle(): ?array
     {
@@ -132,6 +134,7 @@ class UrlHandler
      * @param array $probeMessage The probe message array containing message and lang_key
      * @param string $probeStatus The status of the probe (reachable, unreachable, not-reachable)
      * @return array The complete result array with all metadata
+     * @throws JsonException
      */
     private function buildProbeResult(mixed $request, float $durationTime, array $probeMessage, string $probeStatus): array
     {

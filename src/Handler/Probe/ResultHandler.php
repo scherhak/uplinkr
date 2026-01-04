@@ -5,6 +5,7 @@ namespace Uplinkr\Handler\Probe;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use JsonException;
 use Uplinkr\Objects\Config\UplinkrConfig;
 use Uplinkr\Support\Sanitizer;
 
@@ -51,6 +52,7 @@ class ResultHandler
      * @param string $probeStatus The status of the probe (reachable, unreachable, not-reachable)
      * @param array $settings The settings used for the probe (protocol, uri)
      * @return array The complete result array with all metadata
+     * @throws JsonException
      */
     public function build(float $durationTime, array $probeMessage, string $probeStatus, array $settings): array
     {
@@ -68,7 +70,7 @@ class ResultHandler
         ]);
 
         if ($probeStatus !== 'reachable') {
-            $this->updateState($result);
+            $this->updateState(result: $result);
         }
 
         return $result;
@@ -79,6 +81,7 @@ class ResultHandler
      *
      * @param array $result The current probe result.
      * @return void
+     * @throws JsonException
      */
     private function updateState(array $result): void
     {
@@ -96,14 +99,13 @@ class ResultHandler
 
         $state = [
             'project' => $project,
-            'updated_at' => now()->toDateTimeString(),
             'probes' => [],
         ];
 
         if ($disk->exists($stateFile)) {
             $content = $disk->get($stateFile);
             if (!empty($content)) {
-                $existingState = json_decode($content, true);
+                $existingState = json_decode($content, true, 512, JSON_THROW_ON_ERROR);
                 if (is_array($existingState)) {
                     $state['probes'] = Arr::get($existingState, 'probes', []);
                 }
@@ -120,19 +122,12 @@ class ResultHandler
         ];
 
         $probeState['last_seen_executed_at'] = now()->toDateTimeString();
-        if (Arr::get($result, 'probe_status') === 'unreachable') {
-            $probeState['consecutive_failures']++;
-        } else {
-            // If it's something else but not reachable (e.g. error, but we only have reachable/unreachable/error)
-            // The requirement says "Sobald ein unreachable Status erscheint, soll zur passenden Probe eine Eintrag aktualisiert werden."
-            // But it also says "In dieser state.json werden fehlgeschlagene Abrufe ... gespeichert"
-            $probeState['consecutive_failures']++;
-        }
+        $probeState['consecutive_failures']++;
 
         $state['probes'][$probeKey] = $probeState;
         $state['updated_at'] = now()->toDateTimeString();
 
-        $disk->put($stateFile, json_encode($state, JSON_PRETTY_PRINT));
+        $disk->put($stateFile, json_encode($state, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT));
     }
 
     /**
@@ -143,7 +138,7 @@ class ResultHandler
      */
     private function sanitizeProjectName(string $project): string
     {
-        if (method_exists($this->sanitizer, 'slug')) {
+        if (method_exists($this->sanitizer, method: 'slug')) {
             return (string)$this->sanitizer->slug($project);
         }
 
