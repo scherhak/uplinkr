@@ -60,8 +60,8 @@ class ProjectRunSelectedProbeCommand extends Command
         if ($project) {
             $projectValues = new ProjectValues($project);
             if ($projectValues->getStatus() === 'disabled') {
-                $this->error(__('uplinkr::messages.project_disabled', ['project' => $projectName]));
-                return CommandAlias::FAILURE;
+                $this->warn(__('uplinkr::messages.project_disabled', ['project' => $projectName]));
+                return CommandAlias::SUCCESS;
             }
         }
 

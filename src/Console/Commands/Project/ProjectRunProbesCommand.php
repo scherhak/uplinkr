@@ -71,7 +71,7 @@ class ProjectRunProbesCommand extends Command
             $probes = $projectValues->getProbes();
 
             if ($projectValues->getStatus() === 'disabled') {
-                $this->error(__('uplinkr::messages.project_disabled', ['project' => $projectName]));
+                $this->warn(__('uplinkr::messages.project_disabled', ['project' => $projectName]));
                 continue;
             }
 

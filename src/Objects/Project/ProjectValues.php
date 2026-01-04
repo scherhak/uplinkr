@@ -2,7 +2,7 @@
 
 namespace Uplinkr\Objects\Project;
 
-use Arr;
+use Illuminate\Support\Arr;
 
 /**
  * Class ProjectValues
@@ -36,6 +36,16 @@ class ProjectValues
     public function getProbes(): array
     {
         return Arr::get($this->data, 'probes', []);
+    }
+
+    /**
+     * Retrieves the alerts data from the stored array.
+     *
+     * @return array An array containing the alerts data, or an empty array if not set.
+     */
+    public function getAlerts(): array
+    {
+        return Arr::get($this->data, 'alerts', []);
     }
 
     /**

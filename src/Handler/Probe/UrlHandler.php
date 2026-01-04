@@ -6,7 +6,8 @@ use Exception;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Http;
-use Str;
+use Illuminate\Support\Str;
+use JsonException;
 use Uplinkr\Interfaces\ProbeResultsStorageInterface;
 use Uplinkr\Objects\Config\UplinkrConfig;
 use Uplinkr\Objects\Project\ProjectValues;
@@ -34,7 +35,8 @@ class UrlHandler
     public function __construct(
         private readonly ProbeResultsStorageInterface $storage,
         private readonly UplinkrConfig                $config,
-        private readonly Sanitizer                    $sanitizer
+        private readonly Sanitizer                    $sanitizer,
+        private readonly ResultHandler                $resultHandler
     )
     {
     }
@@ -57,6 +59,7 @@ class UrlHandler
      * and building and saving the probe result.
      *
      * @return array|null The resulting data from the probe, or null if the process fails.
+     * @throws JsonException
      */
     public function handle(): ?array
     {
@@ -131,20 +134,24 @@ class UrlHandler
      * @param array $probeMessage The probe message array containing message and lang_key
      * @param string $probeStatus The status of the probe (reachable, unreachable, not-reachable)
      * @return array The complete result array with all metadata
+     * @throws JsonException
      */
     private function buildProbeResult(mixed $request, float $durationTime, array $probeMessage, string $probeStatus): array
     {
         $requestResult = $this->getRequestResult($request);
 
-        return (new ResultHandler($requestResult))->build(
-            durationTime: $durationTime,
-            probeMessage: $probeMessage,
-            probeStatus: $probeStatus,
-            settings: [
-                'url' => $this->getUrl(),
-                'project' => $this->getProject(),
-            ]
-        );
+        return $this->resultHandler
+            ->with(result: $requestResult)
+            ->build(
+                durationTime: $durationTime,
+                probeMessage: $probeMessage,
+                probeStatus: $probeStatus,
+                settings: [
+                    'url' => $this->getUrl(),
+                    'project' => $this->getProject(),
+                    'method' => $this->getMethod(),
+                ]
+            );
     }
 
     /**

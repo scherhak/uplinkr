@@ -52,6 +52,9 @@ return [
     'project_enable_start' => 'Should project :project be enabled now?',
     'project_enable_failed' => 'Enabling project :project failed. Project might not exist.',
     'project_enable_success' => 'Project :project enabled successfully.',
+    'project_alerts_start' => 'Should alert settings for project :project be updated now?',
+    'project_alerts_failed' => 'Updating alert settings for project :project failed. Project might not exist.',
+    'project_alerts_success' => 'Alert settings for project :project updated successfully.',
 
     /*
      * Prune project and probes results

@@ -2,7 +2,7 @@
 
 namespace Uplinkr\Handler\Project;
 
-use Arr;
+use Illuminate\Support\Arr;
 use Uplinkr\Handler\Probe\UrlHandler;
 use Uplinkr\Interfaces\ProjectStorageInterface;
 use Uplinkr\Objects\Project\ProjectValues;
