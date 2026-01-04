@@ -18,7 +18,7 @@ class Logger
      *
      * @return LoggerInterface The logger instance for the configured log channel.
      */
-    public static function get(): LoggerInterface
+    public static function log(): LoggerInterface
     {
         $channel = config('uplinkr.log_channel', 'uplinkr');
 

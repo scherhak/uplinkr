@@ -18,7 +18,7 @@ class LoggerTest extends TestCase
      */
     public function testGetReturnsLoggerInterface(): void
     {
-        $logger = Logger::get();
+        $logger = Logger::log();
         $this->assertInstanceOf(LoggerInterface::class, $logger);
     }
 
@@ -34,7 +34,7 @@ class LoggerTest extends TestCase
             ->with('custom_channel')
             ->andReturn($this->createMock(LoggerInterface::class));
 
-        Logger::get();
+        Logger::log();
     }
 
     /**
@@ -50,6 +50,6 @@ class LoggerTest extends TestCase
             ->with('uplinkr')
             ->andReturn($this->createMock(LoggerInterface::class));
 
-        Logger::get();
+        Logger::log();
     }
 }

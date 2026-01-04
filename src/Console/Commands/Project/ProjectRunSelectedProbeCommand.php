@@ -3,6 +3,7 @@
 namespace Uplinkr\Console\Commands\Project;
 
 use Illuminate\Console\Command;
+use Log;
 use Symfony\Component\Console\Command\Command as CommandAlias;
 use Uplinkr\Handler\Project\ProbeSelectedProjectsHandler;
 use Uplinkr\Interfaces\ProjectStorageInterface;
@@ -63,7 +64,7 @@ class ProjectRunSelectedProbeCommand extends Command
         if ($project === null) {
             $message = __('uplinkr::messages.project_not_found', ['project' => $projectName]);
             $this->error($message);
-            Logger::get()->warning($message);
+            Logger::log()->warning($message);
 
             return CommandAlias::SUCCESS;
         }
@@ -90,7 +91,8 @@ class ProjectRunSelectedProbeCommand extends Command
         if ($results === null) {
             $message = __('uplinkr::messages.project_not_found', ['project' => $projectName]);
             $this->error($message);
-            \Log::warning('Uplinkr: ' . $message);
+            Logger::log()->warning($message);
+
             return CommandAlias::SUCCESS;
         }
 
