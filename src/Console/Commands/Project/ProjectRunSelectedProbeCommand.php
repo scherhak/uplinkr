@@ -8,6 +8,7 @@ use Uplinkr\Handler\Project\ProbeSelectedProjectsHandler;
 use Uplinkr\Interfaces\ProjectStorageInterface;
 use Uplinkr\Objects\Config\UplinkrConfig;
 use Uplinkr\Objects\Project\ProjectValues;
+use Uplinkr\Support\Logger;
 use Uplinkr\Traits\HandlesProbeOutput;
 
 /**
@@ -62,7 +63,7 @@ class ProjectRunSelectedProbeCommand extends Command
         if ($project === null) {
             $message = __('uplinkr::messages.project_not_found', ['project' => $projectName]);
             $this->error($message);
-            \Log::warning('Uplinkr: ' . $message);
+            Logger::get()->warning($message);
 
             return CommandAlias::SUCCESS;
         }
