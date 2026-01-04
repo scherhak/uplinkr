@@ -138,4 +138,33 @@ class ProjectRunProbesCommandTest extends TestCase
             ->expectsOutput('Running 1 probes for project project2...')
             ->assertExitCode(CommandAlias::SUCCESS);
     }
+
+    public function test_it_shows_error_for_projects_with_missing_settings(): void
+    {
+        $projectData = [
+            null,
+            ['project' => 'project2', 'status' => 'enabled', 'probes' => [['url' => 'http://test2.com']]],
+        ];
+
+        $this->storageMock->shouldReceive('allProjects')
+            ->once()
+            ->andReturn($projectData);
+
+        $this->storageMock->shouldReceive('allProjectDirectories')
+            ->once()
+            ->andReturn(['/path/to/project1', '/path/to/project2']);
+
+        $result = ['probe_status' => 'reachable', 'probe_message' => ['duration_ms' => 100]];
+
+        $this->handlerMock->shouldReceive('handleProject')
+            ->once()
+            ->with($projectData[1], Mockery::any())
+            ->andReturn([$result]);
+
+        $this->artisan('uplinkr:project:run-probes', ['--force' => true])
+            ->expectsOutput('Running all probes...')
+            ->expectsOutput('Project project1 not found.')
+            ->expectsOutput('Running 1 probes for project project2...')
+            ->assertExitCode(CommandAlias::SUCCESS);
+    }
 }

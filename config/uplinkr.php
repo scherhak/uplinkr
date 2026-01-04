@@ -49,7 +49,7 @@ return [
         | CAPTION
         |--------------------------------------------------------------------------
         |
-        | TODO Check if driver is still needed or can be removed
+        | Still to be described
         |
         */
         'archive_folder' => 'archived',
@@ -63,6 +63,29 @@ return [
         |
         */
         'allow_complete_wipe' => false,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Probes
+    |--------------------------------------------------------------------------
+    |
+    | Still to be described
+    |
+    */
+    'probes' => [
+
+        /*
+        |--------------------------------------------------------------------------
+        | Standard latency for probe requests
+        |--------------------------------------------------------------------------
+        |
+        | Still to be described
+        |
+        */
+        'standard_latency' => 1500,
+
+
     ],
 
     /*

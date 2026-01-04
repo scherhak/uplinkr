@@ -5,6 +5,7 @@ namespace Uplinkr\Console\Commands\Probe;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
+use JsonException;
 use Symfony\Component\Console\Command\Command as CommandAlias;
 use Uplinkr\Handler\Probe\UrlHandler;
 use Uplinkr\Objects\Config\UplinkrConfig;
@@ -31,7 +32,8 @@ class ProbeUrlCommand extends Command
                             {--url= : Target URL}
                             {--project= : Optional project name} 
                             {--method=GET : HTTP method (GET, POST, PUT, DELETE, ...)} 
-                            {--header=* : Additional headers, e.g. "Authorization: Bearer xxx"} 
+                            {--header=* : Additional headers, e.g. "Authorization: Bearer xxx"}
+                            {--latency= : Max time in ms to wait for response}  
                             {--body= : JSON body as string} 
                             {--force : Force execution without confirmation}';
 
@@ -53,6 +55,7 @@ class ProbeUrlCommand extends Command
      *
      * @return int Returns CommandAlias::SUCCESS if the URI is successfully processed
      *             or CommandAlias::INVALID if the process is canceled or the URI is invalid.
+     * @throws JsonException
      * @example php artisan uplinkr:probe-by-uri https scherhak.com
      *
      */
@@ -63,6 +66,7 @@ class ProbeUrlCommand extends Command
         $method = $this->option('method');
         $headers = $this->option('header');
         $body = $this->option('body');
+        $latency = $this->option('latency');
         $force = $this->option('force');
 
         // url validating
@@ -93,6 +97,7 @@ class ProbeUrlCommand extends Command
                     'method' => $method,
                     'headers' => Arr::wrap($headers),
                     'body' => $body,
+                    'latency' => $latency,
                 ])->handle();
 
                 $this->resultMessages(result: $result, project: $project, config: $config);

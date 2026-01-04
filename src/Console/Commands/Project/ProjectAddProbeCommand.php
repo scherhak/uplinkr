@@ -26,6 +26,7 @@ class ProjectAddProbeCommand extends Command
                             {--method=GET : HTTP method (GET, POST, PUT, DELETE, ...)} 
                             {--header=* : Additional headers, e.g. "Authorization: Bearer xxx"} 
                             {--body= : JSON body as string} 
+                            {--latency= : Max time in ms to wait for response}
                             {--force : Force execution without confirmation}';
 
     /**
@@ -42,6 +43,7 @@ class ProjectAddProbeCommand extends Command
         $method = $this->option('method');
         $headers = $this->option('header');
         $body = $this->option('body');
+        $latency = $this->option('latency');
         $force = $this->option('force');
 
         // url validating
@@ -76,6 +78,7 @@ class ProjectAddProbeCommand extends Command
                     'method' => $method,
                     'headers' => $headers,
                     'body' => $body,
+                    'latency' => $latency,
                 ]);
 
                 $this->info(__('uplinkr::messages.project_add_probe_success', [

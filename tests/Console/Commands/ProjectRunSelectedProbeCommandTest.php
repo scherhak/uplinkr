@@ -91,14 +91,11 @@ class ProjectRunSelectedProbeCommandTest extends TestCase
             ->andReturn(null);
 
         $this->handlerMock->shouldReceive('handle')
-            ->once()
-            ->with($projectName, Mockery::any())
-            ->andReturn(null);
+            ->never();
 
         $this->artisan('uplinkr:project:run-selected-probe', ['--project' => $projectName, '--force' => true])
-            ->expectsOutput('Running all probes...')
             ->expectsOutput('Project non-existent not found.')
-            ->assertExitCode(CommandAlias::FAILURE);
+            ->assertExitCode(CommandAlias::SUCCESS);
     }
 
     public function test_it_shows_info_when_no_probes_found(): void

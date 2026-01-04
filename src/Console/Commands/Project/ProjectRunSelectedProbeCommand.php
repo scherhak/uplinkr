@@ -45,6 +45,7 @@ class ProjectRunSelectedProbeCommand extends Command
      * @param UplinkrConfig $config
      * @param ProjectStorageInterface $projectStorage
      * @return int
+     * @throws \JsonException
      */
     public function handle(ProbeSelectedProjectsHandler $handler, UplinkrConfig $config, ProjectStorageInterface $projectStorage): int
     {
@@ -53,16 +54,24 @@ class ProjectRunSelectedProbeCommand extends Command
 
         if (empty($projectName)) {
             $this->error(__('uplinkr::messages.project_update_failed_validation'));
+
             return CommandAlias::INVALID;
         }
 
         $project = $projectStorage->findProject($projectName);
-        if ($project) {
-            $projectValues = new ProjectValues($project);
-            if ($projectValues->getStatus() === 'disabled') {
-                $this->warn(__('uplinkr::messages.project_disabled', ['project' => $projectName]));
-                return CommandAlias::SUCCESS;
-            }
+        if ($project === null) {
+            $message = __('uplinkr::messages.project_not_found', ['project' => $projectName]);
+            $this->error($message);
+            \Log::warning('Uplinkr: ' . $message);
+
+            return CommandAlias::SUCCESS;
+        }
+
+        $projectValues = new ProjectValues($project);
+        if ($projectValues->getStatus() === 'disabled') {
+            $this->warn(__('uplinkr::messages.project_disabled', ['project' => $projectName]));
+
+            return CommandAlias::SUCCESS;
         }
 
         if (!$force && !$this->confirm(__('uplinkr::messages.project_run_probes_confirm', ['count' => $projectName]))) {
@@ -78,8 +87,10 @@ class ProjectRunSelectedProbeCommand extends Command
         });
 
         if ($results === null) {
-            $this->error(__('uplinkr::messages.project_not_found', ['project' => $projectName]));
-            return CommandAlias::FAILURE;
+            $message = __('uplinkr::messages.project_not_found', ['project' => $projectName]);
+            $this->error($message);
+            \Log::warning('Uplinkr: ' . $message);
+            return CommandAlias::SUCCESS;
         }
 
         if (empty($results)) {
