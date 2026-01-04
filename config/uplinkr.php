@@ -108,7 +108,33 @@ return [
         */
         'standard_project' => 'standard_project',
         'standard_project_status' => 'enabled',
+    ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Logging
+    |--------------------------------------------------------------------------
+    |
+    | Still to be described
+    |
+    */
+    'logging' => [
+        [
+            /*
+             * Name of the log channel Uplinkr should use.
+             */
+            'log_channel' => env('UPLINKR_LOG_CHANNEL', 'uplinkr'),
 
-    ]
+            /*
+             * Default channel definition (used if the host app doesn't already have it).
+             */
+            'log' => [
+                'driver' => env('UPLINKR_LOG_DRIVER', 'daily'), // daily|single|stack|...
+                'path' => env('UPLINKR_LOG_PATH', storage_path('logs/uplinkr.log')),
+                'level' => env('UPLINKR_LOG_LEVEL', 'info'),
+                'days' => (int) env('UPLINKR_LOG_DAYS', 14),
+                'replace_placeholders' => true,
+            ],
+        ],
+    ],
 ];

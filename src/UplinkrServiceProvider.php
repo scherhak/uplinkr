@@ -134,5 +134,45 @@ class UplinkrServiceProvider extends ServiceProvider
                 $app->make(UrlHandler::class)
             );
         });
+
+        $this->registerUplinkrLogChannel();
+    }
+
+    /**
+     * Registers the Uplinkr log channel in the application's logging configuration.
+     *
+     * This method checks if the Uplinkr log channel is already defined in the
+     * application's logging channels. If the channel is already defined, the
+     * method does not overwrite it. Otherwise, it defines the channel with the
+     * configuration specified in `uplinkr.log`. If `uplinkr.log` is empty,
+     * a default configuration is used to ensure the logging channel is functional.
+     *
+     * @return void
+     */
+    private function registerUplinkrLogChannel(): void
+    {
+        $channelName = config('uplinkr.log_channel', 'uplinkr');
+        $channels = config('logging.channels', []);
+
+        // If the host app has already defined the channel: respect it and DO NOT overwrite it.
+        if (isset($channels[$channelName])) {
+            return;
+        }
+
+        $definition = config('uplinkr.log', []);
+
+        // Safeguard: if empty for any reason, set minimum default
+        if (empty($definition)) {
+            $definition = [
+                'driver' => 'daily',
+                'path' => storage_path('logs/uplinkr.log'),
+                'level' => 'debug',
+                'days' => 14,
+                'replace_placeholders' => true,
+            ];
+        }
+
+        // Channel zur Laufzeit in logging.channels einhängen
+        config()?->set("logging.channels.{$channelName}", $definition);
     }
 }

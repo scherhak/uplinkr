@@ -8,6 +8,7 @@ use Uplinkr\Handler\Project\ProbeAllProjectsHandler;
 use Uplinkr\Interfaces\ProjectStorageInterface;
 use Uplinkr\Objects\Config\UplinkrConfig;
 use Uplinkr\Objects\Project\ProjectValues;
+use Uplinkr\Support\Logger;
 use Uplinkr\Traits\HandlesProbeOutput;
 
 /**
@@ -70,7 +71,8 @@ class ProjectRunProbesCommand extends Command
                 $projectName = basename($projectStorage->allProjectDirectories()[$key]);
                 $message = __('uplinkr::messages.project_not_found', ['project' => $projectName]);
                 $this->error($message);
-                \Log::warning('Uplinkr: ' . $message);
+                Logger::log()->warning($message);
+
                 continue;
             }
 
