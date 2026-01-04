@@ -60,9 +60,11 @@ class ProjectRunSelectedProbeCommand extends Command
 
         $project = $projectStorage->findProject($projectName);
         if ($project === null) {
-            $this->error(__('uplinkr::messages.project_not_found', ['project' => $projectName]));
+            $message = __('uplinkr::messages.project_not_found', ['project' => $projectName]);
+            $this->error($message);
+            \Log::warning('Uplinkr: ' . $message);
 
-            return CommandAlias::FAILURE;
+            return CommandAlias::SUCCESS;
         }
 
         $projectValues = new ProjectValues($project);
@@ -85,8 +87,10 @@ class ProjectRunSelectedProbeCommand extends Command
         });
 
         if ($results === null) {
-            $this->error(__('uplinkr::messages.project_not_found', ['project' => $projectName]));
-            return CommandAlias::FAILURE;
+            $message = __('uplinkr::messages.project_not_found', ['project' => $projectName]);
+            $this->error($message);
+            \Log::warning('Uplinkr: ' . $message);
+            return CommandAlias::SUCCESS;
         }
 
         if (empty($results)) {

@@ -68,7 +68,9 @@ class ProjectRunProbesCommand extends Command
         foreach ($projects as $key => $project) {
             if ($project === null) {
                 $projectName = basename($projectStorage->allProjectDirectories()[$key]);
-                $this->error(__('uplinkr::messages.project_not_found', ['project' => $projectName]));
+                $message = __('uplinkr::messages.project_not_found', ['project' => $projectName]);
+                $this->error($message);
+                \Log::warning('Uplinkr: ' . $message);
                 continue;
             }
 
