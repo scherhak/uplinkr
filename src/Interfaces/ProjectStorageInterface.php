@@ -25,6 +25,12 @@ interface ProjectStorageInterface
      */
     public function addToProject(array $probeData): void;
 
+    /**
+     * Removes the specified probe data from the project.
+     *
+     * @param array $probeData An associative array containing the data to be removed from the project.
+     * @return void
+     */
     public function removeFromProject(array $probeData): void;
 
     /**

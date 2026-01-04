@@ -29,7 +29,7 @@ class AddProbeHandler
     /**
      * Adds a probe to an existing project.
      *
-     * @param array $options An associative array containing probe details: 'url', 'project', 'method', 'headers', 'body'.
+     * @param array $options An associative array containing probe details: 'url', 'project', 'method', 'headers', 'body' and 'latency'.
      * @return bool
      */
     public function handle(array $options): bool
