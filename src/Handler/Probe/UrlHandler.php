@@ -65,7 +65,6 @@ class UrlHandler
     {
         $request = null;
         $startTime = microtime(true);
-
         $method = Str::upper($this->getMethod());
 
         // default

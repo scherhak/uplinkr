@@ -176,12 +176,9 @@ class FileProjectStorage implements ProjectStorageInterface
     }
 
     /**
-     * Retrieves all projects from storage by scanning the storage directory.
-     *
-     * @return array An array of projects, where each project is an associative array of its settings.
-     * @throws JsonException
+     * @return array
      */
-    public function allProjects(): array
+    public function allProjectDirectories(): array
     {
         $disk = Storage::disk($this->config->getStorageDisc());
         $storagePath = $this->config->getStoragePath();
@@ -190,16 +187,30 @@ class FileProjectStorage implements ProjectStorageInterface
             return [];
         }
 
-        $directories = $disk->directories($storagePath);
+        return $disk->directories($storagePath);
+    }
+
+    /**
+     * Retrieves all projects from storage by scanning the storage directory.
+     *
+     * @return array An array of projects, where each project is an associative array of its settings.
+     * @throws JsonException
+     */
+    public function allProjects(): array
+    {
+        $directories = $this->allProjectDirectories();
         $projects = [];
 
         foreach ($directories as $directory) {
             $projectName = basename($directory);
             $project = $this->findProject($projectName);
 
-            if ($project) {
-                $projects[] = $project;
+            if ($project === null) {
+                $projects[] = null;
+                continue;
             }
+
+            $projects[] = $project;
         }
 
         return $projects;

@@ -36,9 +36,14 @@ interface ProjectStorageInterface
     /**
      * Retrieves all projects from storage.
      *
-     * @return array An array of projects, where each project is an associative array of its settings.
+     * @return array An array of projects, where each project is an associative array of its settings or null if settings.json missing.
      */
     public function allProjects(): array;
+
+    /**
+     * @return array
+     */
+    public function allProjectDirectories(): array;
 
     /**
      * @return string

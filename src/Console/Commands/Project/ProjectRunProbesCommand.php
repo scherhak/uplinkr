@@ -65,7 +65,13 @@ class ProjectRunProbesCommand extends Command
             return CommandAlias::SUCCESS;
         }
 
-        foreach ($projects as $project) {
+        foreach ($projects as $key => $project) {
+            if ($project === null) {
+                $projectName = basename($projectStorage->allProjectDirectories()[$key]);
+                $this->error(__('uplinkr::messages.project_not_found', ['project' => $projectName]));
+                continue;
+            }
+
             $projectValues = new ProjectValues($project);
             $projectName = $projectValues->getName();
             $probes = $projectValues->getProbes();

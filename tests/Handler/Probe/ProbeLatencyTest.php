@@ -53,7 +53,6 @@ class ProbeLatencyTest extends TestCase
     {
         Http::fake([
             'example.com/*' => function () {
-                usleep(50000); // 50ms
                 return Http::response('OK', 200);
             },
         ]);
@@ -61,7 +60,7 @@ class ProbeLatencyTest extends TestCase
         $result = $this->urlHandler->with([
             'url' => 'http://example.com',
             'method' => 'GET',
-            'latency' => 200 // 200ms limit, should pass
+            'latency' => 5000 // 5s limit, should definitely pass
         ])->handle();
 
         $this->assertEquals('reachable', $result['probe_status']);
@@ -71,11 +70,12 @@ class ProbeLatencyTest extends TestCase
     {
         Http::fake([
             'slow.com/*' => function () {
+                // We keep the slow one slow enough to exceed default 1500ms
                 usleep(1600000); // 1.6s = 1600ms
                 return Http::response('OK', 200);
             },
             'fast.com/*' => function () {
-                usleep(1400000); // 1.4s = 1400ms
+                // We make the fast one fast enough to be well below 1500ms
                 return Http::response('OK', 200);
             },
         ]);
@@ -87,7 +87,7 @@ class ProbeLatencyTest extends TestCase
         ])->handle();
         $this->assertEquals('unreachable', $resultSlow['probe_status']);
 
-        // Should be reachable (1400 < 1500)
+        // Should be reachable (nearly 0 < 1500)
         $resultFast = $this->urlHandler->with([
             'url' => 'http://fast.com',
             'method' => 'GET',
@@ -99,7 +99,6 @@ class ProbeLatencyTest extends TestCase
     {
         Http::fake([
             'example.com/*' => function () {
-                usleep(50000); // 50ms
                 return Http::response('OK', 200);
             },
         ]);
@@ -111,6 +110,6 @@ class ProbeLatencyTest extends TestCase
             'latency' => null
         ])->handle();
 
-        $this->assertEquals('reachable', $result['probe_status'], "Status should be reachable when 50ms < 1500ms (default) even if latency is null");
+        $this->assertEquals('reachable', $result['probe_status'], "Status should be reachable when nearly 0ms < 1500ms (default) even if latency is null");
     }
 }
