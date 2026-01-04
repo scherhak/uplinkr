@@ -2,12 +2,12 @@
 
 namespace Uplinkr\Tests\Handler\Probe;
 
-use Uplinkr\Tests\TestCase;
-use Uplinkr\Handler\Probe\UrlHandler;
 use Uplinkr\Handler\Probe\ResultHandler;
+use Uplinkr\Handler\Probe\UrlHandler;
 use Uplinkr\Interfaces\ProbeResultsStorageInterface;
 use Uplinkr\Objects\Config\UplinkrConfig;
 use Uplinkr\Support\Sanitizer;
+use Uplinkr\Tests\TestCase;
 
 /**
  * Class ProbeUrlHandlerTest

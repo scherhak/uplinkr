@@ -49,7 +49,7 @@ class ProbeAllProjectsHandlerTest extends TestCase
                 'body' => '',
             ])
             ->andReturnSelf();
-        
+
         // Expectation for project2 probe
         $urlHandlerMock->shouldReceive('with')
             ->once()
@@ -104,7 +104,7 @@ class ProbeAllProjectsHandlerTest extends TestCase
 
         $urlHandlerMock->shouldReceive('with')
             ->once()
-            ->with(Mockery::on(function($data) {
+            ->with(Mockery::on(function ($data) {
                 return $data['project'] === 'enabled_project';
             }))
             ->andReturnSelf();

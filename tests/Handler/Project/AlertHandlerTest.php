@@ -38,14 +38,14 @@ class AlertHandlerTest extends TestCase
             ->once()
             ->with(Mockery::on(function ($data) use ($projectName) {
                 return $data['project'] === $projectName &&
-                       count($data['alerts']) === 1 &&
-                       $data['alerts'][0]['enabled'] === true &&
-                       $data['alerts'][0]['trigger_after_failures'] === 5 &&
-                       $data['alerts'][0]['cooldown_minutes'] === 60 &&
-                       $data['alerts'][0]['latency_threshold_ms'] === 2000 &&
-                       $data['alerts'][0]['trigger_after_slow'] === 5 &&
-                       $data['alerts'][0]['channels'] === ['mail', 'slack'] &&
-                       isset($data['updated_at']);
+                    count($data['alerts']) === 1 &&
+                    $data['alerts'][0]['enabled'] === true &&
+                    $data['alerts'][0]['trigger_after_failures'] === 5 &&
+                    $data['alerts'][0]['cooldown_minutes'] === 60 &&
+                    $data['alerts'][0]['latency_threshold_ms'] === 2000 &&
+                    $data['alerts'][0]['trigger_after_slow'] === 5 &&
+                    $data['alerts'][0]['channels'] === ['mail', 'slack'] &&
+                    isset($data['updated_at']);
             }));
 
         $handler = new AlertHandler($storageMock);

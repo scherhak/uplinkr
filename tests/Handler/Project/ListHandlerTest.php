@@ -51,7 +51,7 @@ class ListHandlerTest extends TestCase
     public function testGetProbesCountReturnsCountOfFiles(): void
     {
         $path = 'some/project/path';
-        
+
         Storage::shouldReceive('disk')
             ->with('local')
             ->once()

@@ -3,7 +3,6 @@
 namespace Uplinkr\Console\Commands\Project;
 
 use Illuminate\Console\Command;
-use Log;
 use Symfony\Component\Console\Command\Command as CommandAlias;
 use Uplinkr\Handler\Project\ProbeSelectedProjectsHandler;
 use Uplinkr\Interfaces\ProjectStorageInterface;

@@ -1,7 +1,15 @@
 {
   "name": "scherhak/uplinkr",
   "description": "A lightweight, file-based Laravel package for monitoring website availability with zero external dependencies.",
-  "keywords": ["laravel", "monitoring", "uptime", "url", "probe", "status", "filesystem"],
+  "keywords": [
+    "laravel",
+    "monitoring",
+    "uptime",
+    "url",
+    "probe",
+    "status",
+    "filesystem"
+  ],
   "type": "library",
   "license": "MIT",
   "authors": [

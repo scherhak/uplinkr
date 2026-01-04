@@ -16,7 +16,7 @@ final class UplinkrConfig
         public string $storageDisk = 'local',
         public string $storagePath = 'uplinkr',
         public string $probeResultsPath = 'probes',
-        public int $standardLatency = 1500,
+        public int    $standardLatency = 1500,
         public string $probeFilenameSeparator = '@',
         public string $fileExtension = 'json',
         public string $archivedFolder = 'archived',

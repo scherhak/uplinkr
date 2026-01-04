@@ -28,9 +28,9 @@ class DisableHandlerTest extends TestCase
             ->once()
             ->with(Mockery::on(function ($data) use ($projectName) {
                 return $data['project'] === $projectName &&
-                       $data['status'] === 'disabled' &&
-                       isset($data['updated_at']) &&
-                       $data['updated_at'] !== '2023-01-01 00:00:00';
+                    $data['status'] === 'disabled' &&
+                    isset($data['updated_at']) &&
+                    $data['updated_at'] !== '2023-01-01 00:00:00';
             }));
 
         $handler = new DisableHandler($storageMock);

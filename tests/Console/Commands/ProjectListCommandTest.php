@@ -4,9 +4,9 @@ namespace Uplinkr\Tests\Console\Commands;
 
 use Mockery;
 use Mockery\MockInterface;
+use Symfony\Component\Console\Command\Command as CommandAlias;
 use Uplinkr\Handler\Project\ListHandler;
 use Uplinkr\Tests\TestCase;
-use Symfony\Component\Console\Command\Command as CommandAlias;
 
 class ProjectListCommandTest extends TestCase
 {

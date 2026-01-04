@@ -37,8 +37,8 @@ class ProjectEnableCommandTest extends TestCase
         $this->artisan('uplinkr:project:enable', [
             '--project' => 'my-project',
         ])
-        ->expectsConfirmation('Should project my-project be enabled now?', 'yes')
-        ->assertExitCode(0);
+            ->expectsConfirmation('Should project my-project be enabled now?', 'yes')
+            ->assertExitCode(0);
     }
 
     public function test_it_aborts_without_confirmation(): void
@@ -46,8 +46,8 @@ class ProjectEnableCommandTest extends TestCase
         $this->artisan('uplinkr:project:enable', [
             '--project' => 'my-project',
         ])
-        ->expectsConfirmation('Should project my-project be enabled now?', 'no')
-        ->assertExitCode(2);
+            ->expectsConfirmation('Should project my-project be enabled now?', 'no')
+            ->assertExitCode(2);
     }
 
     public function test_it_fails_if_handler_returns_false(): void

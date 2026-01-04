@@ -50,8 +50,8 @@ class ProjectAlertsCommandTest extends TestCase
         $this->artisan('uplinkr:project:alerts', [
             '--project' => 'my-project',
         ])
-        ->expectsConfirmation('Should alert settings for project my-project be updated now?', 'yes')
-        ->assertExitCode(0);
+            ->expectsConfirmation('Should alert settings for project my-project be updated now?', 'yes')
+            ->assertExitCode(0);
     }
 
     public function test_it_aborts_without_confirmation(): void
@@ -59,8 +59,8 @@ class ProjectAlertsCommandTest extends TestCase
         $this->artisan('uplinkr:project:alerts', [
             '--project' => 'my-project',
         ])
-        ->expectsConfirmation('Should alert settings for project my-project be updated now?', 'no')
-        ->assertExitCode(2);
+            ->expectsConfirmation('Should alert settings for project my-project be updated now?', 'no')
+            ->assertExitCode(2);
     }
 
     public function test_it_fails_validation_without_project(): void

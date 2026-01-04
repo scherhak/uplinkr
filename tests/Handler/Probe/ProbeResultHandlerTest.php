@@ -2,10 +2,10 @@
 
 namespace Uplinkr\Tests\Handler\Probe;
 
-use Uplinkr\Tests\TestCase;
 use Uplinkr\Handler\Probe\ResultHandler;
 use Uplinkr\Objects\Config\UplinkrConfig;
 use Uplinkr\Support\Sanitizer;
+use Uplinkr\Tests\TestCase;
 
 /**
  * Class ProbeResultHandlerTest
@@ -22,6 +22,7 @@ class ProbeResultHandlerTest extends TestCase
         $this->config = new UplinkrConfig(storageDisk: 'local', storagePath: 'uplinkr');
         $this->sanitizer = new Sanitizer($this->config);
     }
+
     /**
      * Test that the build method correctly constructs the probe result with valid inputs.
      */

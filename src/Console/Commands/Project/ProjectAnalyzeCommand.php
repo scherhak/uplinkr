@@ -4,9 +4,6 @@ namespace Uplinkr\Console\Commands\Project;
 
 use Exception;
 use Illuminate\Console\Command;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Log;
-use ReflectionClass;
 use Uplinkr\Handler\Project\AnalyzeHandler;
 use Uplinkr\Handler\Project\SummaryHandler;
 use Uplinkr\Objects\Summary\ProbeResultsSummary;

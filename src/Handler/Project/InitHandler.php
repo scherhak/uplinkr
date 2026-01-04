@@ -23,7 +23,7 @@ class InitHandler
      * @return void
      */
     public function __construct(
-        private readonly UplinkrConfig $config,
+        private readonly UplinkrConfig           $config,
         private readonly ProjectStorageInterface $projectStorage
     )
     {

@@ -3,12 +3,12 @@
 namespace Uplinkr\Tests\Handler\Probe;
 
 use Illuminate\Support\Facades\Http;
-use Uplinkr\Tests\TestCase;
-use Uplinkr\Handler\Probe\UrlHandler;
 use Uplinkr\Handler\Probe\ResultHandler;
+use Uplinkr\Handler\Probe\UrlHandler;
 use Uplinkr\Interfaces\ProbeResultsStorageInterface;
 use Uplinkr\Objects\Config\UplinkrConfig;
 use Uplinkr\Support\Sanitizer;
+use Uplinkr\Tests\TestCase;
 
 class ProbeLatencyTest extends TestCase
 {

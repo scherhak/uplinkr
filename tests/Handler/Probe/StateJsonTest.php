@@ -3,10 +3,10 @@
 namespace Uplinkr\Tests\Handler\Probe;
 
 use Illuminate\Support\Facades\Storage;
-use Uplinkr\Tests\TestCase;
 use Uplinkr\Handler\Probe\ResultHandler;
 use Uplinkr\Objects\Config\UplinkrConfig;
 use Uplinkr\Support\Sanitizer;
+use Uplinkr\Tests\TestCase;
 
 class StateJsonTest extends TestCase
 {
@@ -34,13 +34,13 @@ class StateJsonTest extends TestCase
         ];
 
         $handler = new ResultHandler($this->config, $this->sanitizer);
-        
+
         $result = $handler->with($initialResult)->build($durationTime, $probeMessage, $status, $settings);
 
         // check if state.json exists in the correct project directory
         // Expected path: uplinkr/uplinkr-dev/state.json
         Storage::disk('local')->assertExists('uplinkr/uplinkr-dev/state.json');
-        
+
         $stateContent = json_decode(Storage::disk('local')->get('uplinkr/uplinkr-dev/state.json'), true);
         $this->assertEquals('uplinkr-dev', $stateContent['project']);
         $this->assertArrayHasKey('GET https://uplinkr.dev', $stateContent['probes']);
@@ -51,7 +51,7 @@ class StateJsonTest extends TestCase
         $project = 'uplinkr-dev';
         $projectDir = 'uplinkr/uplinkr-dev';
         $stateFile = "$projectDir/state.json";
-        
+
         Storage::disk('local')->put($stateFile, json_encode([
             'project' => $project,
             'updated_at' => '2026-01-03 10:00:00',

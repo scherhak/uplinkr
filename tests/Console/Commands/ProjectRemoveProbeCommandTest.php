@@ -39,8 +39,8 @@ class ProjectRemoveProbeCommandTest extends TestCase
             '--url' => 'http://example.com',
             '--project' => 'my-project',
         ])
-        ->expectsConfirmation('Should URL http://example.com be removed from project my-project now?', 'yes')
-        ->assertExitCode(0);
+            ->expectsConfirmation('Should URL http://example.com be removed from project my-project now?', 'yes')
+            ->assertExitCode(0);
     }
 
     public function test_it_fails_with_invalid_url(): void

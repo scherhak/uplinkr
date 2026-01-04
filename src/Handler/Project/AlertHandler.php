@@ -5,7 +5,6 @@ namespace Uplinkr\Handler\Project;
 use Arr;
 use JsonException;
 use Uplinkr\Interfaces\ProjectStorageInterface;
-use Uplinkr\Objects\Project\ProjectValues;
 use Uplinkr\Support\Time;
 
 /**
@@ -48,12 +47,12 @@ class AlertHandler
         }
 
         $alert = [
-            'enabled' => (bool) Arr::get($options, 'enabled', true),
-            'trigger_after_failures' => (int) Arr::get($options, 'trigger_after_failures', 3),
-            'cooldown_minutes' => (int) Arr::get($options, 'cooldown_minutes', 30),
-            'latency_threshold_ms' => (int) Arr::get($options, 'latency_threshold_ms', 1500),
-            'trigger_after_slow' => (int) Arr::get($options, 'trigger_after_slow', 3),
-            'channels' => (array) Arr::get($options, 'channels', ['mail']),
+            'enabled' => (bool)Arr::get($options, 'enabled', true),
+            'trigger_after_failures' => (int)Arr::get($options, 'trigger_after_failures', 3),
+            'cooldown_minutes' => (int)Arr::get($options, 'cooldown_minutes', 30),
+            'latency_threshold_ms' => (int)Arr::get($options, 'latency_threshold_ms', 1500),
+            'trigger_after_slow' => (int)Arr::get($options, 'trigger_after_slow', 3),
+            'channels' => (array)Arr::get($options, 'channels', ['mail']),
         ];
 
         // Currently, the requirement says "alerts": [] and shows a list with one object.

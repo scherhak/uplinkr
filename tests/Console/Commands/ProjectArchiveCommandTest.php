@@ -4,9 +4,9 @@ namespace Uplinkr\Tests\Console\Commands;
 
 use Mockery;
 use Mockery\MockInterface;
+use Symfony\Component\Console\Command\Command as CommandAlias;
 use Uplinkr\Handler\Project\ArchiveHandler;
 use Uplinkr\Tests\TestCase;
-use Symfony\Component\Console\Command\Command as CommandAlias;
 
 class ProjectArchiveCommandTest extends TestCase
 {
@@ -62,7 +62,7 @@ class ProjectArchiveCommandTest extends TestCase
 
         $this->artisan('uplinkr:project:archive', ['--project' => $project, '--force' => true])
             ->assertExitCode(CommandAlias::SUCCESS);
-        
+
         // Ensure no confirmation was asked and no success message was shown due to !force check in code
         // Wait, looking at the code:
         // if (!$force) { $this->info(__('uplinkr::messages.project_archive_success', ...)); }

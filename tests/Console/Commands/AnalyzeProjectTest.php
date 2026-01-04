@@ -2,13 +2,12 @@
 
 namespace Console\Commands;
 
-use Illuminate\Support\Facades\Log;
 use Mockery;
 use Mockery\MockInterface;
+use Symfony\Component\Console\Command\Command as CommandAlias;
 use Uplinkr\Handler\Project\AnalyzeHandler;
 use Uplinkr\Handler\Project\SummaryHandler;
 use Uplinkr\Tests\TestCase;
-use Symfony\Component\Console\Command\Command as CommandAlias;
 
 class AnalyzeProjectTest extends TestCase
 {
@@ -35,7 +34,7 @@ class AnalyzeProjectTest extends TestCase
         $files = ['path/to/test@2023-01-01.json'];
         $content = '{"some":"json"}';
         $results = [['url' => 'http://example.com']];
-        
+
         $summaryObj = new \Uplinkr\Objects\Summary\ProbeResultsSummary(
             url: 'http://example.com',
             total: 1,
@@ -48,7 +47,7 @@ class AnalyzeProjectTest extends TestCase
             avgDurationMs: 100.0,
             statusHeaderCounts: [200 => 1]
         );
-        
+
         $summary = ['example_com' => $summaryObj];
 
         $this->analyzeHandlerMock->shouldReceive('probeResultsList')
@@ -77,7 +76,7 @@ class AnalyzeProjectTest extends TestCase
             ->andReturn('2023-01-01');
 
         $this->analyzeHandlerMock->shouldReceive('saveAnalyzedResults')
-            ->with($project, Mockery::on(function($arg) {
+            ->with($project, Mockery::on(function ($arg) {
                 return isset($arg['example_com']['2023-01-01']) && $arg['example_com']['2023-01-01']['url'] === 'http://example.com';
             }))
             ->once();

@@ -4,10 +4,10 @@ namespace Uplinkr\Tests\Console\Commands;
 
 use Mockery;
 use Mockery\MockInterface;
+use Symfony\Component\Console\Command\Command as CommandAlias;
 use Uplinkr\Handler\Project\ProbeSelectedProjectsHandler;
 use Uplinkr\Interfaces\ProjectStorageInterface;
 use Uplinkr\Tests\TestCase;
-use Symfony\Component\Console\Command\Command as CommandAlias;
 
 class ProjectRunSelectedProbeCommandTest extends TestCase
 {
@@ -36,7 +36,7 @@ class ProjectRunSelectedProbeCommandTest extends TestCase
 
         $this->handlerMock->shouldReceive('handle')
             ->once()
-            ->with($projectName, Mockery::on(function($callback) use ($result) {
+            ->with($projectName, Mockery::on(function ($callback) use ($result) {
                 if (is_callable($callback)) {
                     $callback($result, 'project1');
                 }
@@ -65,7 +65,7 @@ class ProjectRunSelectedProbeCommandTest extends TestCase
 
         $this->handlerMock->shouldReceive('handle')
             ->once()
-            ->with($projectName, Mockery::on(function($callback) use ($result) {
+            ->with($projectName, Mockery::on(function ($callback) use ($result) {
                 if (is_callable($callback)) {
                     $callback($result, 'project1');
                 }

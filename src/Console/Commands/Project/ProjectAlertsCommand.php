@@ -45,10 +45,10 @@ class ProjectAlertsCommand extends Command
     {
         $project = $this->option('project');
         $enabled = filter_var($this->option('enabled'), FILTER_VALIDATE_BOOLEAN);
-        $failures = (int) $this->option('failures');
-        $cooldown = (int) $this->option('cooldown');
-        $threshold = (int) $this->option('threshold');
-        $slow = (int) $this->option('slow');
+        $failures = (int)$this->option('failures');
+        $cooldown = (int)$this->option('cooldown');
+        $threshold = (int)$this->option('threshold');
+        $slow = (int)$this->option('slow');
         $channels = explode(',', $this->option('channels'));
         $force = $this->option('force');
 

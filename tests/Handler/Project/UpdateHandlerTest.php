@@ -37,12 +37,12 @@ class UpdateHandlerTest extends TestCase
             ->once()
             ->with(Mockery::on(function ($data) use ($projectName, $existingData) {
                 return $data['project'] === $projectName &&
-                       $data['label'] === 'New Label' &&
-                       $data['description'] === 'New Description' &&
-                       $data['probes'] === ['probe1'] &&
-                       $data['created_at'] === $existingData['created_at'] &&
-                       isset($data['updated_at']) &&
-                       $data['updated_at'] !== $existingData['updated_at'];
+                    $data['label'] === 'New Label' &&
+                    $data['description'] === 'New Description' &&
+                    $data['probes'] === ['probe1'] &&
+                    $data['created_at'] === $existingData['created_at'] &&
+                    isset($data['updated_at']) &&
+                    $data['updated_at'] !== $existingData['updated_at'];
             }));
 
         $handler = new UpdateHandler($storageMock);
@@ -55,7 +55,7 @@ class UpdateHandlerTest extends TestCase
     {
         $storageMock = Mockery::mock(ProjectStorageInterface::class);
         $projectName = 'non-existent';
-        
+
         $storageMock->shouldReceive('findProject')
             ->once()
             ->with($projectName)
@@ -93,8 +93,8 @@ class UpdateHandlerTest extends TestCase
             ->once()
             ->with(Mockery::on(function ($data) {
                 return $data['label'] === 'New Label' &&
-                       $data['description'] === 'Old Description' &&
-                       $data['probes'] === ['probe1'];
+                    $data['description'] === 'Old Description' &&
+                    $data['probes'] === ['probe1'];
             }));
 
         $handler = new UpdateHandler($storageMock);

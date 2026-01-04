@@ -37,7 +37,7 @@ class ProjectArchiveHandlerTest extends TestCase
     public function testExistsReturnsTrueIfProjectExists(): void
     {
         $projectName = 'test-project';
-        
+
         // Expectation: Storage::disk() is called in the constructor.
         Storage::shouldReceive('disk')
             ->with('local')
@@ -52,7 +52,7 @@ class ProjectArchiveHandlerTest extends TestCase
             ->andReturnTrue();
 
         $handler = new ArchiveHandler($this->config);
-        
+
         $this->assertTrue($handler->exists($projectName));
     }
 
@@ -61,7 +61,7 @@ class ProjectArchiveHandlerTest extends TestCase
         $projectName = 'missing-project';
 
         Storage::shouldReceive('disk')->andReturn($this->filesystemMock);
-        
+
         $this->filesystemMock->shouldReceive('exists')
             ->with('uplinkr_projects/' . $projectName)
             ->andReturnFalse();
@@ -74,7 +74,7 @@ class ProjectArchiveHandlerTest extends TestCase
     public function testArchiveCopiesDirectoryToArchiveLocation(): void
     {
         $projectName = 'project-to-archive';
-        
+
         Storage::shouldReceive('disk')->andReturn($this->filesystemMock);
 
         // Since getProjectPath and setArchivePath internally call $storage->path(), We need to mock this.
