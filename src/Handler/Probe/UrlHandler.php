@@ -111,6 +111,20 @@ class UrlHandler
         }
 
         $durationTime = microtime(true) - $startTime;
+        $durationTimeMs = $durationTime * 1000;
+
+        $latency = Arr::get($this->data, 'latency');
+        if ($latency === null) {
+            $latency = $this->config->standardLatency;
+        }
+        $latency = (int)$latency;
+
+        if ($durationTimeMs > $latency && $probeStatus === 'reachable') {
+            $probeStatus = 'unreachable';
+            $probeMessage = [
+                'lang_key' => 'messages.probe_unreachable',
+            ];
+        }
 
         // build the result ...
         $result = $this->buildProbeResult(
