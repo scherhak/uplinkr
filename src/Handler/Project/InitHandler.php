@@ -6,6 +6,7 @@ use JsonException;
 use Uplinkr\Interfaces\ProjectStorageInterface;
 use Uplinkr\Objects\Config\UplinkrConfig;
 use Uplinkr\Objects\Project\ProjectValues;
+use Uplinkr\Support\Time;
 
 /**
  * Class InitHandler
@@ -46,8 +47,8 @@ class InitHandler
             'project' => $projectName,
             'label' => $optionsValues->getLabel(),
             'description' => $optionsValues->getDescription(),
-            'created_at' => ($projectValues?->getCreatedAt()) ?? now()->toDateTimeString(),
-            'updated_at' => now()->toDateTimeString(),
+            'created_at' => ($projectValues?->getCreatedAt()) ?? Time::now(),
+            'updated_at' => Time::now(),
             'status' => $this->config->getStandardProjectStatus(),
             'probes' => $projectValues ? $projectValues->getProbes() : [],
             'alerts' => [],

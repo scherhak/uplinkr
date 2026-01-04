@@ -8,6 +8,7 @@ use Illuminate\Support\Str;
 use JsonException;
 use Uplinkr\Objects\Config\UplinkrConfig;
 use Uplinkr\Support\Sanitizer;
+use Uplinkr\Support\Time;
 
 /**
  * Class ResultHandler
@@ -121,11 +122,11 @@ class ResultHandler
             'last_notified_slow_at' => null,
         ];
 
-        $probeState['last_seen_executed_at'] = now()->toDateTimeString();
+        $probeState['last_seen_executed_at'] = Time::now();
         $probeState['consecutive_failures']++;
 
         $state['probes'][$probeKey] = $probeState;
-        $state['updated_at'] = now()->toDateTimeString();
+        $state['updated_at'] = Time::now();
 
         $disk->put($stateFile, json_encode($state, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT));
     }

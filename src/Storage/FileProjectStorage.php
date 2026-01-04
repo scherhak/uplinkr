@@ -9,6 +9,7 @@ use Uplinkr\Interfaces\ProjectStorageInterface;
 use Uplinkr\Objects\Config\UplinkrConfig;
 use Uplinkr\Objects\Project\ProjectValues;
 use Uplinkr\Support\Sanitizer;
+use Uplinkr\Support\Time;
 
 /**
  * Class FileProjectStorage
@@ -135,7 +136,7 @@ class FileProjectStorage implements ProjectStorageInterface
 
         // TODO (0.1.1) Check why the unit test fails here when Arr:add is used.
         $project['probes'] = $probes;
-        $project['updated_at'] = now()->toDateTimeString();
+        $project['updated_at'] = Time::now();
 
         $this->saveProject($project);
     }
@@ -170,7 +171,7 @@ class FileProjectStorage implements ProjectStorageInterface
             return Arr::get($probe, 'url') !== $urlToRemove;
         }));
 
-        $project['updated_at'] = now()->toDateTimeString();
+        $project['updated_at'] = Time::now();
 
         $this->saveProject($project);
     }

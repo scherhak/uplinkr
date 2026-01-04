@@ -6,6 +6,7 @@ use Arr;
 use JsonException;
 use Uplinkr\Interfaces\ProjectStorageInterface;
 use Uplinkr\Objects\Project\ProjectValues;
+use Uplinkr\Support\Time;
 
 /**
  * Class AlertHandler
@@ -59,7 +60,7 @@ class AlertHandler
         // I will replace/set the first alert or handle it as a single alert configuration for now,
         // as the issue description shows an array with one element.
         $projectData['alerts'] = [$alert];
-        $projectData['updated_at'] = now()->toDateTimeString();
+        $projectData['updated_at'] = Time::now();
 
         $this->projectStorage->saveProject($projectData);
 

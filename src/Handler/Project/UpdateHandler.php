@@ -6,6 +6,7 @@ use Arr;
 use JsonException;
 use Uplinkr\Interfaces\ProjectStorageInterface;
 use Uplinkr\Objects\Project\ProjectValues;
+use Uplinkr\Support\Time;
 
 /**
  * Class UpdateHandler
@@ -55,7 +56,7 @@ class UpdateHandler
             $projectData['description'] = $optionsValues->getDescription();
         }
 
-        $projectData['updated_at'] = now()->toDateTimeString();
+        $projectData['updated_at'] = Time::now();
 
         $this->projectStorage->saveProject($projectData);
 

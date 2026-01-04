@@ -3,6 +3,7 @@
 namespace Uplinkr\Handler\Project;
 
 use Uplinkr\Interfaces\ProjectStorageInterface;
+use Uplinkr\Support\Time;
 
 /**
  * Class EnableHandler
@@ -39,7 +40,7 @@ class EnableHandler
         }
 
         $projectData['status'] = 'enabled';
-        $projectData['updated_at'] = now()->toDateTimeString();
+        $projectData['updated_at'] = Time::now();
 
         $this->projectStorage->saveProject($projectData);
 
