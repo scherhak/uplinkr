@@ -3,7 +3,7 @@
 namespace Uplinkr\Tests\Console\Commands;
 
 use Mockery;
-use Uplinkr\Handler\Project\AlertHandler;
+use Uplinkr\Handler\Project\Alerts\AlertHandler;
 use Uplinkr\Tests\TestCase;
 
 class ProjectAlertsCommandTest extends TestCase
