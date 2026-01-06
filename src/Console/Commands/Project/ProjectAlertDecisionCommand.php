@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Validator;
 use JsonException;
 use Symfony\Component\Console\Command\Command as CommandAlias;
 use Uplinkr\Handler\Project\Alerts\AlertDecisionHandler;
+use Uplinkr\Support\Logger;
 
 /**
  * Class ProjectAlertDecisionCommand
@@ -46,9 +47,11 @@ class ProjectAlertDecisionCommand extends Command
         );
 
         if ($validate->fails()) {
-            $this->error('Validation failed. Please provide a project name.');
+            $message = 'Validation failed. Please provide a project name.';
+            $this->error($message);
+            Logger::log()->warning($message);
 
-            return CommandAlias::INVALID;
+            return CommandAlias::SUCCESS;
         }
 
         $decisions = $handler->handle($project);

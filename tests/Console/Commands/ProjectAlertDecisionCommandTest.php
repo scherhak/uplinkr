@@ -59,6 +59,6 @@ class ProjectAlertDecisionCommandTest extends TestCase
     {
         $this->artisan('uplinkr:project:alert-decision')
             ->expectsOutput('Validation failed. Please provide a project name.')
-            ->assertExitCode(2);
+            ->assertExitCode(0);
     }
 }

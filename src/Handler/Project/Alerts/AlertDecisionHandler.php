@@ -3,11 +3,13 @@
 namespace Uplinkr\Handler\Project\Alerts;
 
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use JsonException;
 use Uplinkr\Interfaces\ProjectStorageInterface;
 use Uplinkr\Objects\Config\UplinkrConfig;
 use Uplinkr\Support\Sanitizer;
+use Uplinkr\Support\Time;
 
 /**
  * Class AlertDecisionHandler
@@ -52,6 +54,7 @@ class AlertDecisionHandler
         }
 
         $decisions = [];
+        $stateUpdated = false;
 
         foreach ($alerts as $alert) {
             if (Arr::get($alert, 'enabled') !== true) {
@@ -63,6 +66,14 @@ class AlertDecisionHandler
                 $triggerAfterFailures = Arr::get($alert, 'trigger_after_failures', 3);
 
                 if ($consecutiveFailures >= $triggerAfterFailures) {
+                    Log::warning(sprintf(
+                        'Alert triggered for project "%s" on probe "%s". Reason: %s (%d failures)',
+                        $projectName,
+                        $probeKey,
+                        'consecutive_failures',
+                        $consecutiveFailures
+                    ));
+
                     $decisions[] = [
                         'project' => $projectName,
                         'probe' => $probeKey,
@@ -70,11 +81,45 @@ class AlertDecisionHandler
                         'reason' => 'consecutive_failures',
                         'count' => $consecutiveFailures
                     ];
+
+                    // Update total_failures in state
+                    $totalFailures = Arr::get($probeData, 'total_failures');
+                    if ($totalFailures === null) {
+                        $totalFailures = $consecutiveFailures;
+                    } else {
+                        $totalFailures += $triggerAfterFailures;
+                    }
+                    
+                    $state['probes'][$probeKey]['total_failures'] = $totalFailures;
+                    $state['probes'][$probeKey]['consecutive_failures'] = 0;
+                    $state['probes'][$probeKey]['last_notified_failure_at'] = Time::now();
+                    $stateUpdated = true;
                 }
             }
         }
 
+        if ($stateUpdated) {
+            $this->saveState($projectName, $state);
+        }
+
         return $decisions;
+    }
+
+    /**
+     * Saves the state.json for the project.
+     *
+     * @param string $projectName
+     * @param array $state
+     * @return void
+     * @throws JsonException
+     */
+    private function saveState(string $projectName, array $state): void
+    {
+        $projectDir = sprintf('%s/%s', $this->config->getStoragePath(), $this->sanitizeProjectName($projectName));
+        $stateFile = sprintf('%s/state.%s', $projectDir, $this->config->getFileExtension());
+        $disk = Storage::disk($this->config->getStorageDisc());
+
+        $disk->put($stateFile, json_encode($state, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT));
     }
 
     /**
