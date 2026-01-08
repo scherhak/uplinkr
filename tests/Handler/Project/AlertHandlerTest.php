@@ -3,7 +3,7 @@
 namespace Uplinkr\Tests\Handler\Project;
 
 use Mockery;
-use Uplinkr\Handler\Project\AlertHandler;
+use Uplinkr\Handler\Project\Alerts\AlertHandler;
 use Uplinkr\Interfaces\ProjectStorageInterface;
 use Uplinkr\Tests\TestCase;
 

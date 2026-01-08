@@ -1,6 +1,6 @@
 <?php
 
-namespace Uplinkr\Handler\Project;
+namespace Uplinkr\Handler\Project\Alerts;
 
 use Arr;
 use JsonException;

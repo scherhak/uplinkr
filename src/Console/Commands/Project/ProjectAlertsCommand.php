@@ -6,7 +6,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Validator;
 use JsonException;
 use Symfony\Component\Console\Command\Command as CommandAlias;
-use Uplinkr\Handler\Project\AlertHandler;
+use Uplinkr\Handler\Project\Alerts\AlertHandler;
 
 /**
  * Class ProjectAlertsCommand
