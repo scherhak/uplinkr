@@ -41,32 +41,42 @@ class ProjectAlertDecisionCommand extends Command
     {
         $project = $this->option('project');
 
-        $validate = Validator::make(
-            ['project' => $project],
-            ['project' => 'required|string']
-        );
+        if ($project !== null) {
+            $validate = Validator::make(
+                ['project' => $project],
+                ['project' => 'string']
+            );
 
-        if ($validate->fails()) {
-            $message = 'Validation failed. Please provide a project name.';
-            $this->error($message);
-            Logger::log()->warning($message);
+            if ($validate->fails()) {
+                $message = 'Validation failed. Please provide a valid project name.';
+                $this->error($message);
+                Logger::log()->warning($message);
 
-            return CommandAlias::SUCCESS;
+                return CommandAlias::SUCCESS;
+            }
         }
 
         $decisions = $alertDecisionHandler->handle($project);
 
         if (empty($decisions)) {
-            $this->info(sprintf('No alerts triggered for project "%s".', $project));
+            $message = $project 
+                ? sprintf('No alerts triggered for project "%s".', $project)
+                : 'No alerts triggered for any project.';
+            $this->info($message);
 
             return CommandAlias::SUCCESS;
         }
 
-        $this->info(sprintf('Found %d alert decision(s) for project "%s":', count($decisions), $project));
+        if ($project) {
+            $this->info(sprintf('Found %d alert decision(s) for project "%s":', count($decisions), $project));
+        } else {
+            $this->info(sprintf('Found %d alert decision(s) across all projects:', count($decisions)));
+        }
 
         foreach ($decisions as $decision) {
             $this->line(sprintf(
-                ' - Probe: <fg=cyan>%s</> | Reason: <fg=yellow>%s</> | Count: <fg=red>%d</>',
+                ' - Project: <fg=magenta>%s</> | Probe: <fg=cyan>%s</> | Reason: <fg=yellow>%s</> | Count: <fg=red>%d</>',
+                $decision['project'],
                 $decision['probe'],
                 $decision['reason'],
                 $decision['count']
