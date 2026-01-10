@@ -91,10 +91,10 @@ php artisan uplinkr:project:enable --project=my-website
 
 #### Add a Probe to a Project
 
-Add a URL to be monitored under a specific project.
+Add a URL to be monitored under a specific project. You can also specify HTTP method, custom headers, and a request body.
 
 ```bash
-php artisan uplinkr:project:add:probe --project=my-website --url=https://example.com --method=GET --latency=2000
+php artisan uplinkr:project:add:probe --project=my-website --url=https://example.com --method=POST --header="Authorization: Bearer token" --body='{"key":"value"}' --latency=2000
 ```
 
 #### Remove a Probe from a Project
@@ -106,6 +106,8 @@ php artisan uplinkr:project:remove:probe --project=my-website --url=https://exam
 ```
 
 ### Executing Probes
+
+All execution commands support a `--force` flag to skip confirmation prompts.
 
 #### Run All Probes for All Projects
 
@@ -129,6 +131,28 @@ Probe a specific URL directly and optionally assign it to a project.
 
 ```bash
 php artisan uplinkr:probe:url --url=https://example.com --project=my-website --latency=1500
+```
+
+### Alert Management
+
+#### Configure Alerts for a Project
+
+Define when and how alerts should be triggered for a specific project.
+
+```bash
+php artisan uplinkr:project:alerts --project=my-website --enabled=true --failures=3 --cooldown=30 --threshold=2000 --slow=5 --channels=mail,slack
+```
+
+#### Check Alert Decisions
+
+Check if any alerts should be triggered based on the latest probe results. You can filter by project or check all projects.
+
+```bash
+# Check all projects
+php artisan uplinkr:project:alert:decision
+
+# Check a specific project
+php artisan uplinkr:project:alert:decision --project=my-website
 ```
 
 ### Analysis and Maintenance
@@ -158,9 +182,12 @@ php artisan uplinkr:prune --wipe-all
 The configuration file is located at `config/uplinkr.php`. Here you can customize:
 
 - `storage.disk`: The Laravel filesystem disk to use (default: `local`).
-- `storage.path`: The base path for storing Uplinkr data.
-- `storage.allow_complete_wipe`: Safety setting to prevent accidental deletion of all data.
+- `storage.path`: The base path for storing Uplinkr data (default: `uplinkr`).
+- `storage.allow_complete_wipe`: Safety setting to prevent accidental deletion of all data (default: `false`).
 - `probes.standard_latency`: The default maximum execution time for a URL probe in ms (default: `1500`).
+- `projects.standard_project`: Default project name used when none is specified.
+- `logging.log_channel`: The log channel Uplinkr should use for its activity (default: `uplinkr`).
+- `logging.log`: Detailed configuration for the log channel (driver, path, level, etc.).
 
 ## License
 

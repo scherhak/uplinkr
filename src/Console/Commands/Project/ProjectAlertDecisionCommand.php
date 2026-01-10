@@ -48,7 +48,7 @@ class ProjectAlertDecisionCommand extends Command
             );
 
             if ($validate->fails()) {
-                $message = __('messages.project_alerts_decisions_validation_failed');
+                $message = __('uplinkr::messages.project_alerts_decisions_validation_failed');
                 $this->error($message);
                 Logger::log()->warning($message);
 
@@ -60,26 +60,27 @@ class ProjectAlertDecisionCommand extends Command
 
         if (empty($decisions)) {
             $message = $project
-                ? __('messages.project_alerts_decisions_none_project', ['project' => $project])
-                : __('messages.project_alerts_decisions_none_all');
+                ? __('uplinkr::messages.project_alerts_decisions_none_project', ['project' => $project])
+                : __('uplinkr::messages.project_alerts_decisions_none_all');
             $this->info($message);
+            Logger::log()->warning($message);
 
             return CommandAlias::SUCCESS;
         }
 
         if ($project) {
-            $this->info(__('messages.project_alerts_decisions_found_project', [
+            $this->info(__('uplinkr::messages.project_alerts_decisions_found_project', [
                 'count' => count($decisions),
                 'project' => $project
             ]));
         } else {
-            $this->info(__('messages.project_alerts_decisions_found_all', [
+            $this->info(__('uplinkr::messages.project_alerts_decisions_found_all', [
                 'count' => count($decisions)
             ]));
         }
 
         foreach ($decisions as $decision) {
-            $this->line(__('messages.project_alerts_decisions_list_item', [
+            $this->line(__('uplinkr::messages.project_alerts_decisions_list_item', [
                 'project' => sprintf('<fg=magenta>%s</>', $decision['project']),
                 'probe' => sprintf('<fg=cyan>%s</>', $decision['probe']),
                 'reason' => sprintf('<fg=yellow>%s</>', $decision['reason']),
