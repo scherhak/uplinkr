@@ -62,10 +62,13 @@ class AlertDecisionHandler
             }
 
             foreach (Arr::get($state, 'probes', []) as $probeKey => $probeData) {
+
                 $consecutiveFailures = Arr::get($probeData, 'consecutive_failures', 0);
                 $triggerAfterFailures = Arr::get($alert, 'trigger_after_failures', 3);
 
                 if ($consecutiveFailures >= $triggerAfterFailures) {
+
+                    // TODO Replace this with first notification
                     Log::warning(sprintf(
                         'Alert triggered for project "%s" on probe "%s". Reason: %s (%d failures)',
                         $projectName,

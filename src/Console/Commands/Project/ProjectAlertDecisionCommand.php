@@ -22,7 +22,7 @@ class ProjectAlertDecisionCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'uplinkr:project:alert-decision 
+    protected $signature = 'uplinkr:project:alert:decision 
                             {--project= : Name of the project to check for alerts}';
 
     /**
@@ -33,11 +33,11 @@ class ProjectAlertDecisionCommand extends Command
     protected $description = 'Decides whether an alert should be triggered for a project.';
 
     /**
-     * @param AlertDecisionHandler $handler
+     * @param AlertDecisionHandler $alertDecisionHandler
      * @return int
      * @throws JsonException
      */
-    public function handle(AlertDecisionHandler $handler): int
+    public function handle(AlertDecisionHandler $alertDecisionHandler): int
     {
         $project = $this->option('project');
 
@@ -54,7 +54,7 @@ class ProjectAlertDecisionCommand extends Command
             return CommandAlias::SUCCESS;
         }
 
-        $decisions = $handler->handle($project);
+        $decisions = $alertDecisionHandler->handle($project);
 
         if (empty($decisions)) {
             $this->info(sprintf('No alerts triggered for project "%s".', $project));

@@ -18,7 +18,7 @@ class ProjectAlertDecisionCommandTest extends TestCase
 
         $this->app->instance(AlertDecisionHandler::class, $handlerMock);
 
-        $this->artisan('uplinkr:project:alert-decision', [
+        $this->artisan('uplinkr:project:alert:decision', [
             '--project' => 'my-project',
         ])
             ->expectsOutput('No alerts triggered for project "my-project".')
@@ -46,7 +46,7 @@ class ProjectAlertDecisionCommandTest extends TestCase
 
         $this->app->instance(AlertDecisionHandler::class, $handlerMock);
 
-        $this->artisan('uplinkr:project:alert-decision', [
+        $this->artisan('uplinkr:project:alert:decision', [
             '--project' => 'my-project',
         ])
             ->expectsOutput('Found 2 alert decision(s) for project "my-project":')
@@ -57,7 +57,7 @@ class ProjectAlertDecisionCommandTest extends TestCase
 
     public function test_it_fails_validation_without_project(): void
     {
-        $this->artisan('uplinkr:project:alert-decision')
+        $this->artisan('uplinkr:project:alert:decision')
             ->expectsOutput('Validation failed. Please provide a project name.')
             ->assertExitCode(0);
     }
