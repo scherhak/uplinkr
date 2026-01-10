@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Mockery;
 use Uplinkr\Handler\Project\Alerts\AlertDecisionHandler;
+use Uplinkr\Handler\Project\ListHandler;
 use Uplinkr\Interfaces\ProjectStorageInterface;
 use Uplinkr\Objects\Config\UplinkrConfig;
 use Uplinkr\Support\Sanitizer;
@@ -14,6 +15,7 @@ use Uplinkr\Tests\TestCase;
 class AlertDecisionHandlerTest extends TestCase
 {
     private $storageMock;
+    private $listHandlerMock;
     private $config;
     private $sanitizer;
     private $handler;
@@ -22,9 +24,15 @@ class AlertDecisionHandlerTest extends TestCase
     {
         parent::setUp();
         $this->storageMock = Mockery::mock(ProjectStorageInterface::class);
+        $this->listHandlerMock = Mockery::mock(ListHandler::class);
         $this->config = new UplinkrConfig();
         $this->sanitizer = new Sanitizer($this->config);
-        $this->handler = new AlertDecisionHandler($this->storageMock, $this->config, $this->sanitizer);
+        $this->handler = new AlertDecisionHandler(
+            $this->storageMock,
+            $this->listHandlerMock,
+            $this->config,
+            $this->sanitizer
+        );
     }
 
     public function test_it_returns_empty_array_if_project_not_found(): void
@@ -249,5 +257,83 @@ class AlertDecisionHandlerTest extends TestCase
         $result = $this->handler->handle($projectName);
 
         $this->assertCount(0, $result);
+    }
+
+    public function test_it_handles_all_projects_when_project_name_is_null(): void
+    {
+        $projectPaths = [
+            'storage/uplinkr/project-a',
+            'storage/uplinkr/project-b',
+        ];
+
+        $this->listHandlerMock->shouldReceive('all')
+            ->once()
+            ->andReturn($projectPaths);
+
+        $projects = [
+            ['project' => 'project-a', 'alerts' => [['enabled' => true, 'trigger_after_failures' => 1]]],
+            ['project' => 'project-b', 'alerts' => [['enabled' => true, 'trigger_after_failures' => 1]]],
+        ];
+
+        // Expect findProject to be called for each project NAME
+        $this->storageMock->shouldReceive('findProject')
+            ->with('project-a')
+            ->andReturn($projects[0]);
+        $this->storageMock->shouldReceive('findProject')
+            ->with('project-b')
+            ->andReturn($projects[1]);
+
+        Storage::fake('local');
+        Storage::disk('local')->put("uplinkr/project-a/state.json", json_encode([
+            'probes' => ['probe-a' => ['consecutive_failures' => 1]]
+        ]));
+        Storage::disk('local')->put("uplinkr/project-b/state.json", json_encode([
+            'probes' => ['probe-b' => ['consecutive_failures' => 1]]
+        ]));
+
+        Log::shouldReceive('warning')->twice();
+
+        $result = $this->handler->handle(null);
+
+        $this->assertCount(2, $result);
+        $this->assertEquals('project-a', $result[0]['project']);
+        $this->assertEquals('project-b', $result[1]['project']);
+    }
+
+    public function test_it_supports_alarms_key_in_settings(): void
+    {
+        Log::shouldReceive('warning')->once();
+
+        $projectName = 'test-project';
+        $projectSettings = [
+            'project' => $projectName,
+            'alarms' => [
+                [
+                    'enabled' => true,
+                    'trigger_after_failures' => 1,
+                ]
+            ]
+        ];
+
+        $state = [
+            'probes' => [
+                'GET https://example.com' => [
+                    'consecutive_failures' => 1,
+                ]
+            ]
+        ];
+
+        $this->storageMock->shouldReceive('findProject')
+            ->once()
+            ->with($projectName)
+            ->andReturn($projectSettings);
+
+        Storage::fake('local');
+        Storage::disk('local')->put("uplinkr/test-project/state.json", json_encode($state));
+
+        $result = $this->handler->handle($projectName);
+
+        $this->assertCount(1, $result);
+        $this->assertEquals('test-project', $result[0]['project']);
     }
 }

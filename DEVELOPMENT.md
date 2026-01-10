@@ -34,9 +34,11 @@
 
 # Wip commands
 
-* php artisan uplinkr:project:alerts --project=scherhak-dev-test --enabled=true --failures=5 --cooldown=10 --threshold=90 --slow=10 --channels=mail
+* php artisan uplinkr:project:alerts --project=scherhak-dev-test --enabled=true --failures=5 --cooldown=10 --threshold=90 --slow=10 --channels=log
+* php artisan uplinkr:project:alerts --project=uplinkr-dev-test --enabled=true --failures=2 --cooldown=5 --channels=log
 * php artisan uplinkr:project:alerts --project=scherhak-dev-test
-* php artisan uplinkr:project:alert-decision --project=scherhak-dev-test
+* php artisan uplinkr:project:alert:decision --project=scherhak-dev-test
+* php artisan uplinkr:project:alert:decision
 
 ### Alerts
 

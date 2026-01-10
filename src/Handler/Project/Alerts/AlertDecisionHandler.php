@@ -6,6 +6,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use JsonException;
+use Uplinkr\Handler\Project\ListHandler;
 use Uplinkr\Interfaces\ProjectStorageInterface;
 use Uplinkr\Objects\Config\UplinkrConfig;
 use Uplinkr\Support\Sanitizer;
@@ -21,11 +22,13 @@ class AlertDecisionHandler
 {
     /**
      * @param ProjectStorageInterface $projectStorage
+     * @param ListHandler $listHandler
      * @param UplinkrConfig $config
      * @param Sanitizer $sanitizer
      */
     public function __construct(
         private readonly ProjectStorageInterface $projectStorage,
+        private readonly ListHandler             $listHandler,
         private readonly UplinkrConfig           $config,
         private readonly Sanitizer               $sanitizer
     )
@@ -35,18 +38,34 @@ class AlertDecisionHandler
     /**
      * Decides whether an alert should be triggered for a project.
      *
-     * @param string $projectName
+     * @param string|null $projectName
      * @return array
      * @throws JsonException
      */
-    public function handle(string $projectName): array
+    public function handle(?string $projectName = null): array
     {
+        if ($projectName === null) {
+            $allDecisions = [];
+            $projects = $this->listHandler->all();
+
+            foreach ($projects as $projectPath) {
+                $name = basename($projectPath);
+                $allDecisions[] = $this->handle($name);
+            }
+
+            if (empty($allDecisions)) {
+                return [];
+            }
+
+            return array_merge(...$allDecisions);
+        }
+
         $projectSettings = $this->projectStorage->findProject($projectName);
         if (!$projectSettings) {
             return [];
         }
 
-        $alerts = Arr::get($projectSettings, 'alerts', []);
+        $alerts = Arr::get($projectSettings, 'alarms', Arr::get($projectSettings, 'alerts', []));
         $state = $this->loadState($projectName);
 
         if (empty($state)) {
