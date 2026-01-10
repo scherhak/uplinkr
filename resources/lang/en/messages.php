@@ -55,6 +55,12 @@ return [
     'project_alerts_start' => 'Should alert settings for project :project be updated now?',
     'project_alerts_failed' => 'Updating alert settings for project :project failed. Project might not exist.',
     'project_alerts_success' => 'Alert settings for project :project updated successfully.',
+    'project_alerts_decisions_validation_failed' => 'Validation failed. Please provide a valid project name.',
+    'project_alerts_decisions_none_project' => 'No alerts triggered for project ":project".',
+    'project_alerts_decisions_none_all' => 'No alerts triggered for any project.',
+    'project_alerts_decisions_found_project' => 'Found :count alert decision(s) for project ":project":',
+    'project_alerts_decisions_found_all' => 'Found :count alert decision(s) across all projects:',
+    'project_alerts_decisions_list_item' => ' - Project: :project | Probe: :probe | Reason: :reason | Count: :count',
 
     /*
      * Prune project and probes results

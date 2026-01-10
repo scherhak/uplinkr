@@ -21,7 +21,7 @@ class ProjectAlertDecisionCommandTest extends TestCase
         $this->artisan('uplinkr:project:alert:decision', [
             '--project' => 'my-project',
         ])
-            ->expectsOutput('No alerts triggered for project "my-project".')
+            ->expectsOutput(__('messages.project_alerts_decisions_none_project', ['project' => 'my-project']))
             ->assertExitCode(0);
     }
 
@@ -51,9 +51,19 @@ class ProjectAlertDecisionCommandTest extends TestCase
         $this->artisan('uplinkr:project:alert:decision', [
             '--project' => 'my-project',
         ])
-            ->expectsOutput('Found 2 alert decision(s) for project "my-project":')
-            ->expectsOutput(' - Project: my-project | Probe: GET https://example.com | Reason: consecutive_failures | Count: 5')
-            ->expectsOutput(' - Project: my-project | Probe: POST https://api.example.com | Reason: consecutive_failures | Count: 10')
+            ->expectsOutput(__('messages.project_alerts_decisions_found_project', ['count' => 2, 'project' => 'my-project']))
+            ->expectsOutput(__('messages.project_alerts_decisions_list_item', [
+                'project' => '<fg=magenta>my-project</>',
+                'probe' => '<fg=cyan>GET https://example.com</>',
+                'reason' => '<fg=yellow>consecutive_failures</>',
+                'count' => '<fg=red>5</>'
+            ]))
+            ->expectsOutput(__('messages.project_alerts_decisions_list_item', [
+                'project' => '<fg=magenta>my-project</>',
+                'probe' => '<fg=cyan>POST https://api.example.com</>',
+                'reason' => '<fg=yellow>consecutive_failures</>',
+                'count' => '<fg=red>10</>'
+            ]))
             ->assertExitCode(0);
     }
 
@@ -81,9 +91,19 @@ class ProjectAlertDecisionCommandTest extends TestCase
         $this->app->instance(AlertDecisionHandler::class, $handlerMock);
 
         $this->artisan('uplinkr:project:alert:decision')
-            ->expectsOutput('Found 2 alert decision(s) across all projects:')
-            ->expectsOutput(' - Project: project-a | Probe: GET https://a.com | Reason: consecutive_failures | Count: 3')
-            ->expectsOutput(' - Project: project-b | Probe: GET https://b.com | Reason: consecutive_failures | Count: 4')
+            ->expectsOutput(__('messages.project_alerts_decisions_found_all', ['count' => 2]))
+            ->expectsOutput(__('messages.project_alerts_decisions_list_item', [
+                'project' => '<fg=magenta>project-a</>',
+                'probe' => '<fg=cyan>GET https://a.com</>',
+                'reason' => '<fg=yellow>consecutive_failures</>',
+                'count' => '<fg=red>3</>'
+            ]))
+            ->expectsOutput(__('messages.project_alerts_decisions_list_item', [
+                'project' => '<fg=magenta>project-b</>',
+                'probe' => '<fg=cyan>GET https://b.com</>',
+                'reason' => '<fg=yellow>consecutive_failures</>',
+                'count' => '<fg=red>4</>'
+            ]))
             ->assertExitCode(0);
     }
 
@@ -98,7 +118,7 @@ class ProjectAlertDecisionCommandTest extends TestCase
         $this->app->instance(AlertDecisionHandler::class, $handlerMock);
 
         $this->artisan('uplinkr:project:alert:decision')
-            ->expectsOutput('No alerts triggered for any project.')
+            ->expectsOutput(__('messages.project_alerts_decisions_none_all'))
             ->assertExitCode(0);
     }
 }
