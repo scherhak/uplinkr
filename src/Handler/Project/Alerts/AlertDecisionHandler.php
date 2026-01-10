@@ -3,6 +3,7 @@
 namespace Uplinkr\Handler\Project\Alerts;
 
 use Illuminate\Support\Arr;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use JsonException;
@@ -66,6 +67,7 @@ class AlertDecisionHandler
         }
 
         $alerts = Arr::get($projectSettings, 'alarms', Arr::get($projectSettings, 'alerts', []));
+        $cooldownMinutes = Arr::get($projectSettings, 'alerts.cooldown_minutes', Arr::get($projectSettings, 'alarms.cooldown_minutes'));
         $state = $this->loadState($projectName);
 
         if (empty($state)) {
@@ -86,6 +88,17 @@ class AlertDecisionHandler
                 $triggerAfterFailures = Arr::get($alert, 'trigger_after_failures', 3);
 
                 if ($consecutiveFailures >= $triggerAfterFailures) {
+
+                    // Check for cooldown
+                    if ($cooldownMinutes !== null) {
+                        $lastNotifiedAt = Arr::get($probeData, 'last_notified_failure_at');
+                        if ($lastNotifiedAt) {
+                            $lastNotifiedAt = Carbon::parse($lastNotifiedAt);
+                            if ($lastNotifiedAt->addMinutes((int)$cooldownMinutes)->isFuture()) {
+                                continue;
+                            }
+                        }
+                    }
 
                     // TODO Replace this with first notification
                     Log::warning(sprintf(
