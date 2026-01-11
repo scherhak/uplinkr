@@ -2,6 +2,7 @@
 
 namespace Uplinkr\Handler\Project\Alerts;
 
+use Illuminate\Notifications\AnonymousNotifiable;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
@@ -245,6 +246,15 @@ class AlertDecisionHandler
             'consecutive_failures',
             $consecutiveFailures
         ));
+
+        $notifiable = new AnonymousNotifiable;
+        $notifiable->notify(new AlertNotification([
+            'project' => $projectName,
+            'probe' => $probeKey,
+            'alert' => $alert,
+            'reason' => 'consecutive_failures',
+            'count' => $consecutiveFailures
+        ]));
 
         return [
             'project' => $projectName,
