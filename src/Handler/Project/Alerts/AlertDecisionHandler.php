@@ -37,119 +37,47 @@ class AlertDecisionHandler
     }
 
     /**
-     * Decides whether an alert should be triggered for a project.
+     * Handles the processing of alerts and decisions for a specific project or all projects.
      *
-     * @param string|null $projectName
-     * @return array
+     * @param string|null $projectName The name of the project to handle, or null to handle all projects.
+     * @return array The decisions resulting from the handling process.
      * @throws JsonException
      */
     public function handle(?string $projectName = null): array
     {
         if ($projectName === null) {
-            $allDecisions = [];
-            $projects = $this->listHandler->all();
-
-            foreach ($projects as $projectPath) {
-                $name = basename($projectPath);
-                $allDecisions[] = $this->handle($name);
-            }
-
-            if (empty($allDecisions)) {
-                return [];
-            }
-
-            return array_merge(...$allDecisions);
+            return $this->handleAllProjects();
         }
 
-        $projectSettings = $this->projectStorage->findProject($projectName);
-        if (!$projectSettings) {
+        $config = $this->loadProjectConfiguration($projectName);
+        if ($config === null) {
             return [];
         }
 
-        $alertsSettings = Arr::get($projectSettings, 'alerts', Arr::get($projectSettings, 'alarms', []));
-        $cooldownMinutes = Arr::get($alertsSettings, 'cooldown_minutes');
-        
-        $alerts = $alertsSettings;
-
         $state = $this->loadState($projectName);
-
         if (empty($state)) {
             return [];
         }
 
-        $decisions = [];
-        $stateUpdated = false;
+        $result = $this->processProbeAlerts(
+            $projectName,
+            $state,
+            $config['alerts'],
+            $config['default_cooldown']
+        );
 
-        foreach ($alerts as $alert) {
-            if (Arr::get($alert, 'enabled') !== true) {
-                continue;
-            }
-
-            $currentCooldownMinutes = Arr::get($alert, 'cooldown_minutes', $cooldownMinutes);
-
-            foreach (Arr::get($state, 'probes', []) as $probeKey => $probeData) {
-
-                $consecutiveFailures = Arr::get($probeData, 'consecutive_failures', 0);
-                $triggerAfterFailures = Arr::get($alert, 'trigger_after_failures', 3);
-
-                if ($consecutiveFailures >= $triggerAfterFailures) {
-
-                    // Check for cooldown
-                    if ($currentCooldownMinutes !== null) {
-                        $lastNotifiedAt = Arr::get($probeData, 'last_notified_failure_at');
-                        if ($lastNotifiedAt) {
-                            $lastNotifiedAt = Carbon::parse($lastNotifiedAt);
-                            if ($lastNotifiedAt->addMinutes((int)$currentCooldownMinutes)->isFuture()) {
-                                continue;
-                            }
-                        }
-                    }
-
-                    // TODO Replace this with first notification
-                    Log::warning(sprintf(
-                        'Alert triggered for project "%s" on probe "%s". Reason: %s (%d failures)',
-                        $projectName,
-                        $probeKey,
-                        'consecutive_failures',
-                        $consecutiveFailures
-                    ));
-
-                    $decisions[] = [
-                        'project' => $projectName,
-                        'probe' => $probeKey,
-                        'alert' => $alert,
-                        'reason' => 'consecutive_failures',
-                        'count' => $consecutiveFailures
-                    ];
-
-                    // Update total_failures in state
-                    $totalFailures = Arr::get($probeData, 'total_failures');
-                    if ($totalFailures === null) {
-                        $totalFailures = $consecutiveFailures;
-                    } else {
-                        $totalFailures += $triggerAfterFailures;
-                    }
-                    
-                    $state['probes'][$probeKey]['total_failures'] = $totalFailures;
-                    $state['probes'][$probeKey]['consecutive_failures'] = 0;
-                    $state['probes'][$probeKey]['last_notified_failure_at'] = Time::now();
-                    $stateUpdated = true;
-                }
-            }
-        }
-
-        if ($stateUpdated) {
+        if ($result['state_updated']) {
             $this->saveState($projectName, $state);
         }
 
-        return $decisions;
+        return $result['decisions'];
     }
 
     /**
-     * Saves the state.json for the project.
+     * Saves the state data for a specified project to persistent storage.
      *
-     * @param string $projectName
-     * @param array $state
+     * @param string $projectName The name of the project whose state is being saved.
+     * @param array $state The state data to be saved.
      * @return void
      * @throws JsonException
      */
@@ -163,10 +91,10 @@ class AlertDecisionHandler
     }
 
     /**
-     * Loads the state.json for the project.
+     * Loads the state of a project from the storage.
      *
-     * @param string $projectName
-     * @return array
+     * @param string $projectName The name of the project whose state needs to be loaded.
+     * @return array An associative array representing the state of the project. Returns an empty array if the state file does not exist or is empty.
      * @throws JsonException
      */
     private function loadState(string $projectName): array
@@ -188,13 +116,211 @@ class AlertDecisionHandler
     }
 
     /**
-     * Sanitizes a given project name.
+     * Sanitizes the given project name.
      *
-     * @param string $project
-     * @return string
+     * @param string $project The name of the project to be sanitized.
+     * @return string The sanitized project name.
      */
     private function sanitizeProjectName(string $project): string
     {
         return $this->sanitizer->project($project);
+    }
+
+    /**
+     * Handles all projects by processing each one and merging their decisions.
+     *
+     * @return array
+     * @throws JsonException
+     */
+    private function handleAllProjects(): array
+    {
+        $allDecisions = [];
+        $projects = $this->listHandler->all();
+
+        foreach ($projects as $projectPath) {
+            $name = basename($projectPath);
+            $allDecisions[] = $this->handle($name);
+        }
+
+        if (empty($allDecisions)) {
+            return [];
+        }
+
+        return array_merge(...$allDecisions);
+    }
+
+    /**
+     * Loads the configuration for a specific project.
+     *
+     * @param string $projectName Name of the project whose configuration should be loaded.
+     * @return array|null Returns the project configuration array if found, or null if the project does not exist.
+     * @throws JsonException
+     */
+    private function loadProjectConfiguration(string $projectName): ?array
+    {
+        $projectSettings = $this->projectStorage->findProject($projectName);
+        if (!$projectSettings) {
+            return null;
+        }
+
+        $alertsSettings = Arr::get($projectSettings, 'alerts', Arr::get($projectSettings, 'alarms', []));
+        $cooldownMinutes = Arr::get($alertsSettings, 'cooldown_minutes');
+
+        return [
+            'alerts' => $alertsSettings,
+            'default_cooldown' => $cooldownMinutes
+        ];
+    }
+
+    /**
+     * Determines if the alert is enabled.
+     *
+     * @param array $alert The alert configuration array.
+     * @return bool Returns true if the alert is enabled, false otherwise.
+     */
+    private function isAlertEnabled(array $alert): bool
+    {
+        return Arr::get($alert, 'enabled') === true;
+    }
+
+    /**
+     * Checks if a probe is currently within its cooldown period.
+     *
+     * @param array $probeData Data associated with the probe.
+     * @param int|null $cooldownMinutes The cooldown period in minutes. If null, no cooldown is applied.
+     * @return bool Returns true if the current time is within the cooldown period, false otherwise.
+     */
+    private function isInCooldownPeriod(array $probeData, ?int $cooldownMinutes): bool
+    {
+        if ($cooldownMinutes === null) {
+            return false;
+        }
+
+        $lastNotifiedAt = Arr::get($probeData, 'last_notified_failure_at');
+        if (!$lastNotifiedAt) {
+            return false;
+        }
+
+        $lastNotifiedAt = Carbon::parse($lastNotifiedAt);
+        return $lastNotifiedAt->addMinutes((int)$cooldownMinutes)->isFuture();
+    }
+
+    /**
+     * Determines if an alert should be triggered based on failures and cooldown.
+     *
+     * @param array $probeData
+     * @param array $alert
+     * @return bool
+     */
+    private function shouldTriggerAlert(array $probeData, array $alert): bool
+    {
+        $consecutiveFailures = Arr::get($probeData, 'consecutive_failures', 0);
+        $triggerAfterFailures = Arr::get($alert, 'trigger_after_failures', 3);
+
+        if ($consecutiveFailures < $triggerAfterFailures) {
+            return false;
+        }
+
+        $cooldownMinutes = Arr::get($alert, 'cooldown_minutes');
+        return !$this->isInCooldownPeriod($probeData, $cooldownMinutes);
+    }
+
+    /**
+     * Creates an alert decision array and logs the alert.
+     *
+     * @param string $projectName
+     * @param string $probeKey
+     * @param array $alert
+     * @param array $probeData
+     * @return array
+     */
+    private function createAlertDecision(string $projectName, string $probeKey, array $alert, array $probeData): array
+    {
+        $consecutiveFailures = Arr::get($probeData, 'consecutive_failures', 0);
+
+        Log::warning(sprintf(
+            'Alert triggered for project "%s" on probe "%s". Reason: %s (%d failures)',
+            $projectName,
+            $probeKey,
+            'consecutive_failures',
+            $consecutiveFailures
+        ));
+
+        return [
+            'project' => $projectName,
+            'probe' => $probeKey,
+            'alert' => $alert,
+            'reason' => 'consecutive_failures',
+            'count' => $consecutiveFailures
+        ];
+    }
+
+    /**
+     * Updates the state of a probe by adjusting its failure counters and timestamp.
+     *
+     * @param array &$state Reference to the array containing the current state.
+     * @param string $probeKey The key identifying the specific probe to update.
+     * @param int $triggerAfterFailures The number of failures to increment after a trigger.
+     * @param int $consecutiveFailures The current count of consecutive failures.
+     * @return void
+     */
+    private function updateProbeState(array &$state, string $probeKey, int $triggerAfterFailures, int $consecutiveFailures): void
+    {
+        $probeData = $state['probes'][$probeKey] ?? [];
+        $totalFailures = $probeData['total_failures'] ?? null;
+
+        if ($totalFailures === null) {
+            $totalFailures = $consecutiveFailures;
+        } else {
+            $totalFailures += $triggerAfterFailures;
+        }
+
+        $state['probes'][$probeKey]['total_failures'] = $totalFailures;
+        $state['probes'][$probeKey]['consecutive_failures'] = 0;
+        $state['probes'][$probeKey]['last_notified_failure_at'] = Time::now();
+    }
+
+    /**
+     * Processes probe alerts, evaluates conditions, updates state, and generates decisions for triggered alerts.
+     *
+     * @param string $projectName The name of the project associated with the alerts.
+     * @param array &$state Reference to the current state of probes, used to evaluate and update probe information.
+     * @param array $alerts The list of alert configurations to be processed.
+     * @param int|null $defaultCooldown The default cooldown period (in minutes) to apply if not specified in the alert configuration.
+     * @return array Returns an array containing the alert decisions and a flag indicating if the state was updated:
+     *               - 'decisions': An array of generated decisions for triggered alerts.
+     *               - 'state_updated': A boolean indicating if the state was updated.
+     */
+    private function processProbeAlerts(string $projectName, array &$state, array $alerts, ?int $defaultCooldown): array
+    {
+        $decisions = [];
+        $stateUpdated = false;
+
+        foreach ($alerts as $alert) {
+            if (!is_array($alert) || !$this->isAlertEnabled($alert)) {
+                continue;
+            }
+
+            $currentCooldownMinutes = Arr::get($alert, 'cooldown_minutes', $defaultCooldown);
+
+            foreach (Arr::get($state, 'probes', []) as $probeKey => $probeData) {
+                if (!$this->shouldTriggerAlert($probeData, array_merge(['cooldown_minutes' => $currentCooldownMinutes], $alert))) {
+                    continue;
+                }
+
+                $decisions[] = $this->createAlertDecision($projectName, $probeKey, $alert, $probeData);
+
+                $triggerAfterFailures = Arr::get($alert, 'trigger_after_failures', 3);
+                $consecutiveFailures = Arr::get($probeData, 'consecutive_failures', 0);
+
+                $this->updateProbeState($state, $probeKey, $triggerAfterFailures, $consecutiveFailures);
+                $stateUpdated = true;
+            }
+        }
+
+        return [
+            'decisions' => $decisions,
+            'state_updated' => $stateUpdated
+        ];
     }
 }
