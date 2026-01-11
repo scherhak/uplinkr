@@ -248,7 +248,7 @@ class AlertDecisionHandler
         ));
 
         $notifiable = new AnonymousNotifiable;
-        $notifiable->notify(new AlertNotification([
+        $notifiable->notify(new AlertNotificationHandler([
             'project' => $projectName,
             'probe' => $probeKey,
             'alert' => $alert,
