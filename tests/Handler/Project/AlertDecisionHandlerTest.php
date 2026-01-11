@@ -380,19 +380,17 @@ class AlertDecisionHandlerTest extends TestCase
         $this->assertCount(0, $result);
     }
 
-    public function test_it_correctly_finds_cooldown_minutes_in_nested_alerts(): void
+    public function test_it_correctly_finds_cooldown_minutes_in_alerts(): void
     {
         $projectName = 'test-project';
         $projectSettings = [
             'project' => $projectName,
             'alerts' => [
                 'cooldown_minutes' => 60,
-                'items' => [
-                    [
-                        'enabled' => true,
-                        'trigger_after_failures' => 3,
-                        'channels' => ['mail']
-                    ]
+                [
+                    'enabled' => true,
+                    'trigger_after_failures' => 3,
+                    'channels' => ['mail']
                 ]
             ]
         ];
@@ -466,7 +464,7 @@ class AlertDecisionHandlerTest extends TestCase
 
         $this->assertCount(1, $result);
     }
-    public function test_it_supports_nested_items_in_alerts(): void
+    public function test_it_supports_cooldown_minutes_in_alerts(): void
     {
         Log::shouldReceive('warning')->once();
 
@@ -475,11 +473,9 @@ class AlertDecisionHandlerTest extends TestCase
             'project' => $projectName,
             'alerts' => [
                 'cooldown_minutes' => 10,
-                'items' => [
-                    [
-                        'enabled' => true,
-                        'trigger_after_failures' => 1,
-                    ]
+                [
+                    'enabled' => true,
+                    'trigger_after_failures' => 1,
                 ]
             ]
         ];

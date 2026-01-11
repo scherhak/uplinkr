@@ -70,9 +70,6 @@ class AlertDecisionHandler
         $cooldownMinutes = Arr::get($alertsSettings, 'cooldown_minutes');
         
         $alerts = $alertsSettings;
-        if (Arr::has($alertsSettings, 'items')) {
-            $alerts = Arr::get($alertsSettings, 'items', []);
-        }
 
         $state = $this->loadState($projectName);
 
