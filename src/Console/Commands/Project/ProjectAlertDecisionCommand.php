@@ -48,7 +48,7 @@ class ProjectAlertDecisionCommand extends Command
             );
 
             if ($validate->fails()) {
-                $message = 'Validation failed. Please provide a valid project name.';
+                $message = __('uplinkr::messages.project_alerts_decisions_validation_failed');
                 $this->error($message);
                 Logger::log()->warning($message);
 
@@ -59,28 +59,33 @@ class ProjectAlertDecisionCommand extends Command
         $decisions = $alertDecisionHandler->handle($project);
 
         if (empty($decisions)) {
-            $message = $project 
-                ? sprintf('No alerts triggered for project "%s".', $project)
-                : 'No alerts triggered for any project.';
+            $message = $project
+                ? __('uplinkr::messages.project_alerts_decisions_none_project', ['project' => $project])
+                : __('uplinkr::messages.project_alerts_decisions_none_all');
             $this->info($message);
+            Logger::log()->warning($message);
 
             return CommandAlias::SUCCESS;
         }
 
         if ($project) {
-            $this->info(sprintf('Found %d alert decision(s) for project "%s":', count($decisions), $project));
+            $this->info(__('uplinkr::messages.project_alerts_decisions_found_project', [
+                'count' => count($decisions),
+                'project' => $project
+            ]));
         } else {
-            $this->info(sprintf('Found %d alert decision(s) across all projects:', count($decisions)));
+            $this->info(__('uplinkr::messages.project_alerts_decisions_found_all', [
+                'count' => count($decisions)
+            ]));
         }
 
         foreach ($decisions as $decision) {
-            $this->line(sprintf(
-                ' - Project: <fg=magenta>%s</> | Probe: <fg=cyan>%s</> | Reason: <fg=yellow>%s</> | Count: <fg=red>%d</>',
-                $decision['project'],
-                $decision['probe'],
-                $decision['reason'],
-                $decision['count']
-            ));
+            $this->line(__('uplinkr::messages.project_alerts_decisions_list_item', [
+                'project' => sprintf('<fg=magenta>%s</>', $decision['project']),
+                'probe' => sprintf('<fg=cyan>%s</>', $decision['probe']),
+                'reason' => sprintf('<fg=yellow>%s</>', $decision['reason']),
+                'count' => sprintf('<fg=red>%d</>', $decision['count'])
+            ]));
         }
 
         return CommandAlias::SUCCESS;

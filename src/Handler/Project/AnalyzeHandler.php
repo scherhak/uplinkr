@@ -5,6 +5,7 @@ namespace Uplinkr\Handler\Project;
 use Carbon\CarbonImmutable;
 use Exception;
 use Illuminate\Support\Facades\Storage;
+use JsonException;
 use Throwable;
 use Uplinkr\Objects\Config\UplinkrConfig;
 
@@ -193,7 +194,7 @@ class AnalyzeHandler
      * @param array $results The analyzed results to be saved.
      *
      * @return void
-     * @throws \JsonException
+     * @throws JsonException
      */
     public function saveAnalyzedResults(string $project, array $results): void
     {

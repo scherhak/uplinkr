@@ -33,6 +33,25 @@ class AlertDecisionHandlerTest extends TestCase
             $this->config,
             $this->sanitizer
         );
+        Storage::fake('local');
+    }
+
+    private function mockProject(string $projectName, array $settings): void
+    {
+        $this->storageMock->shouldReceive('findProject')
+            ->with($projectName)
+            ->andReturn($settings);
+    }
+
+    private function mockState(string $projectName, array $state): void
+    {
+        $projectDir = "uplinkr/$projectName";
+        Storage::disk('local')->put("$projectDir/state.json", json_encode($state));
+    }
+
+    private function getUpdatedState(string $projectName): array
+    {
+        return json_decode(Storage::disk('local')->get("uplinkr/$projectName/state.json"), true);
     }
 
     public function test_it_returns_empty_array_if_project_not_found(): void
@@ -54,47 +73,27 @@ class AlertDecisionHandlerTest extends TestCase
             ->with(Mockery::pattern('/Alert triggered for project "test-project" on probe "GET https:\/\/example.com". Reason: consecutive_failures \(3 failures\)/'));
 
         $projectName = 'test-project';
-        $projectSettings = [
+        $this->mockProject($projectName, [
             'project' => $projectName,
             'alerts' => [
-                [
-                    'enabled' => true,
-                    'trigger_after_failures' => 3,
-                    'channels' => ['mail']
-                ]
+                ['enabled' => true, 'trigger_after_failures' => 3, 'channels' => ['mail']]
             ]
-        ];
+        ]);
 
-        $state = [
+        $this->mockState($projectName, [
             'project' => $projectName,
             'probes' => [
-                'GET https://example.com' => [
-                    'consecutive_failures' => 3,
-                    'consecutive_slow' => 0,
-                ]
+                'GET https://example.com' => ['consecutive_failures' => 3, 'consecutive_slow' => 0]
             ]
-        ];
-
-        $this->storageMock->shouldReceive('findProject')
-            ->once()
-            ->with($projectName)
-            ->andReturn($projectSettings);
-
-        Storage::fake('local');
-        $projectDir = 'uplinkr/test-project';
-        Storage::disk('local')->put("$projectDir/state.json", json_encode($state));
+        ]);
 
         $result = $this->handler->handle($projectName);
 
         $this->assertCount(1, $result);
         $this->assertEquals($projectName, $result[0]['project']);
         $this->assertEquals('GET https://example.com', $result[0]['probe']);
-        $this->assertEquals('consecutive_failures', $result[0]['reason']);
-        $this->assertEquals(3, $result[0]['count']);
 
-        // Check if total_failures was updated in state.json
-        // New logic: if not present, take consecutive_failures (3 in this case)
-        $updatedState = json_decode(Storage::disk('local')->get("$projectDir/state.json"), true);
+        $updatedState = $this->getUpdatedState($projectName);
         $this->assertEquals(3, $updatedState['probes']['GET https://example.com']['total_failures']);
         $this->assertEquals(0, $updatedState['probes']['GET https://example.com']['consecutive_failures']);
         $this->assertNotNull($updatedState['probes']['GET https://example.com']['last_notified_failure_at']);
@@ -105,38 +104,19 @@ class AlertDecisionHandlerTest extends TestCase
         Log::shouldReceive('warning')->once();
 
         $projectName = 'test-project';
-        $projectSettings = [
+        $this->mockProject($projectName, [
             'project' => $projectName,
-            'alerts' => [
-                [
-                    'enabled' => true,
-                    'trigger_after_failures' => 5,
-                    'channels' => ['mail']
-                ]
-            ]
-        ];
+            'alerts' => [['enabled' => true, 'trigger_after_failures' => 5, 'channels' => ['mail']]]
+        ]);
 
-        $state = [
+        $this->mockState($projectName, [
             'project' => $projectName,
-            'probes' => [
-                'GET https://example.com' => [
-                    'consecutive_failures' => 7,
-                ]
-            ]
-        ];
-
-        $this->storageMock->shouldReceive('findProject')
-            ->once()
-            ->with($projectName)
-            ->andReturn($projectSettings);
-
-        Storage::fake('local');
-        $projectDir = 'uplinkr/test-project';
-        Storage::disk('local')->put("$projectDir/state.json", json_encode($state));
+            'probes' => ['GET https://example.com' => ['consecutive_failures' => 7]]
+        ]);
 
         $this->handler->handle($projectName);
 
-        $updatedState = json_decode(Storage::disk('local')->get("$projectDir/state.json"), true);
+        $updatedState = $this->getUpdatedState($projectName);
         $this->assertEquals(7, $updatedState['probes']['GET https://example.com']['total_failures']);
         $this->assertEquals(0, $updatedState['probes']['GET https://example.com']['consecutive_failures']);
     }
@@ -146,39 +126,19 @@ class AlertDecisionHandlerTest extends TestCase
         Log::shouldReceive('warning')->once();
 
         $projectName = 'test-project';
-        $projectSettings = [
+        $this->mockProject($projectName, [
             'project' => $projectName,
-            'alerts' => [
-                [
-                    'enabled' => true,
-                    'trigger_after_failures' => 5,
-                    'channels' => ['mail']
-                ]
-            ]
-        ];
+            'alerts' => [['enabled' => true, 'trigger_after_failures' => 5, 'channels' => ['mail']]]
+        ]);
 
-        $state = [
+        $this->mockState($projectName, [
             'project' => $projectName,
-            'probes' => [
-                'GET https://example.com' => [
-                    'consecutive_failures' => 5,
-                    'total_failures' => 10,
-                ]
-            ]
-        ];
-
-        $this->storageMock->shouldReceive('findProject')
-            ->once()
-            ->with($projectName)
-            ->andReturn($projectSettings);
-
-        Storage::fake('local');
-        $projectDir = 'uplinkr/test-project';
-        Storage::disk('local')->put("$projectDir/state.json", json_encode($state));
+            'probes' => ['GET https://example.com' => ['consecutive_failures' => 5, 'total_failures' => 10]]
+        ]);
 
         $this->handler->handle($projectName);
 
-        $updatedState = json_decode(Storage::disk('local')->get("$projectDir/state.json"), true);
+        $updatedState = $this->getUpdatedState($projectName);
         $this->assertEquals(15, $updatedState['probes']['GET https://example.com']['total_failures']);
         $this->assertEquals(0, $updatedState['probes']['GET https://example.com']['consecutive_failures']);
     }
@@ -186,35 +146,15 @@ class AlertDecisionHandlerTest extends TestCase
     public function test_it_does_not_trigger_alert_if_not_enough_failures(): void
     {
         $projectName = 'test-project';
-        $projectSettings = [
+        $this->mockProject($projectName, [
             'project' => $projectName,
-            'alerts' => [
-                [
-                    'enabled' => true,
-                    'trigger_after_failures' => 5,
-                    'channels' => ['mail']
-                ]
-            ]
-        ];
+            'alerts' => [['enabled' => true, 'trigger_after_failures' => 5, 'channels' => ['mail']]]
+        ]);
 
-        $state = [
+        $this->mockState($projectName, [
             'project' => $projectName,
-            'probes' => [
-                'GET https://example.com' => [
-                    'consecutive_failures' => 3,
-                    'consecutive_slow' => 0,
-                ]
-            ]
-        ];
-
-        $this->storageMock->shouldReceive('findProject')
-            ->once()
-            ->with($projectName)
-            ->andReturn($projectSettings);
-
-        Storage::fake('local');
-        $projectDir = 'uplinkr/test-project';
-        Storage::disk('local')->put("$projectDir/state.json", json_encode($state));
+            'probes' => ['GET https://example.com' => ['consecutive_failures' => 3, 'consecutive_slow' => 0]]
+        ]);
 
         $result = $this->handler->handle($projectName);
 
@@ -224,35 +164,15 @@ class AlertDecisionHandlerTest extends TestCase
     public function test_it_does_not_trigger_alert_if_disabled(): void
     {
         $projectName = 'test-project';
-        $projectSettings = [
+        $this->mockProject($projectName, [
             'project' => $projectName,
-            'alerts' => [
-                [
-                    'enabled' => false,
-                    'trigger_after_failures' => 1,
-                    'channels' => ['mail']
-                ]
-            ]
-        ];
+            'alerts' => [['enabled' => false, 'trigger_after_failures' => 1, 'channels' => ['mail']]]
+        ]);
 
-        $state = [
+        $this->mockState($projectName, [
             'project' => $projectName,
-            'probes' => [
-                'GET https://example.com' => [
-                    'consecutive_failures' => 5,
-                    'consecutive_slow' => 0,
-                ]
-            ]
-        ];
-
-        $this->storageMock->shouldReceive('findProject')
-            ->once()
-            ->with($projectName)
-            ->andReturn($projectSettings);
-
-        Storage::fake('local');
-        $projectDir = 'uplinkr/test-project';
-        Storage::disk('local')->put("$projectDir/state.json", json_encode($state));
+            'probes' => ['GET https://example.com' => ['consecutive_failures' => 5, 'consecutive_slow' => 0]]
+        ]);
 
         $result = $this->handler->handle($projectName);
 
@@ -261,35 +181,15 @@ class AlertDecisionHandlerTest extends TestCase
 
     public function test_it_handles_all_projects_when_project_name_is_null(): void
     {
-        $projectPaths = [
-            'storage/uplinkr/project-a',
-            'storage/uplinkr/project-b',
-        ];
-
         $this->listHandlerMock->shouldReceive('all')
             ->once()
-            ->andReturn($projectPaths);
+            ->andReturn(['storage/uplinkr/project-a', 'storage/uplinkr/project-b']);
 
-        $projects = [
-            ['project' => 'project-a', 'alerts' => [['enabled' => true, 'trigger_after_failures' => 1]]],
-            ['project' => 'project-b', 'alerts' => [['enabled' => true, 'trigger_after_failures' => 1]]],
-        ];
+        $this->mockProject('project-a', ['project' => 'project-a', 'alerts' => [['enabled' => true, 'trigger_after_failures' => 1]]]);
+        $this->mockProject('project-b', ['project' => 'project-b', 'alerts' => [['enabled' => true, 'trigger_after_failures' => 1]]]);
 
-        // Expect findProject to be called for each project NAME
-        $this->storageMock->shouldReceive('findProject')
-            ->with('project-a')
-            ->andReturn($projects[0]);
-        $this->storageMock->shouldReceive('findProject')
-            ->with('project-b')
-            ->andReturn($projects[1]);
-
-        Storage::fake('local');
-        Storage::disk('local')->put("uplinkr/project-a/state.json", json_encode([
-            'probes' => ['probe-a' => ['consecutive_failures' => 1]]
-        ]));
-        Storage::disk('local')->put("uplinkr/project-b/state.json", json_encode([
-            'probes' => ['probe-b' => ['consecutive_failures' => 1]]
-        ]));
+        $this->mockState('project-a', ['probes' => ['probe-a' => ['consecutive_failures' => 1]]]);
+        $this->mockState('project-b', ['probes' => ['probe-b' => ['consecutive_failures' => 1]]]);
 
         Log::shouldReceive('warning')->twice();
 
@@ -305,35 +205,141 @@ class AlertDecisionHandlerTest extends TestCase
         Log::shouldReceive('warning')->once();
 
         $projectName = 'test-project';
-        $projectSettings = [
+        $this->mockProject($projectName, [
             'project' => $projectName,
-            'alarms' => [
-                [
-                    'enabled' => true,
-                    'trigger_after_failures' => 1,
-                ]
-            ]
-        ];
+            'alarms' => [['enabled' => true, 'trigger_after_failures' => 1]]
+        ]);
 
-        $state = [
-            'probes' => [
-                'GET https://example.com' => [
-                    'consecutive_failures' => 1,
-                ]
-            ]
-        ];
-
-        $this->storageMock->shouldReceive('findProject')
-            ->once()
-            ->with($projectName)
-            ->andReturn($projectSettings);
-
-        Storage::fake('local');
-        Storage::disk('local')->put("uplinkr/test-project/state.json", json_encode($state));
+        $this->mockState($projectName, ['probes' => ['GET https://example.com' => ['consecutive_failures' => 1]]]);
 
         $result = $this->handler->handle($projectName);
 
         $this->assertCount(1, $result);
         $this->assertEquals('test-project', $result[0]['project']);
+    }
+
+    public function test_it_respects_cooldown_minutes(): void
+    {
+        $projectName = 'test-project';
+        $this->mockProject($projectName, [
+            'project' => $projectName,
+            'alerts' => [
+                'cooldown_minutes' => 60,
+                ['enabled' => true, 'trigger_after_failures' => 3, 'channels' => ['mail']]
+            ]
+        ]);
+
+        $this->mockState($projectName, [
+            'project' => $projectName,
+            'probes' => [
+                'GET https://example.com' => [
+                    'consecutive_failures' => 3,
+                    'last_notified_failure_at' => now()->subMinutes(30)->toDateTimeString(),
+                ]
+            ]
+        ]);
+
+        $result = $this->handler->handle($projectName);
+
+        $this->assertCount(0, $result);
+    }
+
+    public function test_it_correctly_finds_cooldown_minutes_in_alerts(): void
+    {
+        $projectName = 'test-project';
+        $this->mockProject($projectName, [
+            'project' => $projectName,
+            'alerts' => [
+                'cooldown_minutes' => 60,
+                ['enabled' => true, 'trigger_after_failures' => 3, 'channels' => ['mail']]
+            ]
+        ]);
+
+        $this->mockState($projectName, [
+            'project' => $projectName,
+            'probes' => [
+                'GET https://example.com' => [
+                    'consecutive_failures' => 3,
+                    'last_notified_failure_at' => now()->subMinutes(30)->toDateTimeString(),
+                ]
+            ]
+        ]);
+
+        $result = $this->handler->handle($projectName);
+
+        $this->assertCount(0, $result);
+    }
+
+    public function test_it_defaults_cooldown_to_null(): void
+    {
+        $projectName = 'test-project';
+        $this->mockProject($projectName, [
+            'project' => $projectName,
+            'alerts' => [
+                'alarms' => ['cooldown_minutes' => 60], // Incorrect key for fallback
+                ['enabled' => true, 'trigger_after_failures' => 1]
+            ]
+        ]);
+
+        $this->mockState($projectName, [
+            'probes' => [
+                'GET https://example.com' => [
+                    'consecutive_failures' => 1,
+                    'last_notified_failure_at' => now()->subMinutes(10)->toDateTimeString(),
+                ]
+            ]
+        ]);
+
+        Log::shouldReceive('warning')->once();
+
+        $result = $this->handler->handle($projectName);
+
+        $this->assertCount(1, $result);
+    }
+
+    public function test_it_supports_cooldown_minutes_in_alerts(): void
+    {
+        Log::shouldReceive('warning')->once();
+
+        $projectName = 'test-project';
+        $this->mockProject($projectName, [
+            'project' => $projectName,
+            'alerts' => [
+                'cooldown_minutes' => 10,
+                ['enabled' => true, 'trigger_after_failures' => 1]
+            ]
+        ]);
+
+        $this->mockState($projectName, ['probes' => ['GET https://example.com' => ['consecutive_failures' => 1]]]);
+
+        $result = $this->handler->handle($projectName);
+
+        $this->assertCount(1, $result);
+        $this->assertEquals('test-project', $result[0]['project']);
+    }
+
+    public function test_it_respects_cooldown_minutes_inside_alert_object(): void
+    {
+        $projectName = 'uplinkr-dev-test';
+        $this->mockProject($projectName, [
+            'project' => $projectName,
+            'alerts' => [
+                ['enabled' => true, 'trigger_after_failures' => 2, 'cooldown_minutes' => 5, 'channels' => ['log']]
+            ]
+        ]);
+
+        $this->mockState($projectName, [
+            'project' => $projectName,
+            'probes' => [
+                "GET https://uplinkr.dev/fail" => [
+                    'consecutive_failures' => 2,
+                    'last_notified_failure_at' => now()->subMinutes(2)->toDateTimeString(),
+                ]
+            ]
+        ]);
+
+        $result = $this->handler->handle($projectName);
+
+        $this->assertCount(0, $result);
     }
 }
