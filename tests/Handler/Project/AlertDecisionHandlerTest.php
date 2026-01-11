@@ -336,4 +336,217 @@ class AlertDecisionHandlerTest extends TestCase
         $this->assertCount(1, $result);
         $this->assertEquals('test-project', $result[0]['project']);
     }
+
+    public function test_it_respects_cooldown_minutes(): void
+    {
+        $projectName = 'test-project';
+        $projectSettings = [
+            'project' => $projectName,
+            'alerts' => [
+                'cooldown_minutes' => 60,
+                [
+                    'enabled' => true,
+                    'trigger_after_failures' => 3,
+                    'channels' => ['mail']
+                ]
+            ]
+        ];
+
+        // Last notified 30 minutes ago
+        $lastNotified = now()->subMinutes(30)->toDateTimeString();
+
+        $state = [
+            'project' => $projectName,
+            'probes' => [
+                'GET https://example.com' => [
+                    'consecutive_failures' => 3,
+                    'last_notified_failure_at' => $lastNotified,
+                ]
+            ]
+        ];
+
+        $this->storageMock->shouldReceive('findProject')
+            ->once()
+            ->with($projectName)
+            ->andReturn($projectSettings);
+
+        Storage::fake('local');
+        $projectDir = 'uplinkr/test-project';
+        Storage::disk('local')->put("$projectDir/state.json", json_encode($state));
+
+        // It should NOT trigger an alert because of the cooldown
+        $result = $this->handler->handle($projectName);
+
+        $this->assertCount(0, $result);
+    }
+
+    public function test_it_correctly_finds_cooldown_minutes_in_nested_alerts(): void
+    {
+        $projectName = 'test-project';
+        $projectSettings = [
+            'project' => $projectName,
+            'alerts' => [
+                'cooldown_minutes' => 60,
+                'items' => [
+                    [
+                        'enabled' => true,
+                        'trigger_after_failures' => 3,
+                        'channels' => ['mail']
+                    ]
+                ]
+            ]
+        ];
+
+        // Last notified 30 minutes ago
+        $lastNotified = now()->subMinutes(30)->toDateTimeString();
+
+        $state = [
+            'project' => $projectName,
+            'probes' => [
+                'GET https://example.com' => [
+                    'consecutive_failures' => 3,
+                    'last_notified_failure_at' => $lastNotified,
+                ]
+            ]
+        ];
+
+        $this->storageMock->shouldReceive('findProject')
+            ->once()
+            ->with($projectName)
+            ->andReturn($projectSettings);
+
+        Storage::fake('local');
+        $projectDir = 'uplinkr/test-project';
+        Storage::disk('local')->put("$projectDir/state.json", json_encode($state));
+
+        // In the current broken implementation, this might fail or not work as expected
+        // because it expects 'alarms' as fallback or tries to read it from top level.
+        $result = $this->handler->handle($projectName);
+
+        $this->assertCount(0, $result);
+    }
+    public function test_it_defaults_cooldown_to_null(): void
+    {
+        $projectName = 'test-project';
+        $projectSettings = [
+            'project' => $projectName,
+            'alerts' => [
+                'alarms' => [ // Incorrect key used for fallback in current code
+                    'cooldown_minutes' => 60,
+                ],
+                [
+                    'enabled' => true,
+                    'trigger_after_failures' => 1,
+                ]
+            ]
+        ];
+
+        $state = [
+            'probes' => [
+                'GET https://example.com' => [
+                    'consecutive_failures' => 1,
+                    'last_notified_failure_at' => now()->subMinutes(10)->toDateTimeString(),
+                ]
+            ]
+        ];
+
+        $this->storageMock->shouldReceive('findProject')
+            ->once()
+            ->with($projectName)
+            ->andReturn($projectSettings);
+
+        Storage::fake('local');
+        $projectDir = 'uplinkr/test-project';
+        Storage::disk('local')->put("$projectDir/state.json", json_encode($state));
+
+        Log::shouldReceive('warning')->once();
+
+        // It SHOULD trigger because 'alarms.cooldown_minutes' should NOT be considered and it should default to null
+        $result = $this->handler->handle($projectName);
+
+        $this->assertCount(1, $result);
+    }
+    public function test_it_supports_nested_items_in_alerts(): void
+    {
+        Log::shouldReceive('warning')->once();
+
+        $projectName = 'test-project';
+        $projectSettings = [
+            'project' => $projectName,
+            'alerts' => [
+                'cooldown_minutes' => 10,
+                'items' => [
+                    [
+                        'enabled' => true,
+                        'trigger_after_failures' => 1,
+                    ]
+                ]
+            ]
+        ];
+
+        $state = [
+            'probes' => [
+                'GET https://example.com' => [
+                    'consecutive_failures' => 1,
+                ]
+            ]
+        ];
+
+        $this->storageMock->shouldReceive('findProject')
+            ->once()
+            ->with($projectName)
+            ->andReturn($projectSettings);
+
+        Storage::fake('local');
+        $projectDir = 'uplinkr/test-project';
+        Storage::disk('local')->put("$projectDir/state.json", json_encode($state));
+
+        $result = $this->handler->handle($projectName);
+
+        $this->assertCount(1, $result);
+        $this->assertEquals('test-project', $result[0]['project']);
+    }
+
+    public function test_it_respects_cooldown_minutes_inside_alert_object(): void
+    {
+        $projectName = 'uplinkr-dev-test';
+        $projectSettings = [
+            'project' => $projectName,
+            'alerts' => [
+                [
+                    'enabled' => true,
+                    'trigger_after_failures' => 2,
+                    'cooldown_minutes' => 5,
+                    'channels' => ['log']
+                ]
+            ]
+        ];
+
+        // Letzter Alarm vor 2 Minuten
+        $lastNotified = now()->subMinutes(2)->toDateTimeString();
+
+        $state = [
+            'project' => $projectName,
+            'probes' => [
+                "GET https://uplinkr.dev/fail" => [
+                    'consecutive_failures' => 2,
+                    'last_notified_failure_at' => $lastNotified,
+                ]
+            ]
+        ];
+
+        $this->storageMock->shouldReceive('findProject')
+            ->once()
+            ->with($projectName)
+            ->andReturn($projectSettings);
+
+        Storage::fake('local');
+        $projectDir = 'uplinkr/uplinkr-dev-test';
+        Storage::disk('local')->put("$projectDir/state.json", json_encode($state));
+
+        // Es sollte KEIN Alarm ausgelöst werden, da der Cooldown (5 Min) noch aktiv ist (2 Min vergangen)
+        $result = $this->handler->handle($projectName);
+
+        $this->assertCount(0, $result);
+    }
 }

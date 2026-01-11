@@ -66,8 +66,14 @@ class AlertDecisionHandler
             return [];
         }
 
-        $alerts = Arr::get($projectSettings, 'alarms', Arr::get($projectSettings, 'alerts', []));
-        $cooldownMinutes = Arr::get($projectSettings, 'alerts.cooldown_minutes', Arr::get($projectSettings, 'alarms.cooldown_minutes'));
+        $alertsSettings = Arr::get($projectSettings, 'alerts', Arr::get($projectSettings, 'alarms', []));
+        $cooldownMinutes = Arr::get($alertsSettings, 'cooldown_minutes');
+        
+        $alerts = $alertsSettings;
+        if (Arr::has($alertsSettings, 'items')) {
+            $alerts = Arr::get($alertsSettings, 'items', []);
+        }
+
         $state = $this->loadState($projectName);
 
         if (empty($state)) {
@@ -82,6 +88,8 @@ class AlertDecisionHandler
                 continue;
             }
 
+            $currentCooldownMinutes = Arr::get($alert, 'cooldown_minutes', $cooldownMinutes);
+
             foreach (Arr::get($state, 'probes', []) as $probeKey => $probeData) {
 
                 $consecutiveFailures = Arr::get($probeData, 'consecutive_failures', 0);
@@ -90,11 +98,11 @@ class AlertDecisionHandler
                 if ($consecutiveFailures >= $triggerAfterFailures) {
 
                     // Check for cooldown
-                    if ($cooldownMinutes !== null) {
+                    if ($currentCooldownMinutes !== null) {
                         $lastNotifiedAt = Arr::get($probeData, 'last_notified_failure_at');
                         if ($lastNotifiedAt) {
                             $lastNotifiedAt = Carbon::parse($lastNotifiedAt);
-                            if ($lastNotifiedAt->addMinutes((int)$cooldownMinutes)->isFuture()) {
+                            if ($lastNotifiedAt->addMinutes((int)$currentCooldownMinutes)->isFuture()) {
                                 continue;
                             }
                         }
