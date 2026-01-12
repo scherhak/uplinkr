@@ -44,7 +44,7 @@ class AlertNotificationHandler extends Notification
         $mappedChannels = array_map(static function ($channel) {
             return match ($channel) {
                 'mail' => 'mail',
-                'log' => 'log',
+                'log' => 'uplinkr-log',
                 'webhook' => 'webhook',
                 default => $channel,
             };
@@ -52,6 +52,7 @@ class AlertNotificationHandler extends Notification
 
         return array_unique($mappedChannels);
     }
+
 
     /**
      * Get the mail representation of the notification.
