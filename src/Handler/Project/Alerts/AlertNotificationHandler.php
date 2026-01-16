@@ -2,7 +2,6 @@
 
 namespace Uplinkr\Handler\Project\Alerts;
 
-use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Notifications\Messages\MailMessage;
 //use Illuminate\Notifications\Messages\SlackMessage;
@@ -15,11 +14,14 @@ use Uplinkr\Support\Logger;
  * Class ProjectAlertNotification
  * @package Uplinkr\Handler\Project\Alerts
  *
+ * Notifications are sent synchronously by default.
+ * If you want to queue notifications, implement ShouldQueue interface.
+ *
  * @author Sascha Scherhak <sascha@uplinkr.dev>
  */
 class AlertNotificationHandler extends Notification
 {
-    use Queueable;
+    // Removed Queueable trait to send notifications synchronously
 
     /**
      * @param array $alertData
@@ -67,14 +69,29 @@ class AlertNotificationHandler extends Notification
         $reason = Arr::get($this->alertData, 'reason');
         $count = Arr::get($this->alertData, 'count');
 
-        return (new MailMessage)
+        $mailer = config('uplinkr.notifications.channels.mail.mailer');
+        $subjectPrefix = config('uplinkr.notifications.channels.mail.subject_prefix', '[Uplinkr]');
+        $fromAddress = config('uplinkr.notifications.channels.mail.from.address');
+        $fromName = config('uplinkr.notifications.channels.mail.from.name');
+
+        $message = (new MailMessage)
             ->error()
-            ->subject(sprintf('Alert: Project "%s" - Probe "%s" failed', $projectName, $probeName))
+            ->subject(sprintf('%s Alert: Project "%s" - Probe "%s" failed', $subjectPrefix, $projectName, $probeName))
             ->greeting(sprintf('Alert triggered for project "%s"', $projectName))
             ->line(sprintf('Probe: %s', $probeName))
             ->line(sprintf('Reason: %s', $reason))
             ->line(sprintf('Failure count: %d', $count))
             ->line('Please check your project monitoring dashboard for more details.');
+
+        if ($mailer) {
+            $message->mailer($mailer);
+        }
+
+        if ($fromAddress) {
+            $message->from($fromAddress, $fromName);
+        }
+
+        return $message;
     }
 
     /**

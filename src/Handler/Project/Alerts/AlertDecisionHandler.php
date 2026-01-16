@@ -203,7 +203,7 @@ class AlertDecisionHandler
         }
 
         $lastNotifiedAt = Carbon::parse($lastNotifiedAt);
-        return $lastNotifiedAt->addMinutes((int)$cooldownMinutes)->isFuture();
+        return $lastNotifiedAt->addMinutes($cooldownMinutes)->isFuture();
     }
 
     /**
@@ -248,6 +248,13 @@ class AlertDecisionHandler
         ));
 
         $notifiable = new AnonymousNotifiable;
+
+        // Configure mail routing if mail channel is enabled
+        $mailRecipients = config('uplinkr.notifications.channels.mail.to', []);
+        if (!empty($mailRecipients)) {
+            $notifiable->route('mail', $mailRecipients);
+        }
+
         $notifiable->notify(new AlertNotificationHandler([
             'project' => $projectName,
             'probe' => $probeKey,
