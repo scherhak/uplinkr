@@ -61,13 +61,17 @@ class AlertNotificationHandler extends Notification
      *
      * @param mixed $notifiable
      * @return MailMessage
+     * @throws JsonException
      */
     public function toMail(mixed $notifiable): MailMessage
     {
         $projectName = Arr::get($this->alertData, 'project');
         $probeName = Arr::get($this->alertData, 'probe');
-        $reason = Arr::get($this->alertData, 'reason');
-        $count = Arr::get($this->alertData, 'count');
+//        $reason = Arr::get($this->alertData, 'reason');
+        $failureCount = Arr::get($this->alertData, 'count');
+        $alertTime = now()->toDateTimeString();
+        $triggerAfterFailures = Arr::get($this->alertData, 'alert.trigger_after_failures');
+        $cooldownMinutes = Arr::get($this->alertData, 'alert.cooldown_minutes');
 
         $mailer = config('uplinkr.notifications.channels.mail.mailer');
         $subjectPrefix = config('uplinkr.notifications.channels.mail.subject_prefix', '[Uplinkr]');
@@ -76,12 +80,38 @@ class AlertNotificationHandler extends Notification
 
         $message = (new MailMessage)
             ->error()
-            ->subject(sprintf('%s Alert: Project "%s" - Probe "%s" failed', $subjectPrefix, $projectName, $probeName))
-            ->greeting(sprintf('Alert triggered for project "%s"', $projectName))
-            ->line(sprintf('Probe: %s', $probeName))
-            ->line(sprintf('Reason: %s', $reason))
-            ->line(sprintf('Failure count: %d', $count))
-            ->line('Please check your project monitoring dashboard for more details.');
+            ->subject(__('uplinkr::messages.project_alerts_mail_subject', ['prefix' => $subjectPrefix, 'project' => $projectName, 'probe' => $probeName]))
+            ->greeting(__('uplinkr::messages.project_alerts_mail_greeting', ['project' => $projectName]))
+            ->lines([
+                __('uplinkr::messages.project_alerts_mail_details_head'),
+                __('uplinkr::messages.project_alerts_mail_details_probe', ['probe' => $probeName]),
+                __('uplinkr::messages.project_alerts_mail_details_reason'),
+                __('uplinkr::messages.project_alerts_mail_details_failure_count', ['failureCount' => $failureCount]),
+                __('uplinkr::messages.project_alerts_mail_details_alert_time', ['alertTime' => $alertTime]),
+                __('uplinkr::messages.project_alerts_mail_accompanying_text_head'),
+                __('uplinkr::messages.project_alerts_mail_accompanying_text'),
+                __('uplinkr::messages.project_alerts_mail_accompanying_text_note', ['cooldownMinutes' => $cooldownMinutes]),
+                __('uplinkr::messages.project_alerts_mail_alert_settings_head'),
+                __('uplinkr::messages.project_alerts_mail_alert_settings_trigger_after_failures', ['triggerAfterFailures' => $triggerAfterFailures]),
+            ])
+        ;
+
+        // {
+        //  "project": "uplinkr-dev-test",
+        //  "probe": "GET https://uplinkr.dev/fail",
+        //  "alert": {
+        //    "enabled": true,
+        //    "trigger_after_failures": 3,
+        //    "cooldown_minutes": 60,
+        //    "latency_threshold_ms": 1500,
+        //    "trigger_after_slow": 3,
+        //    "channels": [
+        //      "mail"
+        //    ]
+        //  },
+        //  "reason": "consecutive_failures",
+        //  "count": 53
+        //}
 
         if ($mailer) {
             $message->mailer($mailer);
