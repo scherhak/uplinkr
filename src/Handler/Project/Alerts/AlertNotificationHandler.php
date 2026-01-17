@@ -2,13 +2,15 @@
 
 namespace Uplinkr\Handler\Project\Alerts;
 
-use Illuminate\Notifications\Notification;
+use Exception;
 use Illuminate\Notifications\Messages\MailMessage;
-//use Illuminate\Notifications\Messages\SlackMessage;
+use Illuminate\Notifications\Notification;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Http;
 use JsonException;
 use Uplinkr\Support\Logger;
+
+//use Illuminate\Notifications\Messages\SlackMessage;
 
 /**
  * Class ProjectAlertNotification
@@ -61,18 +63,18 @@ class AlertNotificationHandler extends Notification
      *
      * @param mixed $notifiable
      * @return MailMessage
-     * @throws JsonException
      */
     public function toMail(mixed $notifiable): MailMessage
     {
         $projectName = Arr::get($this->alertData, 'project');
         $probeName = Arr::get($this->alertData, 'probe');
-//        $reason = Arr::get($this->alertData, 'reason');
         $failureCount = Arr::get($this->alertData, 'count');
         $alertTime = now()->toDateTimeString();
         $triggerAfterFailures = Arr::get($this->alertData, 'alert.trigger_after_failures');
         $cooldownMinutes = Arr::get($this->alertData, 'alert.cooldown_minutes');
+        $latencyThresholdMs = Arr::get($this->alertData, 'alert.latency_threshold_ms');
 
+        // TODO Integrate this part into ‘Objects/Config/UplinkrConfig’ by version 0.2.0 at the latest.
         $mailer = config('uplinkr.notifications.channels.mail.mailer');
         $subjectPrefix = config('uplinkr.notifications.channels.mail.subject_prefix', '[Uplinkr]');
         $fromAddress = config('uplinkr.notifications.channels.mail.from.address');
@@ -93,25 +95,8 @@ class AlertNotificationHandler extends Notification
                 __('uplinkr::messages.project_alerts_mail_accompanying_text_note', ['cooldownMinutes' => $cooldownMinutes]),
                 __('uplinkr::messages.project_alerts_mail_alert_settings_head'),
                 __('uplinkr::messages.project_alerts_mail_alert_settings_trigger_after_failures', ['triggerAfterFailures' => $triggerAfterFailures]),
-            ])
-        ;
-
-        // {
-        //  "project": "uplinkr-dev-test",
-        //  "probe": "GET https://uplinkr.dev/fail",
-        //  "alert": {
-        //    "enabled": true,
-        //    "trigger_after_failures": 3,
-        //    "cooldown_minutes": 60,
-        //    "latency_threshold_ms": 1500,
-        //    "trigger_after_slow": 3,
-        //    "channels": [
-        //      "mail"
-        //    ]
-        //  },
-        //  "reason": "consecutive_failures",
-        //  "count": 53
-        //}
+                __('uplinkr::messages.project_alerts_mail_alert_settings_latency_threshold_ms', ['latencyThresholdMs' => $latencyThresholdMs]),
+            ]);
 
         if ($mailer) {
             $message->mailer($mailer);
@@ -158,6 +143,7 @@ class AlertNotificationHandler extends Notification
      */
     public function toWebhook(mixed $notifiable): void
     {
+        // TODO Integrate this part into ‘Objects/Config/UplinkrConfig’ by version 0.2.0 at the latest.
         $config = config('uplinkr.notifications.channels.webhook');
 
         if (!Arr::get($config, 'enabled', false)) {
@@ -235,7 +221,7 @@ class AlertNotificationHandler extends Notification
                     ['response' => $response->body(), 'url' => $url]
                 );
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Logger::log()->error(
                 sprintf('Webhook notification failed: %s', $e->getMessage()),
                 ['url' => $url]
