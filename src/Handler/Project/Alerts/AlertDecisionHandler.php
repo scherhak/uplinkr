@@ -239,6 +239,7 @@ class AlertDecisionHandler
     {
         $consecutiveFailures = Arr::get($probeData, 'consecutive_failures', 0);
 
+        // TODO Remove this before production
         Log::warning(sprintf(
             'Alert triggered for project "%s" on probe "%s". Reason: %s (%d failures)',
             $projectName,

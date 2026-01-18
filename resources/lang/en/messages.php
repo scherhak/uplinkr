@@ -76,7 +76,7 @@ return [
     'project_alerts_mail_accompanying_text_note' => 'You will automatically receive further notifications in :cooldownMinutes minutes, if the issue persists.',
     'project_alerts_mail_alert_settings_head' => 'Current alert settings',
     'project_alerts_mail_alert_settings_trigger_after_failures' => '- The alarm was triggered after :triggerAfterFailures consecutive errors.',
-    'project_alerts_mail_alert_settings_latency_threshold_ms' => 'The maximum response time is currently set to :latencyThresholdMs milliseconds.',
+    'project_alerts_mail_alert_settings_latency_threshold_ms' => '- The maximum response time is currently set to :latencyThresholdMs milliseconds.',
 
     /*
      * Prune project and probes results

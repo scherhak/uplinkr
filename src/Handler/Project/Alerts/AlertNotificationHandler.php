@@ -10,14 +10,12 @@ use Illuminate\Support\Facades\Http;
 use JsonException;
 use Uplinkr\Support\Logger;
 
-//use Illuminate\Notifications\Messages\SlackMessage;
-
 /**
  * Class ProjectAlertNotification
  * @package Uplinkr\Handler\Project\Alerts
  *
  * Notifications are sent synchronously by default.
- * If you want to queue notifications, implement ShouldQueue interface.
+ * If you want to queue notifications, implement the ShouldQueue interface.
  *
  * @author Sascha Scherhak <sascha@uplinkr.dev>
  */
@@ -56,7 +54,6 @@ class AlertNotificationHandler extends Notification
 
         return array_unique($mappedChannels);
     }
-
 
     /**
      * Get the mail representation of the notification.
