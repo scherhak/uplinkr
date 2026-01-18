@@ -47,7 +47,7 @@ class AlertNotificationHandler extends Notification
             return match ($channel) {
                 'mail' => 'mail',
                 'log' => 'uplinkr-log',
-                'webhook' => 'webhook',
+                'webhook' => 'uplinkr-webhook',
                 default => $channel,
             };
         }, $channels);

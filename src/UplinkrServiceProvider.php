@@ -32,6 +32,7 @@ use Uplinkr\Support\Sanitizer;
 
 use Illuminate\Support\Facades\Notification;
 use Uplinkr\Handler\Project\Alerts\AlertNotificationHandler;
+use Uplinkr\Notifications\Channels\UplinkrWebhookChannel;
 
 /**
  * Class UplinkrServiceProvider
@@ -160,6 +161,10 @@ class UplinkrServiceProvider extends ServiceProvider
                     }
                 }
             };
+        });
+
+        Notification::extend('uplinkr-webhook', function ($app) {
+            return $app->make(UplinkrWebhookChannel::class);
         });
     }
 
