@@ -70,6 +70,7 @@ class AlertDecisionHandlerTest extends TestCase
 
     public function test_it_decides_to_trigger_alert_based_on_failures(): void
     {
+        Log::shouldReceive('channel')->andReturnSelf();
         Log::shouldReceive('warning')
             ->once()
             ->with(Mockery::pattern('/Alert triggered for project "test-project" on probe "GET https:\/\/example.com". Reason: consecutive_failures \(3 failures\)/'));
@@ -103,6 +104,7 @@ class AlertDecisionHandlerTest extends TestCase
 
     public function test_it_takes_consecutive_failures_if_total_failures_not_present(): void
     {
+        Log::shouldReceive('channel')->andReturnSelf();
         Log::shouldReceive('warning')->once();
 
         $projectName = 'test-project';
@@ -125,6 +127,7 @@ class AlertDecisionHandlerTest extends TestCase
 
     public function test_it_increments_total_failures_if_already_exists(): void
     {
+        Log::shouldReceive('channel')->andReturnSelf();
         Log::shouldReceive('warning')->once();
 
         $projectName = 'test-project';
@@ -193,6 +196,7 @@ class AlertDecisionHandlerTest extends TestCase
         $this->mockState('project-a', ['probes' => ['probe-a' => ['consecutive_failures' => 1]]]);
         $this->mockState('project-b', ['probes' => ['probe-b' => ['consecutive_failures' => 1]]]);
 
+        Log::shouldReceive('channel')->andReturnSelf();
         Log::shouldReceive('warning')->twice();
 
         $result = $this->handler->handle(null);
@@ -204,6 +208,7 @@ class AlertDecisionHandlerTest extends TestCase
 
     public function test_it_supports_alarms_key_in_settings(): void
     {
+        Log::shouldReceive('channel')->andReturnSelf();
         Log::shouldReceive('warning')->once();
 
         $projectName = 'test-project';
@@ -292,6 +297,7 @@ class AlertDecisionHandlerTest extends TestCase
             ]
         ]);
 
+        Log::shouldReceive('channel')->andReturnSelf();
         Log::shouldReceive('warning')->once();
 
         $result = $this->handler->handle($projectName);
@@ -301,6 +307,7 @@ class AlertDecisionHandlerTest extends TestCase
 
     public function test_it_supports_cooldown_minutes_in_alerts(): void
     {
+        Log::shouldReceive('channel')->andReturnSelf();
         Log::shouldReceive('warning')->once();
 
         $projectName = 'test-project';

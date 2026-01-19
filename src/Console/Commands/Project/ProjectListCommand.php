@@ -28,6 +28,12 @@ class ProjectListCommand extends Command
      */
     protected $description = 'Lists all available projects with the number of probes';
 
+    /**
+     * Execute the console command.
+     *
+     * @param ListHandler $listHandler
+     * @return int
+     */
     public function handle(ListHandler $listHandler): int
     {
         $projects = $listHandler->all();

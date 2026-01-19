@@ -11,6 +11,7 @@ use JsonException;
 use Uplinkr\Handler\Project\ListHandler;
 use Uplinkr\Interfaces\ProjectStorageInterface;
 use Uplinkr\Objects\Config\UplinkrConfig;
+use Uplinkr\Support\Logger;
 use Uplinkr\Support\Sanitizer;
 use Uplinkr\Support\Time;
 
@@ -128,9 +129,9 @@ class AlertDecisionHandler
     }
 
     /**
-     * Handles all projects by processing each one and merging their decisions.
+     * Handles alert decisions for all projects by processing each one and merging their decisions.
      *
-     * @return array
+     * @return array Combined array of alert decisions from all projects
      * @throws JsonException
      */
     private function handleAllProjects(): array
@@ -239,8 +240,7 @@ class AlertDecisionHandler
     {
         $consecutiveFailures = Arr::get($probeData, 'consecutive_failures', 0);
 
-        // TODO Remove this before production
-        Log::warning(sprintf(
+        Logger::log()->warning(sprintf(
             'Alert triggered for project "%s" on probe "%s". Reason: %s (%d failures)',
             $projectName,
             $probeKey,
@@ -251,7 +251,7 @@ class AlertDecisionHandler
         $notifiable = new AnonymousNotifiable;
 
         // Configure mail routing if mail channel is enabled
-        $mailRecipients = config('uplinkr.notifications.channels.mail.to', []);
+        $mailRecipients = $this->config->getMailTo();
         if (!empty($mailRecipients)) {
             $notifiable->route('mail', $mailRecipients);
         }

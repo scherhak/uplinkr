@@ -32,6 +32,12 @@ class ProjectArchiveCommand extends Command
      */
     protected $description = 'Archives a project or lists all available projects';
 
+    /**
+     * Execute the console command.
+     *
+     * @param ArchiveHandler $archiveHandler
+     * @return int
+     */
     public function handle(ArchiveHandler $archiveHandler): int
     {
         $project = $this->option('project');

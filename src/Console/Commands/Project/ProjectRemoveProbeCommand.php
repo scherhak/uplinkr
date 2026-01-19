@@ -32,6 +32,12 @@ class ProjectRemoveProbeCommand extends Command
      */
     protected $description = 'Remove a probe command from the project';
 
+    /**
+     * Execute the console command.
+     *
+     * @param RemoveProbeHandler $removeProbeHandler
+     * @return int
+     */
     public function handle(RemoveProbeHandler $removeProbeHandler): int
     {
         $url = $this->option('url');

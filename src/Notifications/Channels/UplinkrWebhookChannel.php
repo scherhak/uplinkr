@@ -4,13 +4,19 @@ namespace Uplinkr\Notifications\Channels;
 
 use Illuminate\Notifications\Notification;
 
+/**
+ * Class UplinkrWebhookChannel
+ * @package Uplinkr\Notifications\Channels
+ *
+ * @author Sascha Scherhak <sascha@uplinkr.dev>
+ */
 class UplinkrWebhookChannel
 {
     /**
-     * Send the given notification.
+     * Send the given notification via webhook.
      *
-     * @param mixed $notifiable
-     * @param Notification $notification
+     * @param mixed $notifiable The notifiable entity
+     * @param Notification $notification The notification to send
      * @return void
      */
     public function send(mixed $notifiable, Notification $notification): void
@@ -19,7 +25,6 @@ class UplinkrWebhookChannel
             return;
         }
 
-        // Die toWebhook Methode im AlertNotificationHandler handhabt die komplette Webhook-Logik
         $notification->toWebhook($notifiable);
     }
 }

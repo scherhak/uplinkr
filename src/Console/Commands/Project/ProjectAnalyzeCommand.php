@@ -36,6 +36,11 @@ class ProjectAnalyzeCommand extends Command
     protected $description = 'Analyzes and evaluates the results of URL queries';
 
     /**
+     * Execute the console command.
+     *
+     * @param AnalyzeHandler $analyzeHandler
+     * @param SummaryHandler $summaryHandler
+     * @return int
      * @throws Exception
      */
     public function handle(AnalyzeHandler $analyzeHandler, SummaryHandler $summaryHandler): int

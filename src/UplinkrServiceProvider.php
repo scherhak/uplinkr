@@ -179,7 +179,8 @@ class UplinkrServiceProvider extends ServiceProvider
      */
     private function registerUplinkrLogChannel(): void
     {
-        $channelName = config('uplinkr.log_channel', 'uplinkr');
+        $config = UplinkrConfig::fromConfig();
+        $channelName = $config->getLogChannel();
         $channels = config('logging.channels', []);
 
         // If the host app has already defined the channel: respect it and DO NOT overwrite it.
@@ -187,7 +188,7 @@ class UplinkrServiceProvider extends ServiceProvider
             return;
         }
 
-        $definition = config('uplinkr.log', []);
+        $definition = $config->getLogDefinition();
 
         // Safeguard: if empty for any reason, set minimum default
         if (empty($definition)) {

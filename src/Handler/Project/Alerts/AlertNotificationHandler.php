@@ -8,6 +8,7 @@ use Illuminate\Notifications\Notification;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Http;
 use JsonException;
+use Uplinkr\Objects\Config\UplinkrConfig;
 use Uplinkr\Support\Logger;
 
 /**
@@ -71,11 +72,11 @@ class AlertNotificationHandler extends Notification
         $cooldownMinutes = Arr::get($this->alertData, 'alert.cooldown_minutes');
         $latencyThresholdMs = Arr::get($this->alertData, 'alert.latency_threshold_ms');
 
-        // TODO Integrate this part into ‘Objects/Config/UplinkrConfig’ by version 0.2.0 at the latest.
-        $mailer = config('uplinkr.notifications.channels.mail.mailer');
-        $subjectPrefix = config('uplinkr.notifications.channels.mail.subject_prefix', '[Uplinkr]');
-        $fromAddress = config('uplinkr.notifications.channels.mail.from.address');
-        $fromName = config('uplinkr.notifications.channels.mail.from.name');
+        $config = UplinkrConfig::fromConfig();
+        $mailer = $config->getMailMailer();
+        $subjectPrefix = $config->getMailSubjectPrefix();
+        $fromAddress = $config->getMailFromAddress();
+        $fromName = $config->getMailFromName();
 
         $message = (new MailMessage)
             ->error()
@@ -140,28 +141,27 @@ class AlertNotificationHandler extends Notification
      */
     public function toWebhook(mixed $notifiable): void
     {
-        // TODO Integrate this part into ‘Objects/Config/UplinkrConfig’ by version 0.2.0 at the latest.
-        $config = config('uplinkr.notifications.channels.webhook');
+        $config = UplinkrConfig::fromConfig();
 
-        if (!Arr::get($config, 'enabled', false)) {
+        if (!$config->isWebhookEnabled()) {
             return;
         }
 
-        $url = Arr::get($config, 'url');
+        $url = $config->getWebhookUrl();
         if (!$url) {
             Logger::log()->error('Webhook URL is not configured in uplinkr.php');
             return;
         }
 
-        $method = strtoupper(Arr::get($config, 'method', 'POST'));
-        $timeout = Arr::get($config, 'timeout_seconds', 10);
-        $connectTimeout = Arr::get($config, 'connect_timeout_seconds', 5);
-        $verifyTls = Arr::get($config, 'verify_tls', true);
-        $headers = Arr::get($config, 'headers', []);
+        $method = strtoupper($config->getWebhookMethod());
+        $timeout = $config->getWebhookTimeoutSeconds();
+        $connectTimeout = $config->getWebhookConnectTimeoutSeconds();
+        $verifyTls = $config->isWebhookVerifyTls();
+        $headers = $config->getWebhookHeaders();
         $payload = $this->toArray($notifiable);
 
         // Version the payload if configured
-        $version = config('uplinkr.notifications.payload.version');
+        $version = $config->getPayloadVersion();
         if ($version) {
             $payload = [
                 'version' => $version,
@@ -179,7 +179,7 @@ class AlertNotificationHandler extends Notification
         }
 
         // Retry logic
-        $retryConfig = Arr::get($config, 'retry', []);
+        $retryConfig = $config->getWebhookRetry();
         $maxAttempts = Arr::get($retryConfig, 'max_attempts', 1);
         $backoff = Arr::get($retryConfig, 'backoff_ms', []);
 
@@ -193,7 +193,7 @@ class AlertNotificationHandler extends Notification
         }
 
         // Signing
-        $signingConfig = Arr::get($config, 'signing', []);
+        $signingConfig = $config->getWebhookSigning();
         if (Arr::get($signingConfig, 'enabled', false)) {
             $secret = Arr::get($signingConfig, 'secret');
             $headerName = Arr::get($signingConfig, 'header', 'X-Uplinkr-Signature');

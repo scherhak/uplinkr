@@ -57,7 +57,8 @@ class ProbeUrlCommand extends Command
      *             or CommandAlias::INVALID if the process is canceled or the URI is invalid.
      * @throws JsonException
      * @example php artisan uplinkr:probe-by-uri https scherhak.com
-     *
+     * @param UrlHandler $probeUrlHandler
+     * @param UplinkrConfig $config
      */
     public function handle(UrlHandler $probeUrlHandler, UplinkrConfig $config): int
     {

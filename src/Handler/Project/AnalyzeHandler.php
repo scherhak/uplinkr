@@ -17,6 +17,11 @@ use Uplinkr\Objects\Config\UplinkrConfig;
  */
 class AnalyzeHandler
 {
+    /**
+     * Constructor.
+     *
+     * @param UplinkrConfig $config
+     */
     public function __construct(
         private readonly UplinkrConfig $config,
     )
@@ -154,7 +159,10 @@ class AnalyzeHandler
                 }
 
                 try {
-                    $fileDate = CarbonImmutable::parse($dateStr);
+                    $fileDate = CarbonImmutable::createFromFormat($this->config->getProbeResultsCarbonFormat(), $dateStr);
+                    if (!$fileDate) {
+                        return false;
+                    }
                 } catch (Throwable) {
                     return false;
                 }
@@ -174,13 +182,16 @@ class AnalyzeHandler
     }
 
     /**
-     * Extract "@YYYY-MM-DD" from a filename.
+     * Extract date from filename based on configured grouping format.
+     * Supports: @YYYY-MM-DD (daily), @YYYY-MM-DD-HH (hourly), @YYYY-MM (monthly)
      */
     public function extractDateFromFilename(string $path): ?string
     {
         $filename = basename($path);
+        $pattern = $this->config->getProbeResultsDatePattern();
 
-        if (preg_match('/@(\d{4}-\d{2}-\d{2})\./', $filename, $matches)) {
+        // Extract the pattern between @ and .
+        if (preg_match('/@' . trim($pattern, '/') . '\./', $filename, $matches)) {
             return $matches[1];
         }
 

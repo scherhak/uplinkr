@@ -24,10 +24,10 @@ class ProjectAlertsCommand extends Command
     protected $signature = 'uplinkr:project:alerts 
                             {--project= : Name of the project to update alert settings}
                             {--enabled=true : Enable or disable alerts (true/false)}
-                            {--failures=3 : Trigger after X failures}
-                            {--cooldown=30 : Cooldown in minutes}
-                            {--threshold=1500 : Latency threshold in ms}
-                            {--slow=3 : Trigger after X slow responses}
+                            {--failures= : Trigger after X failures}
+                            {--cooldown= : Cooldown in minutes}
+                            {--threshold= : Latency threshold in ms}
+                            {--slow= : Trigger after X slow responses}
                             {--channels= : Comma separated list of channels}
                             {--force : Force execution without confirmation}';
 
@@ -39,6 +39,10 @@ class ProjectAlertsCommand extends Command
     protected $description = 'Updates alert settings for a project.';
 
     /**
+     * Execute the console command.
+     *
+     * @param AlertHandler $alertHandler
+     * @return int
      * @throws JsonException
      */
     public function handle(AlertHandler $alertHandler): int

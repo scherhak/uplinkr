@@ -4,110 +4,152 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Uplinkr
+    | Storage Configuration
     |--------------------------------------------------------------------------
     |
-    | Still to be described
+    | Configure where and how Uplinkr stores probe results, project settings,
+    | and archive data. All paths are relative to the configured disk.
     |
     */
     'storage' => [
 
         /*
         |--------------------------------------------------------------------------
-        | CAPTION
+        | Storage Disk
         |--------------------------------------------------------------------------
         |
-        | TODO Check if driver is still needed or can be removed
+        | The Laravel filesystem disk where Uplinkr will store all its data.
+        | Must be a valid disk configured in config/filesystems.php.
+        | Common values: 'local', 's3', 'public'
         |
         */
-        'disk' => 'local', # local|...
+        'disk' => env('UPLINKR_STORAGE_DISK', 'local'),
 
         /*
         |--------------------------------------------------------------------------
-        | Main Storage Path
+        | Storage Paths
         |--------------------------------------------------------------------------
         |
-        | Still to be described
+        | path: Base directory where all Uplinkr data is stored
+        | probe_results: Subdirectory within each project for probe result files
+        | probe_filename_separator: Character separating URL from date in filenames
+        |   Example: example_com@2026-01-19.json
         |
         */
-        'path' => 'uplinkr',
-        'probe_results' => 'probes',
-        'probe_filename_separator' => '@',
+        'path' => env('UPLINKR_STORAGE_PATH', 'uplinkr'),
+        'probe_results' => env('UPLINKR_STORAGE_PROBE_RESULTS', 'probes'),
+        'probe_filename_separator' => env('UPLINKR_PROBE_FILENAME_SEPARATOR', '@'),
 
         /*
         |--------------------------------------------------------------------------
-        | CAPTION
+        | File Extension
         |--------------------------------------------------------------------------
         |
-        | Still to be described
+        | The file extension used for all Uplinkr data files (probe results,
+        | project settings, state files, etc.). Using 'json' allows for easy
+        | inspection and manipulation of stored data.
         |
         */
-        'file_extension' => 'json',
+        'file_extension' => env('UPLINKR_FILE_EXTENSION', 'json'),
 
         /*
         |--------------------------------------------------------------------------
-        | CAPTION
+        | Archive Folder
         |--------------------------------------------------------------------------
         |
-        | Still to be described
+        | Name of the subdirectory where archived projects are stored.
+        | Archived projects are moved here instead of being deleted, allowing
+        | for later retrieval if needed.
         |
         */
-        'archive_folder' => 'archived',
+        'archive_folder' => env('UPLINKR_ARCHIVE_FOLDER', 'archived'),
 
         /*
         |--------------------------------------------------------------------------
-        | Allow complete deletion of all data
+        | Allow Complete Wipe
         |--------------------------------------------------------------------------
         |
-        | Still to be described
+        | DANGER: When enabled, allows complete deletion of all Uplinkr data
+        | including all projects, probe results, and settings. This is a
+        | destructive operation that cannot be undone. Keep disabled in
+        | production environments.
         |
         */
-        'allow_complete_wipe' => false,
+        'allow_complete_wipe' => env('UPLINKR_ALLOW_COMPLETE_WIPE', false),
+
+        /*
+        |--------------------------------------------------------------------------
+        | Probe Results Grouping
+        |--------------------------------------------------------------------------
+        |
+        | How probe results should be grouped into files:
+        | - 'hourly': example_com@2026-01-19-14.json (high-frequency monitoring)
+        | - 'daily': example_com@2026-01-19.json (default, balanced)
+        | - 'monthly': example_com@2026-01.json (long-term storage)
+        |
+        */
+        'probe_results_grouping' => env('UPLINKR_PROBE_RESULTS_GROUPING', 'daily'),
     ],
 
     /*
     |--------------------------------------------------------------------------
-    | Probes
+    | Probe Configuration
     |--------------------------------------------------------------------------
     |
-    | Still to be described
+    | Settings that control how Uplinkr performs HTTP probes to monitor
+    | your endpoints. These affect probe behavior and success criteria.
     |
     */
     'probes' => [
 
         /*
         |--------------------------------------------------------------------------
-        | Standard latency for probe requests
+        | Standard Latency Threshold
         |--------------------------------------------------------------------------
         |
-        | Still to be described
+        | Maximum acceptable response time in milliseconds. Probes that exceed
+        | this threshold are marked as slow/unreachable, even if they return
+        | a successful HTTP status code.
+        | Default: 1500ms (1.5 seconds)
         |
         */
-        'standard_latency' => 1500,
+        'standard_latency' => (int)env('UPLINKR_PROBES_STANDARD_LATENCY', 1500),
 
-
+        /*
+        |--------------------------------------------------------------------------
+        | User-Agent Header
+        |--------------------------------------------------------------------------
+        |
+        | The User-Agent string sent with each probe request.
+        | Helps identify Uplinkr probes in server logs.
+        |
+        */
+        'user_agent' => env('UPLINKR_PROBES_USER_AGENT', 'uplinkr-monitor/0.1.0'),
     ],
 
     /*
     |--------------------------------------------------------------------------
-    | Projects
+    | Project Configuration
     |--------------------------------------------------------------------------
     |
-    | Still to be described
+    | Settings for project management. Projects are used to organize and
+    | group related probes together.
     |
     */
     'projects' => [
 
         /*
         |--------------------------------------------------------------------------
-        | Standard Project Name
+        | Default Project Settings
         |--------------------------------------------------------------------------
         |
-        | Still to be described
+        | standard_project: Fallback project name when no project is specified
+        | standard_project_status: Default status for newly created projects
+        |   Common values: 'enabled', 'disabled', 'archived'
         |
         */
-        'standard_project' => 'standard_project',
-        'standard_project_status' => 'enabled',
+        'standard_project' => env('UPLINKR_STANDARD_PROJECT', 'standard_project'),
+        'standard_project_status' => env('UPLINKR_STANDARD_PROJECT_STATUS', 'enabled'),
     ],
 
     /*
@@ -242,24 +284,35 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Logging
+    | Logging Configuration
     |--------------------------------------------------------------------------
     |
-    | Still to be described
+    | Configure how Uplinkr writes log messages. Uplinkr uses its own
+    | dedicated log channel to keep probe-related logs separate from
+    | your application logs.
     |
     */
     'logging' => [
         [
             /*
-             * Name of the log channel Uplinkr should use.
+             * Log Channel Name
+             * The name of the log channel Uplinkr should use.
+             * This channel will be registered automatically if it doesn't exist.
              */
             'log_channel' => env('UPLINKR_LOG_CHANNEL', 'uplinkr'),
 
             /*
-             * Default channel definition (used if the host app doesn't already have it).
+             * Default Channel Definition
+             * Configuration used if the host application doesn't already have
+             * an 'uplinkr' channel defined in config/logging.php.
+             *
+             * driver: Log driver (daily, single, stack, syslog, errorlog)
+             * path: Full path to the log file
+             * level: Minimum log level (debug, info, notice, warning, error, critical, alert, emergency)
+             * days: Number of days to retain daily log files
              */
             'log' => [
-                'driver' => env('UPLINKR_LOG_DRIVER', 'daily'), // daily|single|stack|...
+                'driver' => env('UPLINKR_LOG_DRIVER', 'daily'),
                 'path' => env('UPLINKR_LOG_PATH', storage_path('logs/uplinkr.log')),
                 'level' => env('UPLINKR_LOG_LEVEL', 'info'),
                 'days' => (int)env('UPLINKR_LOG_DAYS', 14),

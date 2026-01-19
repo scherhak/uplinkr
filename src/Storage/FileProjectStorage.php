@@ -138,7 +138,6 @@ class FileProjectStorage implements ProjectStorageInterface
             ];
         }
 
-        // TODO (0.1.1) Check why the unit test fails here when Arr:add is used.
         $project['probes'] = $probes;
         $project['updated_at'] = Time::now();
 
@@ -181,7 +180,9 @@ class FileProjectStorage implements ProjectStorageInterface
     }
 
     /**
-     * @return array
+     * Retrieves all project directories from storage.
+     *
+     * @return array Array of project directory paths
      */
     public function allProjectDirectories(): array
     {
