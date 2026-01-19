@@ -1,9 +1,9 @@
 <?php
 
-namespace Uplinkr\Tests\Handler\Project\Alerts;
+namespace Handler\Project;
 
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Http;
 use Uplinkr\Handler\Project\Alerts\AlertNotificationHandler;
 use Uplinkr\Tests\TestCase;
 

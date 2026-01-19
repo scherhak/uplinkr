@@ -2,6 +2,7 @@
 
 namespace Uplinkr\Handler\Project;
 
+use JsonException;
 use Uplinkr\Interfaces\ProjectStorageInterface;
 use Uplinkr\Support\Time;
 
@@ -29,7 +30,7 @@ class DisableHandler
      *
      * @param string $projectName The name of the project to disable.
      * @return bool Returns true if the project was found and updated, false otherwise.
-     * @throws \JsonException
+     * @throws JsonException
      */
     public function handle(string $projectName): bool
     {

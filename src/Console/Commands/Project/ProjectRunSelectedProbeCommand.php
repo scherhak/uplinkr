@@ -3,6 +3,7 @@
 namespace Uplinkr\Console\Commands\Project;
 
 use Illuminate\Console\Command;
+use JsonException;
 use Symfony\Component\Console\Command\Command as CommandAlias;
 use Uplinkr\Handler\Project\ProbeSelectedProjectsHandler;
 use Uplinkr\Interfaces\ProjectStorageInterface;
@@ -46,7 +47,7 @@ class ProjectRunSelectedProbeCommand extends Command
      * @param UplinkrConfig $config
      * @param ProjectStorageInterface $projectStorage
      * @return int
-     * @throws \JsonException
+     * @throws JsonException
      */
     public function handle(ProbeSelectedProjectsHandler $handler, UplinkrConfig $config, ProjectStorageInterface $projectStorage): int
     {

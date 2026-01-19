@@ -2,6 +2,7 @@
 
 namespace Uplinkr;
 
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\ServiceProvider;
 use Uplinkr\Console\Commands\Probe\ProbeUrlCommand;
 use Uplinkr\Console\Commands\ProbeApiCommand;
@@ -25,14 +26,11 @@ use Uplinkr\Handler\Project\ProbeAllProjectsHandler;
 use Uplinkr\Handler\Project\ProbeSelectedProjectsHandler;
 use Uplinkr\Interfaces\ProbeResultsStorageInterface;
 use Uplinkr\Interfaces\ProjectStorageInterface;
+use Uplinkr\Notifications\Channels\UplinkrWebhookChannel;
 use Uplinkr\Objects\Config\UplinkrConfig;
 use Uplinkr\Storage\FileProbeResultsStorage;
 use Uplinkr\Storage\FileProjectStorage;
 use Uplinkr\Support\Sanitizer;
-
-use Illuminate\Support\Facades\Notification;
-use Uplinkr\Handler\Project\Alerts\AlertNotificationHandler;
-use Uplinkr\Notifications\Channels\UplinkrWebhookChannel;
 
 /**
  * Class UplinkrServiceProvider
