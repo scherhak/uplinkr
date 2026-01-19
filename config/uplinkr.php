@@ -84,8 +84,6 @@ return [
         |
         */
         'standard_latency' => 1500,
-
-
     ],
 
     /*
@@ -106,8 +104,8 @@ return [
         | Still to be described
         |
         */
-        'standard_project' => 'standard_project',
         'standard_project_status' => 'enabled',
+        'standard_project' => 'standard_project',
     ],
 
     /*
