@@ -17,6 +17,11 @@ use Uplinkr\Objects\Config\UplinkrConfig;
  */
 class AnalyzeHandler
 {
+    /**
+     * Constructor.
+     *
+     * @param UplinkrConfig $config
+     */
     public function __construct(
         private readonly UplinkrConfig $config,
     )

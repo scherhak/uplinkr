@@ -36,6 +36,12 @@ class ProjectAddProbeCommand extends Command
      */
     protected $description = 'Add a new probe command to the project';
 
+    /**
+     * Execute the console command.
+     *
+     * @param AddProbeHandler $addProbeHandler
+     * @return int
+     */
     public function handle(AddProbeHandler $addProbeHandler): int
     {
         $url = $this->option('url');

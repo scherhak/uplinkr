@@ -39,6 +39,10 @@ class ProjectAlertsCommand extends Command
     protected $description = 'Updates alert settings for a project.';
 
     /**
+     * Execute the console command.
+     *
+     * @param AlertHandler $alertHandler
+     * @return int
      * @throws JsonException
      */
     public function handle(AlertHandler $alertHandler): int

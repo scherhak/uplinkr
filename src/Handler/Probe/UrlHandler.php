@@ -216,7 +216,9 @@ class UrlHandler
     }
 
     /**
-     * Retrieves the HTTP method from the data array or defaults to 'GET'.
+     * Retrieves the HTTP method from the data array or defaults to 'HEAD'.
+     *
+     * @return string The HTTP method
      */
     private function getMethod(): string
     {
@@ -224,7 +226,9 @@ class UrlHandler
     }
 
     /**
-     * Parses and returns headers provided as ["Key: Value", ...] to an assoc array.
+     * Parses and returns headers provided as ["Key: Value", ...] to an associative array.
+     *
+     * @return array Parsed headers as associative array
      */
     private function getParsedHeaders(): array
     {
@@ -243,6 +247,8 @@ class UrlHandler
 
     /**
      * Returns the optional request body.
+     *
+     * @return string|array|null The request body
      */
     private function getBody(): string|array|null
     {

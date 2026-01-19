@@ -181,7 +181,9 @@ class FileProjectStorage implements ProjectStorageInterface
     }
 
     /**
-     * @return array
+     * Retrieves all project directories from storage.
+     *
+     * @return array Array of project directory paths
      */
     public function allProjectDirectories(): array
     {

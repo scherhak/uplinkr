@@ -33,6 +33,10 @@ class FileProbeResultsStorage implements ProbeResultsStorageInterface
     }
 
     /**
+     * Saves a probe result to storage.
+     *
+     * @param array $resultData The probe result data to save
+     * @return void
      * @throws JsonException
      */
     public function saveResult(array $resultData): void

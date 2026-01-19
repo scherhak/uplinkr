@@ -4,6 +4,7 @@ namespace Uplinkr\Support;
 
 use Illuminate\Support\Facades\Log;
 use Psr\Log\LoggerInterface;
+use Uplinkr\Objects\Config\UplinkrConfig;
 
 /**
  * Class Logger
@@ -20,7 +21,11 @@ class Logger
      */
     public static function log(): LoggerInterface
     {
-        $channel = config('uplinkr.log_channel', 'uplinkr');
+        try {
+            $channel = UplinkrConfig::fromConfig()->getLogChannel();
+        } catch (\Throwable) {
+            $channel = 'uplinkr';
+        }
 
         return Log::channel($channel);
     }

@@ -24,6 +24,8 @@ class ResultHandler
     private array $result = [];
 
     /**
+     * Constructor.
+     *
      * @param UplinkrConfig $config
      * @param Sanitizer $sanitizer
      */
@@ -35,7 +37,9 @@ class ResultHandler
     }
 
     /**
-     * @param array $result
+     * Sets the result data for this handler.
+     *
+     * @param array $result The result data to set
      * @return $this
      */
     public function with(array $result): self

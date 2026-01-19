@@ -12,6 +12,37 @@ namespace Uplinkr\Objects\Config;
  */
 final class UplinkrConfig
 {
+    /**
+     * Constructor.
+     *
+     * @param string $storageDisk Storage disk name
+     * @param string $storagePath Base storage path
+     * @param string $probeResultsPath Probe results subdirectory
+     * @param int $standardLatency Standard latency threshold in milliseconds
+     * @param string $probeFilenameSeparator Separator for probe filenames
+     * @param string $fileExtension Default file extension
+     * @param string $archivedFolder Archived projects folder name
+     * @param bool $allowCompleteWipe Allow complete wipe of data
+     * @param string $standardProject Default project name
+     * @param string $standardProjectStatus Default project status
+     * @param string|null $mailMailer Mail mailer name
+     * @param string $mailSubjectPrefix Mail subject prefix
+     * @param string|null $mailFromAddress Mail from address
+     * @param string|null $mailFromName Mail from name
+     * @param bool $webhookEnabled Whether webhook notifications are enabled
+     * @param string|null $webhookUrl Webhook URL
+     * @param string $webhookMethod Webhook HTTP method
+     * @param int $webhookTimeoutSeconds Webhook timeout in seconds
+     * @param int $webhookConnectTimeoutSeconds Webhook connection timeout in seconds
+     * @param bool $webhookVerifyTls Whether to verify TLS for webhooks
+     * @param array $webhookHeaders Webhook headers
+     * @param array $webhookRetry Webhook retry configuration
+     * @param array $webhookSigning Webhook signing configuration
+     * @param string|null $payloadVersion Payload version identifier
+     * @param array $mailTo Mail recipients
+     * @param string $logChannel Log channel name
+     * @param array $logDefinition Log configuration
+     */
     public function __construct(
         public string $storageDisk = 'local',
         public string $storagePath = 'uplinkr',
@@ -37,6 +68,9 @@ final class UplinkrConfig
         public array  $webhookRetry = ['max_attempts' => 3, 'backoff_ms' => [0, 2000, 10000]],
         public array  $webhookSigning = ['enabled' => false, 'header' => 'X-Uplinkr-Signature', 'algo' => 'sha256'],
         public ?string $payloadVersion = 'uplinkr.v1',
+        public array  $mailTo = [],
+        public string $logChannel = 'uplinkr',
+        public array  $logDefinition = [],
     )
     {
     }
@@ -73,6 +107,9 @@ final class UplinkrConfig
             webhookRetry: config('uplinkr.notifications.channels.webhook.retry', ['max_attempts' => 3, 'backoff_ms' => [0, 2000, 10000]]),
             webhookSigning: config('uplinkr.notifications.channels.webhook.signing', ['enabled' => false, 'header' => 'X-Uplinkr-Signature', 'algo' => 'sha256']),
             payloadVersion: config('uplinkr.notifications.payload.version', 'uplinkr.v1'),
+            mailTo: config('uplinkr.notifications.channels.mail.to', []),
+            logChannel: config('uplinkr.log_channel', 'uplinkr'),
+            logDefinition: config('uplinkr.log', []),
         );
     }
 
@@ -264,5 +301,29 @@ final class UplinkrConfig
     public function getPayloadVersion(): ?string
     {
         return $this->payloadVersion;
+    }
+
+    /**
+     * @return array
+     */
+    public function getMailTo(): array
+    {
+        return $this->mailTo;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLogChannel(): string
+    {
+        return $this->logChannel;
+    }
+
+    /**
+     * @return array
+     */
+    public function getLogDefinition(): array
+    {
+        return $this->logDefinition;
     }
 }

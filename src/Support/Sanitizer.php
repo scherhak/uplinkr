@@ -12,6 +12,11 @@ use Uplinkr\Objects\Config\UplinkrConfig;
  */
 class Sanitizer
 {
+    /**
+     * Constructor.
+     *
+     * @param UplinkrConfig $config
+     */
     public function __construct(
         private readonly UplinkrConfig $config
     )
