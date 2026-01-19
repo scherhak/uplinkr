@@ -154,7 +154,7 @@ class FileProbeResultsStorage implements ProbeResultsStorageInterface
         // check the target url
         $rawUrl = $this->findTargetUrl($data);
 
-        // TODO (0.1.0) Add a fallback to the default filename name if no URL is found.
+        // fallback to the default filename name if no URL is found.
         if ($rawUrl === null) {
             return $this->config->getStandardProject();
         }
@@ -188,14 +188,12 @@ class FileProbeResultsStorage implements ProbeResultsStorageInterface
     }
 
     /**
-     * Retrieves the current date in the format 'YYYY-MM-DD'.
+     * Retrieves the current date in the configured grouping format.
      *
-     * @return string The current date formatted as 'YYYY-MM-DD'.
-     *
-     * TODO (0.2.0) Embed this part into the configuration and see what sensible combinations are possible.
+     * @return string The current date formatted according to probe_results_grouping config.
      */
     private function getCurrentDate(): string
     {
-        return date('Y-m-d');
+        return date($this->config->getProbeResultsDateFormat());
     }
 }

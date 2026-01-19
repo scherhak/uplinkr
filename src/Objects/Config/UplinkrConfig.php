@@ -23,6 +23,7 @@ final class UplinkrConfig
      * @param string $fileExtension Default file extension
      * @param string $archivedFolder Archived projects folder name
      * @param bool $allowCompleteWipe Allow complete wipe of data
+     * @param string $probeResultsGrouping How to group probe results (hourly, daily, monthly)
      * @param string $standardProject Default project name
      * @param string $standardProjectStatus Default project status
      * @param string|null $mailMailer Mail mailer name
@@ -52,6 +53,7 @@ final class UplinkrConfig
         public string $fileExtension = 'json',
         public string $archivedFolder = 'archived',
         public bool   $allowCompleteWipe = false,
+        public string $probeResultsGrouping = 'daily',
         public string $standardProject = 'standard_project',
         public string $standardProjectStatus = 'enabled',
         public ?string $mailMailer = null,
@@ -91,6 +93,7 @@ final class UplinkrConfig
             fileExtension: config('uplinkr.storage.file_extension', 'json'),
             archivedFolder: config('uplinkr.storage.archive_folder', 'archived'),
             allowCompleteWipe: config('uplinkr.storage.allow_complete_wipe', false),
+            probeResultsGrouping: config('uplinkr.storage.probe_results_grouping', 'daily'),
             standardProject: config('uplinkr.projects.standard_project', 'standard_project'),
             standardProjectStatus: config('uplinkr.projects.standard_project_status', 'enabled'),
             mailMailer: config('uplinkr.notifications.channels.mail.mailer'),
@@ -325,5 +328,60 @@ final class UplinkrConfig
     public function getLogDefinition(): array
     {
         return $this->logDefinition;
+    }
+
+    /**
+     * Get the probe results grouping strategy.
+     *
+     * @return string
+     */
+    public function getProbeResultsGrouping(): string
+    {
+        return $this->probeResultsGrouping;
+    }
+
+    /**
+     * Get the date format string based on the configured grouping strategy.
+     *
+     * @return string Date format compatible with PHP's date() function
+     */
+    public function getProbeResultsDateFormat(): string
+    {
+        return match($this->probeResultsGrouping) {
+            'hourly' => 'Y-m-d-H',
+            'daily' => 'Y-m-d',
+            'monthly' => 'Y-m',
+            default => 'Y-m-d',
+        };
+    }
+
+    /**
+     * Get the regex pattern for extracting dates from filenames based on grouping strategy.
+     *
+     * @return string Regex pattern
+     */
+    public function getProbeResultsDatePattern(): string
+    {
+        return match($this->probeResultsGrouping) {
+            'hourly' => '/(\d{4}-\d{2}-\d{2}-\d{2})/',
+            'daily' => '/(\d{4}-\d{2}-\d{2})/',
+            'monthly' => '/(\d{4}-\d{2})/',
+            default => '/(\d{4}-\d{2}-\d{2})/',
+        };
+    }
+
+    /**
+     * Get the Carbon parse format for the configured grouping strategy.
+     *
+     * @return string Format string for Carbon::createFromFormat()
+     */
+    public function getProbeResultsCarbonFormat(): string
+    {
+        return match($this->probeResultsGrouping) {
+            'hourly' => 'Y-m-d-H',
+            'daily' => 'Y-m-d',
+            'monthly' => 'Y-m',
+            default => 'Y-m-d',
+        };
     }
 }

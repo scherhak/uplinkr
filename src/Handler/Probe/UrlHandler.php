@@ -73,7 +73,7 @@ class UrlHandler
         try {
             $pendingRequest = Http::withHeaders([
                 // TODO (0.1.0) Insert a proper and correct name for the URL check.
-                'User-Agent' => 'uplinkr-url-probe-0.1.0',
+                'User-Agent' => 'uplinkr-0.1.0',
             ])->withHeaders($this->getParsedHeaders());
 
             // Optional body for methods that support it
@@ -169,9 +169,6 @@ class UrlHandler
 
     /**
      * Processes the given response and extracts relevant data into an array.
-     *
-     * TODO Consider whether the content of the page or the request plays a role in availability.
-     * TODO If this is relevant, then it should appear in the command. ('body' => $request->body())
      *
      * @param mixed $request The response object containing status, headers, and optionally a body.
      * @return array Returns an array with the response status, headers, and optionally a body if specified.
