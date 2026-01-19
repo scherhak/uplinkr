@@ -1,0 +1,50 @@
+<?php
+
+namespace Uplinkr\Tests\Objects\Config;
+
+use Uplinkr\Objects\Config\UplinkrConfig;
+use Uplinkr\Tests\TestCase;
+
+class UplinkrConfigTest extends TestCase
+{
+    public function test_default_values(): void
+    {
+        $config = new UplinkrConfig();
+
+        $this->assertEquals('local', $config->getStorageDisc());
+        $this->assertEquals('uplinkr', $config->getStoragePath());
+        $this->assertEquals('probes', $config->getProbeResultsPath());
+        $this->assertEquals('json', $config->getFileExtension());
+        $this->assertEquals('@', $config->getProbeFilenameSeparator());
+        $this->assertEquals('archived', $config->getArchivedFolder());
+        $this->assertEquals('standard_project', $config->getStandardProject());
+        $this->assertEquals('enabled', $config->getStandardProjectStatus());
+        $this->assertFalse($config->allowCompleteWipe());
+    }
+
+    public function test_custom_values(): void
+    {
+        $config = new UplinkrConfig(
+            storageDisk: 's3',
+            storagePath: 'custom/path',
+            probeResultsPath: 'custom_probes',
+            standardLatency: 2000,
+            probeFilenameSeparator: '#',
+            fileExtension: 'log',
+            archivedFolder: 'old',
+            allowCompleteWipe: true,
+            standardProject: 'my_project',
+            standardProjectStatus: 'disabled'
+        );
+
+        $this->assertEquals('s3', $config->getStorageDisc());
+        $this->assertEquals('custom/path', $config->getStoragePath());
+        $this->assertEquals('custom_probes', $config->getProbeResultsPath());
+        $this->assertEquals('log', $config->getFileExtension());
+        $this->assertEquals('#', $config->getProbeFilenameSeparator());
+        $this->assertEquals('old', $config->getArchivedFolder());
+        $this->assertEquals('my_project', $config->getStandardProject());
+        $this->assertEquals('disabled', $config->getStandardProjectStatus());
+        $this->assertTrue($config->allowCompleteWipe());
+    }
+}
