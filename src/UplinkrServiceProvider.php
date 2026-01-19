@@ -30,6 +30,10 @@ use Uplinkr\Storage\FileProbeResultsStorage;
 use Uplinkr\Storage\FileProjectStorage;
 use Uplinkr\Support\Sanitizer;
 
+use Illuminate\Support\Facades\Notification;
+use Uplinkr\Handler\Project\Alerts\AlertNotificationHandler;
+use Uplinkr\Notifications\Channels\UplinkrWebhookChannel;
+
 /**
  * Class UplinkrServiceProvider
  * @package Uplinkr
@@ -138,6 +142,30 @@ class UplinkrServiceProvider extends ServiceProvider
         });
 
         $this->registerUplinkrLogChannel();
+        $this->registerNotificationChannels();
+    }
+
+    /**
+     * Registers custom notification channels.
+     *
+     * @return void
+     */
+    private function registerNotificationChannels(): void
+    {
+        Notification::extend('uplinkr-log', function ($app) {
+            return new class {
+                public function send($notifiable, $notification)
+                {
+                    if (method_exists($notification, 'toLog')) {
+                        return $notification->toLog($notifiable);
+                    }
+                }
+            };
+        });
+
+        Notification::extend('uplinkr-webhook', function ($app) {
+            return $app->make(UplinkrWebhookChannel::class);
+        });
     }
 
     /**

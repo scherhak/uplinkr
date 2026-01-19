@@ -28,7 +28,7 @@ class ProjectAlertsCommand extends Command
                             {--cooldown=30 : Cooldown in minutes}
                             {--threshold=1500 : Latency threshold in ms}
                             {--slow=3 : Trigger after X slow responses}
-                            {--channels=mail,slack : Comma separated list of channels}
+                            {--channels= : Comma separated list of channels}
                             {--force : Force execution without confirmation}';
 
     /**

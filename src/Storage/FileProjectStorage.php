@@ -76,7 +76,11 @@ class FileProjectStorage implements ProjectStorageInterface
             return null;
         }
 
-        return json_decode($content, true, 512, JSON_THROW_ON_ERROR);
+        try {
+            return json_decode(trim($content), true, 512, JSON_THROW_ON_ERROR);
+        } catch (JsonException $e) {
+            throw new JsonException(sprintf('Syntax error in file %s: %s', $filename, $e->getMessage()), $e->getCode(), $e);
+        }
     }
 
     /**
@@ -204,14 +208,19 @@ class FileProjectStorage implements ProjectStorageInterface
 
         foreach ($directories as $directory) {
             $projectName = basename($directory);
-            $project = $this->findProject($projectName);
 
-            if ($project === null) {
-                $projects[] = null;
+            try {
+                $project = $this->findProject($projectName);
+
+                if ($project === null) {
+                    continue;
+                }
+
+                $projects[] = $project;
+            } catch (JsonException) {
+                // If a single project is broken, we skip it
                 continue;
             }
-
-            $projects[] = $project;
         }
 
         return $projects;

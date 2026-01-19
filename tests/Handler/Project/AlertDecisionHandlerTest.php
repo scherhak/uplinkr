@@ -3,6 +3,7 @@
 namespace Uplinkr\Tests\Handler\Project\Alerts;
 
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 use Mockery;
 use Uplinkr\Handler\Project\Alerts\AlertDecisionHandler;
@@ -34,6 +35,7 @@ class AlertDecisionHandlerTest extends TestCase
             $this->sanitizer
         );
         Storage::fake('local');
+        Notification::fake();
     }
 
     private function mockProject(string $projectName, array $settings): void
