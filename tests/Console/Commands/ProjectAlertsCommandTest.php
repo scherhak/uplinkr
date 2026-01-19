@@ -49,6 +49,10 @@ class ProjectAlertsCommandTest extends TestCase
 
         $this->artisan('uplinkr:project:alerts', [
             '--project' => 'my-project',
+            '--failures' => 5,
+            '--cooldown' => 60,
+            '--threshold' => 2000,
+            '--slow' => 5,
         ])
             ->expectsConfirmation('Should alert settings for project my-project be updated now?', 'yes')
             ->assertExitCode(0);
@@ -58,6 +62,10 @@ class ProjectAlertsCommandTest extends TestCase
     {
         $this->artisan('uplinkr:project:alerts', [
             '--project' => 'my-project',
+            '--failures' => 5,
+            '--cooldown' => 60,
+            '--threshold' => 2000,
+            '--slow' => 5,
         ])
             ->expectsConfirmation('Should alert settings for project my-project be updated now?', 'no')
             ->assertExitCode(2);
