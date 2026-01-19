@@ -130,7 +130,7 @@ return [
         | Otherwise, each channel has its own "enabled" flag below.
         |
         */
-        'enabled' => array_filter(explode(',', (string) env('UPLINKR_NOTIFY_CHANNELS', 'log'))),
+        'enabled' => array_filter(explode(',', (string)env('UPLINKR_NOTIFY_CHANNELS', 'log'))),
 
         /*
         |--------------------------------------------------------------------------
@@ -145,7 +145,7 @@ return [
             |--------------------------------------------------------------
             */
             'log' => [
-                'enabled' => (bool) env('UPLINKR_NOTIFY_LOG_ENABLED', true),
+                'enabled' => (bool)env('UPLINKR_NOTIFY_LOG_ENABLED', true),
 
                 // Map to your existing uplinkr logging channel if you want
                 'channel' => env('UPLINKR_NOTIFY_LOG_CHANNEL', 'uplinkr'),
@@ -160,13 +160,13 @@ return [
             |--------------------------------------------------------------
             */
             'mail' => [
-                'enabled' => (bool) env('UPLINKR_NOTIFY_MAIL_ENABLED', false),
+                'enabled' => (bool)env('UPLINKR_NOTIFY_MAIL_ENABLED', false),
 
                 // Laravel mailer name (config/mail.php)
                 'mailer' => env('UPLINKR_NOTIFY_MAIL_MAILER', null),
 
                 // Comma-separated list in env, parsed to array
-                'to' => array_filter(explode(',', (string) env('UPLINKR_NOTIFY_MAIL_TO', ''))),
+                'to' => array_filter(explode(',', (string)env('UPLINKR_NOTIFY_MAIL_TO', ''))),
 
                 // Optional: from override
                 'from' => [
@@ -187,15 +187,15 @@ return [
             |
             */
             'webhook' => [
-                'enabled' => (bool) env('UPLINKR_NOTIFY_WEBHOOK_ENABLED', false),
+                'enabled' => (bool)env('UPLINKR_NOTIFY_WEBHOOK_ENABLED', false),
 
                 'url' => env('UPLINKR_NOTIFY_WEBHOOK_URL', null),
                 'method' => env('UPLINKR_NOTIFY_WEBHOOK_METHOD', 'POST'),
 
                 // HTTP client behavior
-                'timeout_seconds' => (int) env('UPLINKR_NOTIFY_WEBHOOK_TIMEOUT', 10),
-                'connect_timeout_seconds' => (int) env('UPLINKR_NOTIFY_WEBHOOK_CONNECT_TIMEOUT', 5),
-                'verify_tls' => (bool) env('UPLINKR_NOTIFY_WEBHOOK_VERIFY_TLS', true),
+                'timeout_seconds' => (int)env('UPLINKR_NOTIFY_WEBHOOK_TIMEOUT', 10),
+                'connect_timeout_seconds' => (int)env('UPLINKR_NOTIFY_WEBHOOK_CONNECT_TIMEOUT', 5),
+                'verify_tls' => (bool)env('UPLINKR_NOTIFY_WEBHOOK_VERIFY_TLS', true),
 
                 // Extra headers (JSON in env is nice, but keep it simple here)
                 'headers' => [
@@ -210,7 +210,7 @@ return [
                  | - backoff_ms: delays between retries
                  */
                 'retry' => [
-                    'max_attempts' => (int) env('UPLINKR_NOTIFY_WEBHOOK_RETRY_MAX', 3),
+                    'max_attempts' => (int)env('UPLINKR_NOTIFY_WEBHOOK_RETRY_MAX', 3),
                     'backoff_ms' => [0, 2000, 10000],
                 ],
 
@@ -219,7 +219,7 @@ return [
                  | Example header: X-Uplinkr-Signature: sha256=...
                  */
                 'signing' => [
-                    'enabled' => (bool) env('UPLINKR_NOTIFY_WEBHOOK_SIGNING', false),
+                    'enabled' => (bool)env('UPLINKR_NOTIFY_WEBHOOK_SIGNING', false),
                     'secret' => env('UPLINKR_NOTIFY_WEBHOOK_SECRET', null),
                     'header' => env('UPLINKR_NOTIFY_WEBHOOK_SIGNATURE_HEADER', 'X-Uplinkr-Signature'),
                     'algo' => env('UPLINKR_NOTIFY_WEBHOOK_SIGNATURE_ALGO', 'sha256'),

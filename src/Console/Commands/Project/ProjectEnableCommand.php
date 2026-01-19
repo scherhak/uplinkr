@@ -4,6 +4,7 @@ namespace Uplinkr\Console\Commands\Project;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Validator;
+use JsonException;
 use Symfony\Component\Console\Command\Command as CommandAlias;
 use Uplinkr\Handler\Project\EnableHandler;
 
@@ -36,7 +37,7 @@ class ProjectEnableCommand extends Command
      *
      * @param EnableHandler $enableHandler
      * @return int
-     * @throws \JsonException
+     * @throws JsonException
      */
     public function handle(EnableHandler $enableHandler): int
     {

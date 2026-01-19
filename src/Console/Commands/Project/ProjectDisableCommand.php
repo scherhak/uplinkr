@@ -4,6 +4,7 @@ namespace Uplinkr\Console\Commands\Project;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Validator;
+use JsonException;
 use Symfony\Component\Console\Command\Command as CommandAlias;
 use Uplinkr\Handler\Project\DisableHandler;
 
@@ -36,7 +37,7 @@ class ProjectDisableCommand extends Command
      *
      * @param DisableHandler $disableHandler
      * @return int
-     * @throws \JsonException
+     * @throws JsonException
      */
     public function handle(DisableHandler $disableHandler): int
     {
