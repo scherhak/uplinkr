@@ -56,6 +56,8 @@ class ProjectAlertsCommand extends Command
         $channels = explode(',', $this->option('channels'));
         $force = $this->option('force');
 
+        // TODO If only the alarm for a project is to be disabled, it is still necessary to send all options.
+        // > In this case, the project name should suffice.
         $validate = Validator::make(
             [
                 'project' => $project,

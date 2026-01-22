@@ -13,14 +13,14 @@ use Uplinkr\Support\Logger;
 use Uplinkr\Traits\HandlesProbeOutput;
 
 /**
- * Class ProjectRunSelectedProbeCommand
+ * Class ProjectRunSelectedCommand
  * @package Uplinkr\Console\Commands\Project
  *
- * This class is responsible for handling the execution of the `uplinkr:project:run-selected-probe` command.
+ * This class is responsible for handling the execution of the `uplinkr:project:run-selected` command.
  *
  * @author Sascha Scherhak <sascha@uplinkr.dev>
  */
-class ProjectRunSelectedProbeCommand extends Command
+class ProjectRunSelectedCommand extends Command
 {
     use HandlesProbeOutput;
 
@@ -29,7 +29,7 @@ class ProjectRunSelectedProbeCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'uplinkr:project:run-selected-probe 
+    protected $signature = 'uplinkr:project:run-selected  
                             {--project= : Name of the project to run probes for}
                             {--force : Force execution without confirmation}';
 

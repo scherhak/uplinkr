@@ -66,10 +66,10 @@ class Sanitizer
         $host = preg_replace('/^www\./i', '', $host);
 
         // Everything that is not a letter/number should be changed to "_"
-        $sanitized = preg_replace('/[^A-Za-z0-9]+/', '-', $host);
+        $sanitized = preg_replace('/[^A-Za-z0-9]+/', '_', $host);
 
         // Shrink multiple "_" lines and trim edges
-        $sanitized = trim(preg_replace('/-+/', '-', $sanitized), '-');
+        $sanitized = trim(preg_replace('/_+/', '_', $sanitized), '_');
 
         return strtolower($sanitized);
     }
