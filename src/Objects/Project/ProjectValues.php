@@ -105,7 +105,7 @@ class ProjectValues
      */
     public function getName(): string
     {
-        return Arr::get($this->data, 'project', Arr::get($this->data, 'name', 'unknown'));
+        return Arr::get($this->data, 'project') ?? Arr::get($this->data, 'name') ?? 'unknown';
     }
 
     /**

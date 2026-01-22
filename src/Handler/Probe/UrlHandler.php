@@ -196,7 +196,7 @@ class UrlHandler
         $project = $projectValues->getName();
 
         if ($project === 'unknown') {
-            $project = $this->config->getStandardProject();
+            $project = $this->sanitizer->url($this->getUrl());
         }
 
         return $this->sanitizer->project($project);
