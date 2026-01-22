@@ -46,13 +46,16 @@ class AlertHandler
             return false;
         }
 
+        // Load existing alert settings or use defaults
+        $existingAlerts = Arr::get($projectData, 'alerts.0', []);
+
         $alert = [
-            'enabled' => (bool)Arr::get($options, 'enabled', true),
-            'trigger_after_failures' => (int)Arr::get($options, 'trigger_after_failures', 3),
-            'cooldown_minutes' => (int)Arr::get($options, 'cooldown_minutes', 30),
-            'latency_threshold_ms' => (int)Arr::get($options, 'latency_threshold_ms', 1500),
-            'trigger_after_slow' => (int)Arr::get($options, 'trigger_after_slow', 3),
-            'channels' => (array)Arr::get($options, 'channels', ['mail']),
+            'enabled' => Arr::get($options, 'enabled') ?? Arr::get($existingAlerts, 'enabled', true),
+            'trigger_after_failures' => Arr::get($options, 'trigger_after_failures') ?? Arr::get($existingAlerts, 'trigger_after_failures', 3),
+            'cooldown_minutes' => Arr::get($options, 'cooldown_minutes') ?? Arr::get($existingAlerts, 'cooldown_minutes', 30),
+            'latency_threshold_ms' => Arr::get($options, 'latency_threshold_ms') ?? Arr::get($existingAlerts, 'latency_threshold_ms', 1500),
+            'trigger_after_slow' => Arr::get($options, 'trigger_after_slow') ?? Arr::get($existingAlerts, 'trigger_after_slow', 3),
+            'channels' => Arr::get($options, 'channels') ?? Arr::get($existingAlerts, 'channels', ['mail']),
         ];
 
         // Currently, the requirement says "alerts": [] and shows a list with one object.

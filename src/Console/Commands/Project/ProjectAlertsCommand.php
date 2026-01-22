@@ -49,15 +49,13 @@ class ProjectAlertsCommand extends Command
     {
         $project = $this->option('project');
         $enabled = filter_var($this->option('enabled'), FILTER_VALIDATE_BOOLEAN);
-        $failures = (int)$this->option('failures');
-        $cooldown = (int)$this->option('cooldown');
-        $threshold = (int)$this->option('threshold');
-        $slow = (int)$this->option('slow');
-        $channels = explode(',', $this->option('channels'));
+        $failures = $this->option('failures') ? (int)$this->option('failures') : null;
+        $cooldown = $this->option('cooldown') ? (int)$this->option('cooldown') : null;
+        $threshold = $this->option('threshold') ? (int)$this->option('threshold') : null;
+        $slow = $this->option('slow') ? (int)$this->option('slow') : null;
+        $channels = $this->option('channels') ? explode(',', $this->option('channels')) : null;
         $force = $this->option('force');
 
-        // TODO If only the alarm for a project is to be disabled, it is still necessary to send all options.
-        // > In this case, the project name should suffice.
         $validate = Validator::make(
             [
                 'project' => $project,
@@ -68,10 +66,10 @@ class ProjectAlertsCommand extends Command
             ],
             [
                 'project' => 'required|string',
-                'failures' => 'required|integer|min:1',
-                'cooldown' => 'required|integer|min:1',
-                'threshold' => 'required|integer|min:1',
-                'slow' => 'required|integer|min:1',
+                'failures' => 'nullable|integer|min:1',
+                'cooldown' => 'nullable|integer|min:1',
+                'threshold' => 'nullable|integer|min:1',
+                'slow' => 'nullable|integer|min:1',
             ],
         );
 
