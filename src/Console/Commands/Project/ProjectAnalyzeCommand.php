@@ -51,6 +51,37 @@ class ProjectAnalyzeCommand extends Command
 
         $files = $analyzeHandler->probeResultsList($project, $from, $to);
 
+        // If no project specified, $files is an associative array with project names as keys
+        if ($project === null) {
+            foreach ($files as $projectName => $projectFiles) {
+                $this->analyzeProjectFiles($projectName, $projectFiles, $analyzeHandler, $summaryHandler);
+            }
+        } else {
+            // Single project analysis
+            $this->analyzeProjectFiles($project, $files, $analyzeHandler, $summaryHandler);
+        }
+
+        // In Laravel 12, console commands should return one of the built-in status codes
+        // to indicate successful execution.
+        return self::SUCCESS;
+    }
+
+    /**
+     * Analyzes probe result files for a specific project.
+     *
+     * @param string $project The project name
+     * @param array $files The array of file paths to analyze
+     * @param AnalyzeHandler $analyzeHandler
+     * @param SummaryHandler $summaryHandler
+     * @return void
+     * @throws \JsonException
+     */
+    private function analyzeProjectFiles(
+        string $project,
+        array $files,
+        AnalyzeHandler $analyzeHandler,
+        SummaryHandler $summaryHandler
+    ): void {
         $load = [];
 
         foreach ($files as $file) {
@@ -71,15 +102,10 @@ class ProjectAnalyzeCommand extends Command
 
                 $load[$urlSlug][$date] = $probeSummary->toArray();
             }
-
         }
 
-        if ($project && !empty($load)) {
+        if (!empty($load)) {
             $analyzeHandler->saveAnalyzedResults($project, $load);
         }
-
-        // In Laravel 12, console commands should return one of the built-in status codes
-        // to indicate successful execution.
-        return self::SUCCESS;
     }
 }
