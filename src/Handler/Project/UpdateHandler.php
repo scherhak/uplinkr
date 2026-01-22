@@ -56,6 +56,10 @@ class UpdateHandler
             $projectData['description'] = $optionsValues->getDescription();
         }
 
+        if (Arr::has($options, 'status')) {
+            $projectData['status'] = Arr::get($options, 'status');
+        }
+
         $projectData['updated_at'] = Time::now();
 
         $this->projectStorage->saveProject($projectData);

@@ -17,6 +17,7 @@ class ProjectUpdateCommandTest extends TestCase
                 'project' => 'my-project',
                 'label' => 'New Label',
                 'description' => 'New Description',
+                'status' => null,
             ])
             ->andReturn(true);
 
@@ -75,6 +76,59 @@ class ProjectUpdateCommandTest extends TestCase
     {
         $this->artisan('uplinkr:project:update', [
             '--label' => 'New Label',
+            '--force' => true,
+        ])->assertExitCode(2);
+    }
+
+    public function test_it_updates_project_status_to_disabled(): void
+    {
+        $handlerMock = Mockery::mock(UpdateHandler::class);
+        $handlerMock->shouldReceive('handle')
+            ->once()
+            ->with([
+                'project' => 'my-project',
+                'label' => null,
+                'description' => null,
+                'status' => 'disabled',
+            ])
+            ->andReturn(true);
+
+        $this->app->instance(UpdateHandler::class, $handlerMock);
+
+        $this->artisan('uplinkr:project:update', [
+            '--project' => 'my-project',
+            '--status' => 'disabled',
+            '--force' => true,
+        ])->assertExitCode(0);
+    }
+
+    public function test_it_updates_project_status_to_enabled(): void
+    {
+        $handlerMock = Mockery::mock(UpdateHandler::class);
+        $handlerMock->shouldReceive('handle')
+            ->once()
+            ->with([
+                'project' => 'my-project',
+                'label' => null,
+                'description' => null,
+                'status' => 'enabled',
+            ])
+            ->andReturn(true);
+
+        $this->app->instance(UpdateHandler::class, $handlerMock);
+
+        $this->artisan('uplinkr:project:update', [
+            '--project' => 'my-project',
+            '--status' => 'enabled',
+            '--force' => true,
+        ])->assertExitCode(0);
+    }
+
+    public function test_it_fails_validation_with_invalid_status(): void
+    {
+        $this->artisan('uplinkr:project:update', [
+            '--project' => 'my-project',
+            '--status' => 'invalid-status',
             '--force' => true,
         ])->assertExitCode(2);
     }
