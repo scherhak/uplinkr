@@ -2,10 +2,11 @@
 
 namespace Uplinkr;
 
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\ServiceProvider;
 use Uplinkr\Console\Commands\Probe\ProbeUrlCommand;
-use Uplinkr\Console\Commands\ProbeApiCommand;
+use Uplinkr\Console\Commands\UplinkrInstallCommand;
 use Uplinkr\Console\Commands\Project\ProjectAddProbeCommand;
 use Uplinkr\Console\Commands\Project\ProjectAlertDecisionCommand;
 use Uplinkr\Console\Commands\Project\ProjectAlertsCommand;
@@ -54,7 +55,7 @@ class UplinkrServiceProvider extends ServiceProvider
             __DIR__ . '/../resources/lang' => resource_path('lang/vendor/uplinkr'),
         ], 'uplinkr-lang');
 
-        // Register console commands
+        // Register console commands and scheduler
         if ($this->app->runningInConsole()) {
             $this->commands([
                 ProbeUrlCommand::class,
@@ -70,7 +71,27 @@ class UplinkrServiceProvider extends ServiceProvider
                 ProjectRemoveProbeCommand::class,
                 ProjectRunProbesCommand::class,
                 ProjectRunSelectedCommand::class,
+                UplinkrInstallCommand::class,
             ]);
+
+            $this->app->booted(function () {
+                if (! config('uplinkr.scheduler.enabled')) {
+                    return;
+                }
+
+                /** @var Schedule $schedule */
+                $schedule = app(Schedule::class);
+
+                $schedule->command('uplinkr:project:run-probes --force')
+                    ->cron(config('uplinkr.scheduler.cron'))
+                    ->withoutOverlapping()
+                    ->runInBackground();
+
+                $schedule->command('uplinkr:project:alert:decision')
+                    ->cron(config('uplinkr.scheduler.cron'))
+                    ->withoutOverlapping()
+                    ->runInBackground();
+            });
         }
     }
 
@@ -186,7 +207,7 @@ class UplinkrServiceProvider extends ServiceProvider
 
         $definition = $config->getLogDefinition();
 
-        // Safeguard: if empty for any reason, set minimum default
+        // Safeguard: if empty for any reason, set a minimum default
         if (empty($definition)) {
             $definition = [
                 'driver' => 'daily',
