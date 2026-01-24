@@ -31,16 +31,47 @@ class AnalyzeHandler
     /**
      * Handles the retrieval of files for a specific project, optionally filtering by date range.
      *
-     * @param string $project The name of the project whose files are to be retrieved.
+     * @param string|null $project The name of the project whose files are to be retrieved. If null, retrieves files from all projects.
      * @param string|null $fromDate The start of the date range filter (inclusive), formatted as YYYY-MM-DD, or null to skip the lower bound.
      * @param string|null $toDate The end of the date range filter (inclusive), formatted as YYYY-MM-DD, or null to skip the upper bound.
      *
-     * @return array An array of file paths from the project's probe results directory, filtered by the specified date range if provided.
+     * @return array An array of file paths from the project's probe results directory, filtered by the specified date range if provided. When $project is null, returns an associative array with project names as keys.
      * @throws Exception
      */
-    public function probeResultsList(string $project, ?string $fromDate = null, ?string $toDate = null): array
+    public function probeResultsList(?string $project, ?string $fromDate = null, ?string $toDate = null): array
     {
         $disk = Storage::disk($this->config->getStorageDisc());
+
+        // If no project specified, get files from all projects
+        if ($project === null) {
+            $baseDir = $this->config->getStoragePath();
+            $projects = $disk->directories($baseDir);
+
+            $allFiles = [];
+            foreach ($projects as $projectPath) {
+                $projectName = basename($projectPath);
+                $probeDir = sprintf(
+                    '%s/%s',
+                    $projectPath,
+                    $this->config->getProbeResultsPath()
+                );
+
+                if (!$disk->exists($probeDir)) {
+                    continue;
+                }
+
+                $files = $disk->files($probeDir);
+
+                // Filter by date range if needed
+                if (null !== $fromDate || null !== $toDate) {
+                    $files = $this->filterFilesByDateRange($files, $fromDate, $toDate);
+                }
+
+                $allFiles[$projectName] = array_values($files);
+            }
+
+            return $allFiles;
+        }
 
         // Probe folder for the project
         $probeDir = sprintf(

@@ -122,7 +122,7 @@ php artisan uplinkr:project:run-probes
 Execute all defined probes for a single selected project.
 
 ```bash
-php artisan uplinkr:project:run-selected-probe --project=my-website
+php artisan uplinkr:project:run-selected --project=my-website
 ```
 
 #### Manual URL Probing

@@ -21,10 +21,11 @@ class ProjectUpdateCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'uplinkr:project:update 
+    protected $signature = 'uplinkr:project:update
                             {--project= : Name of the project to update}
                             {--label= : Optional project name}
                             {--description= : Optional project description}
+                            {--status= : Optional project status (enabled/disabled)}
                             {--force : Force execution without confirmation}';
 
     /**
@@ -42,18 +43,21 @@ class ProjectUpdateCommand extends Command
         $project = $this->option('project');
         $label = $this->option('label');
         $description = $this->option('description');
+        $status = $this->option('status');
         $force = $this->option('force');
 
         $validate = Validator::make(
             [
                 'project' => $project,
                 'label' => $label,
-                'description' => $description
+                'description' => $description,
+                'status' => $status
             ],
             [
                 'project' => 'required|string',
                 'label' => 'nullable|string',
                 'description' => 'nullable|string',
+                'status' => 'nullable|string|in:enabled,disabled',
             ],
         );
 
@@ -75,6 +79,7 @@ class ProjectUpdateCommand extends Command
                     'project' => $project,
                     'label' => $label,
                     'description' => $description,
+                    'status' => $status,
                 ]);
 
                 if ($success) {

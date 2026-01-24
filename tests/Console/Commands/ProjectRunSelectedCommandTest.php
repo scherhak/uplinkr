@@ -9,7 +9,7 @@ use Uplinkr\Handler\Project\ProbeSelectedProjectsHandler;
 use Uplinkr\Interfaces\ProjectStorageInterface;
 use Uplinkr\Tests\TestCase;
 
-class ProjectRunSelectedProbeCommandTest extends TestCase
+class ProjectRunSelectedCommandTest extends TestCase
 {
     private MockInterface|ProbeSelectedProjectsHandler $handlerMock;
     private MockInterface|ProjectStorageInterface $storageMock;
@@ -44,7 +44,7 @@ class ProjectRunSelectedProbeCommandTest extends TestCase
             }))
             ->andReturn([$result]);
 
-        $this->artisan('uplinkr:project:run-selected-probe', ['--project' => $projectName])
+        $this->artisan('uplinkr:project:run-selected', ['--project' => $projectName])
             ->expectsConfirmation('Should all probes for all projects be executed?', 'yes')
             ->expectsOutput('Running all probes...')
             ->expectsOutput('Target URL is currently reachable (Response time: 100 ms)')
@@ -73,7 +73,7 @@ class ProjectRunSelectedProbeCommandTest extends TestCase
             }))
             ->andReturn([$result]);
 
-        $this->artisan('uplinkr:project:run-selected-probe', ['--project' => $projectName, '--force' => true])
+        $this->artisan('uplinkr:project:run-selected', ['--project' => $projectName, '--force' => true])
             ->expectsOutput('Running all probes...')
             ->expectsOutput('Target URL is currently reachable (Response time: 100 ms)')
             ->expectsOutput('Result stored successfully in project project1.')
@@ -93,7 +93,7 @@ class ProjectRunSelectedProbeCommandTest extends TestCase
         $this->handlerMock->shouldReceive('handle')
             ->never();
 
-        $this->artisan('uplinkr:project:run-selected-probe', ['--project' => $projectName, '--force' => true])
+        $this->artisan('uplinkr:project:run-selected', ['--project' => $projectName, '--force' => true])
             ->expectsOutput('Project non-existent not found.')
             ->assertExitCode(CommandAlias::SUCCESS);
     }
@@ -112,7 +112,7 @@ class ProjectRunSelectedProbeCommandTest extends TestCase
             ->with($projectName, Mockery::any())
             ->andReturn([]);
 
-        $this->artisan('uplinkr:project:run-selected-probe', ['--project' => $projectName, '--force' => true])
+        $this->artisan('uplinkr:project:run-selected', ['--project' => $projectName, '--force' => true])
             ->expectsOutput('Running all probes...')
             ->expectsOutput('No probes found for project empty-project.')
             ->assertExitCode(CommandAlias::SUCCESS);
@@ -120,7 +120,7 @@ class ProjectRunSelectedProbeCommandTest extends TestCase
 
     public function test_it_fails_when_no_project_option_provided(): void
     {
-        $this->artisan('uplinkr:project:run-selected-probe', ['--force' => true])
+        $this->artisan('uplinkr:project:run-selected', ['--force' => true])
             ->expectsOutput('Updating failed. Please check the project name. This is a required field.')
             ->assertExitCode(CommandAlias::INVALID);
     }
@@ -135,7 +135,7 @@ class ProjectRunSelectedProbeCommandTest extends TestCase
 
         $this->handlerMock->shouldNotReceive('handle');
 
-        $this->artisan('uplinkr:project:run-selected-probe', ['--project' => $projectName])
+        $this->artisan('uplinkr:project:run-selected', ['--project' => $projectName])
             ->expectsConfirmation('Should all probes for all projects be executed?', 'no')
             ->expectsOutput('The process was aborted.')
             ->assertExitCode(CommandAlias::INVALID);
@@ -152,7 +152,7 @@ class ProjectRunSelectedProbeCommandTest extends TestCase
 
         $this->handlerMock->shouldNotReceive('handle');
 
-        $this->artisan('uplinkr:project:run-selected-probe', ['--project' => $projectName, '--force' => true])
+        $this->artisan('uplinkr:project:run-selected', ['--project' => $projectName, '--force' => true])
             ->expectsOutput('Project disabled-project is disabled.')
             ->assertExitCode(CommandAlias::SUCCESS);
     }
