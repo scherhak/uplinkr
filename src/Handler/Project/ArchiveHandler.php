@@ -6,6 +6,7 @@ use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Uplinkr\Objects\Config\UplinkrConfig;
+use Uplinkr\Support\Sanitizer;
 
 /**
  * Class ArchiveHandler
@@ -19,6 +20,7 @@ class ArchiveHandler
      * @var Filesystem $storage
      */
     private Filesystem $storage;
+    private readonly Sanitizer $sanitizer;
 
     /**
      * Constructor method.
@@ -27,9 +29,11 @@ class ArchiveHandler
      * @return void
      */
     public function __construct(
-        private readonly UplinkrConfig $config
+        private readonly UplinkrConfig $config,
+        ?Sanitizer $sanitizer = null
     )
     {
+        $this->sanitizer = $sanitizer ?? new Sanitizer($this->config);
         $this->storage = Storage::disk($this->config->getStorageDisc());
     }
 
@@ -41,6 +45,11 @@ class ArchiveHandler
      */
     public function exists(string $projectName): bool
     {
+        $projectName = $this->sanitizeProjectName($projectName);
+        if ($projectName === '') {
+            return false;
+        }
+
         return $this->storage->exists(sprintf('%s/%s', $this->config->getStoragePath(), $projectName));
     }
 
@@ -52,6 +61,11 @@ class ArchiveHandler
      */
     public function archive(string $projectName): bool
     {
+        $projectName = $this->sanitizeProjectName($projectName);
+        if ($projectName === '') {
+            return false;
+        }
+
         return File::copyDirectory(
             $this->getProjectPath(projectName: $projectName),
             $this->setArchivePath(projectName: $projectName)
@@ -68,7 +82,13 @@ class ArchiveHandler
      */
     public function delete(string $projectName): bool
     {
-        return Storage::disk($this->config->getStorageDisc())->deleteDirectory($projectName);
+        $projectName = $this->sanitizeProjectName($projectName);
+        if ($projectName === '') {
+            return false;
+        }
+
+        $path = sprintf('%s/%s', $this->config->getStoragePath(), $projectName);
+        return Storage::disk($this->config->getStorageDisc())->deleteDirectory($path);
     }
 
     /**
@@ -79,6 +99,7 @@ class ArchiveHandler
      */
     private function getProjectPath(string $projectName): string
     {
+        $projectName = $this->sanitizeProjectName($projectName);
         return $this->storage->path(
             sprintf(
                 '%s/%s',
@@ -95,6 +116,7 @@ class ArchiveHandler
      */
     private function setArchivePath(string $projectName): string
     {
+        $projectName = $this->sanitizeProjectName($projectName);
         return $this->storage->path(
             sprintf(
                 '%s/%s/%s',
@@ -102,5 +124,16 @@ class ArchiveHandler
                 $this->config->getArchivedFolder(),
                 $projectName)
         );
+    }
+
+    /**
+     * Sanitizes a given project name.
+     *
+     * @param string $projectName
+     * @return string
+     */
+    private function sanitizeProjectName(string $projectName): string
+    {
+        return $this->sanitizer->project($projectName);
     }
 }

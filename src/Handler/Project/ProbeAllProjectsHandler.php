@@ -2,10 +2,10 @@
 
 namespace Uplinkr\Handler\Project;
 
-use Illuminate\Support\Arr;
 use Uplinkr\Handler\Probe\UrlHandler;
 use Uplinkr\Interfaces\ProjectStorageInterface;
 use Uplinkr\Objects\Project\ProjectValues;
+use Uplinkr\Traits\RunsProjectProbes;
 
 /**
  * Class ProbeAllProjectsHandler
@@ -15,6 +15,8 @@ use Uplinkr\Objects\Project\ProjectValues;
  */
 class ProbeAllProjectsHandler
 {
+    use RunsProjectProbes;
+
     /**
      * ProbeAllProjectsHandler constructor.
      *
@@ -65,24 +67,7 @@ class ProbeAllProjectsHandler
         $projectValues = new ProjectValues($project);
         $projectName = $projectValues->getName();
         $probes = $projectValues->getProbes();
-        $results = [];
 
-        foreach ($probes as $probe) {
-            $result = $this->urlHandler->with(data: [
-                'url' => Arr::get($probe, 'url'),
-                'project' => $projectName,
-                'method' => Arr::get($probe, 'method', 'GET'),
-                'headers' => Arr::get($probe, 'headers', []),
-                'body' => Arr::get($probe, 'body', '')
-            ])->handle();
-
-            $results[] = $result;
-
-            if ($callback) {
-                $callback($result, $projectName);
-            }
-        }
-
-        return $results;
+        return $this->runProbes($probes, $projectName, $callback);
     }
 }

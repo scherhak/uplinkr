@@ -152,7 +152,11 @@ class AnalyzeHandler
                     return null;
                 }
 
-                $decoded = json_decode($line, true, 512, JSON_THROW_ON_ERROR);
+                try {
+                    $decoded = json_decode($line, true, 512, JSON_THROW_ON_ERROR);
+                } catch (Throwable) {
+                    return null;
+                }
 
                 if (!is_array($decoded) || json_last_error() !== JSON_ERROR_NONE) {
                     // TODO Think about logging invalid lines

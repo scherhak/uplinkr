@@ -2,8 +2,10 @@
 
 namespace Uplinkr\Handler\Project;
 
+use Carbon\CarbonImmutable;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
+use Throwable;
 use Uplinkr\Objects\Summary\ProbeResultsSummary;
 use Uplinkr\Support\Sanitizer;
 
@@ -45,7 +47,7 @@ class SummaryHandler
             $error = $items->where('probe_status', 'error')->count();
             $unknown = $items->where('probe_status', 'unknown')->count();
 
-            $unknown = max($unknown, $total - $reachable - $unreachable - $error - $items->where('probe_status', 'error')->count());
+            $unknown = max($unknown, $total - $reachable - $unreachable - $error);
             $executed = $this->setExecuted(items: $items);
             $durations = $this->setDurations(items: $items);
             $avgDurationMs = $durations->isEmpty() ? null : round($durations->avg(), 2);
@@ -89,21 +91,42 @@ class SummaryHandler
     }
 
     /**
-     * Extracts and returns a collection of executed durations from the given collection of probe items.
-     * Filters out non-numeric or invalid duration values, converts the remaining values to floats, and re-indexes the collection.
+     * Extracts and returns a collection of execution timestamps from the given collection of probe items.
+     * Filters out invalid timestamp values, sorts them chronologically, and re-indexes the collection.
      *
      * @param Collection $items A collection of probe items, where each item is an array of attributes.
-     *                           Each item should contain the 'probe_message.duration_ms' field that represents the execution duration.
+     *                           Each item should contain the 'executed' field that represents the execution timestamp.
      *
-     * @return Collection Returns a collection of numeric durations extracted from the input collection, re-indexed and filtered for validity.
+     * @return Collection Returns a collection of ISO-8601 timestamps extracted from the input collection, sorted and re-indexed.
      */
     private function setExecuted(Collection $items): Collection
     {
         return $items
-            ->map(static fn($line) => Arr::get($line, 'probe_message.duration_ms'))
-            ->filter(static fn($v) => is_numeric($v))
-            ->map(static fn($v) => (float)$v)
-            ->values();
+            ->map(static function ($line): ?int {
+                $executed = Arr::get($line, 'executed');
+
+                if ($executed instanceof \DateTimeInterface) {
+                    return $executed->getTimestamp();
+                }
+
+                if (is_numeric($executed)) {
+                    return (int)$executed;
+                }
+
+                if (is_string($executed) && trim($executed) !== '') {
+                    try {
+                        return CarbonImmutable::parse($executed)->getTimestamp();
+                    } catch (Throwable) {
+                        return null;
+                    }
+                }
+
+                return null;
+            })
+            ->filter(static fn($v) => is_int($v))
+            ->sort()
+            ->values()
+            ->map(static fn(int $timestamp) => CarbonImmutable::createFromTimestamp($timestamp)->toIso8601String());
     }
 
     /**

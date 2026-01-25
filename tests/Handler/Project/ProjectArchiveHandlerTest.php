@@ -113,7 +113,7 @@ class ProjectArchiveHandlerTest extends TestCase
             ->andReturn($this->filesystemMock);
 
         $this->filesystemMock->shouldReceive('deleteDirectory')
-            ->with($projectName)
+            ->with('uplinkr_projects/' . $projectName)
             ->once()
             ->andReturnTrue();
 

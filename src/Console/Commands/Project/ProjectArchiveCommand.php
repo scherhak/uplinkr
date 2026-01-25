@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use Symfony\Component\Console\Command\Command as CommandAlias;
 use Uplinkr\Handler\Project\ArchiveHandler;
 use Uplinkr\Support\CliIcon;
+use Uplinkr\Support\Sanitizer;
 
 /**
  * Class ProjectArchiveCommand
@@ -39,10 +40,23 @@ class ProjectArchiveCommand extends Command
      * @param ArchiveHandler $archiveHandler
      * @return int
      */
-    public function handle(ArchiveHandler $archiveHandler): int
+    public function handle(ArchiveHandler $archiveHandler, Sanitizer $sanitizer): int
     {
-        $project = $this->option('project');
+        $projectInput = $this->option('project');
         $force = $this->option('force');
+
+        if ($projectInput === null || trim((string)$projectInput) === '') {
+            $this->error(CliIcon::ERROR->label(text: __('uplinkr::messages.project_archive_option_missing')));
+
+            return CommandAlias::INVALID;
+        }
+
+        $project = $sanitizer->project($projectInput);
+        if ($project === '') {
+            $this->error(CliIcon::ERROR->label(text: __('uplinkr::messages.project_archive_option_missing')));
+
+            return CommandAlias::INVALID;
+        }
 
         $exists = $archiveHandler->exists(projectName: $project);
 
@@ -52,7 +66,7 @@ class ProjectArchiveCommand extends Command
                 $execute = true;
             } else {
                 $execute = $this->confirm(__('uplinkr::messages.project_archive_start', [
-                    'project' => $project,
+                    'project' => $projectInput,
                 ]));
             }
 
@@ -62,14 +76,14 @@ class ProjectArchiveCommand extends Command
                 if ($copied) {
 
                     $this->info(CliIcon::OK->label(text: __('uplinkr::messages.project_archive_success', [
-                        'project' => $project,
+                        'project' => $projectInput,
                     ])));
 
                     return CommandAlias::SUCCESS;
                 }
 
                 $this->error(CliIcon::ERROR->label(text: __('uplinkr::messages.project_archive_failed', [
-                    'project' => $project,
+                    'project' => $projectInput,
                 ])));
             }
 
@@ -77,7 +91,7 @@ class ProjectArchiveCommand extends Command
         }
 
         $this->error(CliIcon::ERROR->label(text: __('uplinkr::messages.project_not_found', [
-            'project' => $project,
+            'project' => $projectInput,
         ])));
 
         return CommandAlias::INVALID;

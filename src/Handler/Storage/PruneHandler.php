@@ -7,6 +7,7 @@ use Exception;
 use Illuminate\Support\Facades\Storage;
 use InvalidArgumentException;
 use Uplinkr\Objects\Config\UplinkrConfig;
+use Uplinkr\Support\Sanitizer;
 
 /**
  * Class PruneHandler
@@ -16,10 +17,14 @@ use Uplinkr\Objects\Config\UplinkrConfig;
  */
 class PruneHandler
 {
+    private readonly Sanitizer $sanitizer;
+
     public function __construct(
-        private readonly UplinkrConfig $config
+        private readonly UplinkrConfig $config,
+        ?Sanitizer $sanitizer = null
     )
     {
+        $this->sanitizer = $sanitizer ?? new Sanitizer($this->config);
     }
 
     /**
@@ -32,6 +37,15 @@ class PruneHandler
      */
     public function pruneBeforeDate(string $project, string $beforeDateString): int
     {
+        if (trim($project) === '') {
+            return 0;
+        }
+
+        $project = $this->sanitizer->project($project);
+        if ($project === '') {
+            return 0;
+        }
+
         try {
             $beforeDate = Carbon::createFromFormat('Y-m-d', $beforeDateString)?->startOfDay();
         } catch (Exception $e) {
