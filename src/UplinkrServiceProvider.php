@@ -6,7 +6,6 @@ use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\ServiceProvider;
 use Uplinkr\Console\Commands\Probe\ProbeUrlCommand;
-use Uplinkr\Console\Commands\UplinkrInstallCommand;
 use Uplinkr\Console\Commands\Project\ProjectAddProbeCommand;
 use Uplinkr\Console\Commands\Project\ProjectAlertDecisionCommand;
 use Uplinkr\Console\Commands\Project\ProjectAlertsCommand;
@@ -19,6 +18,7 @@ use Uplinkr\Console\Commands\Project\ProjectRunProbesCommand;
 use Uplinkr\Console\Commands\Project\ProjectRunSelectedCommand;
 use Uplinkr\Console\Commands\Project\ProjectUpdateCommand;
 use Uplinkr\Console\Commands\Prune\PruneStorageCommand;
+use Uplinkr\Console\Commands\UplinkrInstallCommand;
 use Uplinkr\Handler\Probe\ResultHandler;
 use Uplinkr\Handler\Probe\UrlHandler;
 use Uplinkr\Handler\Project\ProbeAllProjectsHandler;
@@ -75,7 +75,7 @@ class UplinkrServiceProvider extends ServiceProvider
             ]);
 
             $this->app->booted(function () {
-                if (! config('uplinkr.scheduler.enabled')) {
+                if (!config('uplinkr.scheduler.enabled')) {
                     return;
                 }
 

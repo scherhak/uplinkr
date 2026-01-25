@@ -2,6 +2,7 @@
 
 namespace Uplinkr\Tests\Translations;
 
+use PHPUnit\Framework\Attributes\Test;
 use Uplinkr\Tests\TestCase;
 
 /**
@@ -10,7 +11,7 @@ use Uplinkr\Tests\TestCase;
  */
 class TranslationsTest extends TestCase
 {
-    /** @test */
+    #[Test]
     public function it_resolves_package_translation_keys(): void
     {
         app()->setLocale('en');

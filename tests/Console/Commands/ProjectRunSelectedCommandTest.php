@@ -7,6 +7,7 @@ use Mockery\MockInterface;
 use Symfony\Component\Console\Command\Command as CommandAlias;
 use Uplinkr\Handler\Project\ProbeSelectedProjectsHandler;
 use Uplinkr\Interfaces\ProjectStorageInterface;
+use Uplinkr\Support\CliIcon;
 use Uplinkr\Tests\TestCase;
 
 class ProjectRunSelectedCommandTest extends TestCase
@@ -46,10 +47,10 @@ class ProjectRunSelectedCommandTest extends TestCase
 
         $this->artisan('uplinkr:project:run-selected', ['--project' => $projectName])
             ->expectsConfirmation('Should all probes for all projects be executed?', 'yes')
-            ->expectsOutput('Running all probes...')
+            ->expectsOutput(CliIcon::RUN->label('Running all probes...'))
             ->expectsOutput('Target URL is currently reachable (Response time: 100 ms)')
             ->expectsOutput('Result stored successfully in project project1.')
-            ->expectsOutput('All probes have been executed.')
+            ->expectsOutput(CliIcon::OK->label('All probes have been executed.'))
             ->assertExitCode(CommandAlias::SUCCESS);
     }
 
@@ -74,10 +75,10 @@ class ProjectRunSelectedCommandTest extends TestCase
             ->andReturn([$result]);
 
         $this->artisan('uplinkr:project:run-selected', ['--project' => $projectName, '--force' => true])
-            ->expectsOutput('Running all probes...')
+            ->expectsOutput(CliIcon::RUN->label('Running all probes...'))
             ->expectsOutput('Target URL is currently reachable (Response time: 100 ms)')
             ->expectsOutput('Result stored successfully in project project1.')
-            ->expectsOutput('All probes have been executed.')
+            ->expectsOutput(CliIcon::OK->label('All probes have been executed.'))
             ->assertExitCode(CommandAlias::SUCCESS);
     }
 
@@ -94,7 +95,7 @@ class ProjectRunSelectedCommandTest extends TestCase
             ->never();
 
         $this->artisan('uplinkr:project:run-selected', ['--project' => $projectName, '--force' => true])
-            ->expectsOutput('Project non-existent not found.')
+            ->expectsOutput(CliIcon::ERROR->label('Project non-existent not found.'))
             ->assertExitCode(CommandAlias::SUCCESS);
     }
 
@@ -113,15 +114,15 @@ class ProjectRunSelectedCommandTest extends TestCase
             ->andReturn([]);
 
         $this->artisan('uplinkr:project:run-selected', ['--project' => $projectName, '--force' => true])
-            ->expectsOutput('Running all probes...')
-            ->expectsOutput('No probes found for project empty-project.')
+            ->expectsOutput(CliIcon::RUN->label('Running all probes...'))
+            ->expectsOutput(CliIcon::WARN->label('No probes found for project empty-project.'))
             ->assertExitCode(CommandAlias::SUCCESS);
     }
 
     public function test_it_fails_when_no_project_option_provided(): void
     {
         $this->artisan('uplinkr:project:run-selected', ['--force' => true])
-            ->expectsOutput('Updating failed. Please check the project name. This is a required field.')
+            ->expectsOutput(CliIcon::ERROR->label('Updating failed. Please check the project name. This is a required field.'))
             ->assertExitCode(CommandAlias::INVALID);
     }
 
@@ -137,7 +138,7 @@ class ProjectRunSelectedCommandTest extends TestCase
 
         $this->artisan('uplinkr:project:run-selected', ['--project' => $projectName])
             ->expectsConfirmation('Should all probes for all projects be executed?', 'no')
-            ->expectsOutput('The process was aborted.')
+            ->expectsOutput(CliIcon::WARN->label('The process was aborted.'))
             ->assertExitCode(CommandAlias::INVALID);
     }
 
@@ -153,7 +154,7 @@ class ProjectRunSelectedCommandTest extends TestCase
         $this->handlerMock->shouldNotReceive('handle');
 
         $this->artisan('uplinkr:project:run-selected', ['--project' => $projectName, '--force' => true])
-            ->expectsOutput('Project disabled-project is disabled.')
+            ->expectsOutput(CliIcon::WARN->label('Project disabled-project is disabled.'))
             ->assertExitCode(CommandAlias::SUCCESS);
     }
 }

@@ -45,34 +45,34 @@ final class UplinkrConfig
      * @param array $logDefinition Log configuration
      */
     public function __construct(
-        public string $storageDisk = 'local',
-        public string $storagePath = 'uplinkr',
-        public string $probeResultsPath = 'probes',
-        public int    $standardLatency = 1500,
-        public string $probeFilenameSeparator = '@',
-        public string $fileExtension = 'json',
-        public string $archivedFolder = 'archived',
-        public bool   $allowCompleteWipe = false,
-        public string $probeResultsGrouping = 'daily',
-        public string $standardProject = 'standard_project',
-        public string $standardProjectStatus = 'enabled',
+        public string  $storageDisk = 'local',
+        public string  $storagePath = 'uplinkr',
+        public string  $probeResultsPath = 'probes',
+        public int     $standardLatency = 1500,
+        public string  $probeFilenameSeparator = '@',
+        public string  $fileExtension = 'json',
+        public string  $archivedFolder = 'archived',
+        public bool    $allowCompleteWipe = false,
+        public string  $probeResultsGrouping = 'daily',
+        public string  $standardProject = 'standard_project',
+        public string  $standardProjectStatus = 'enabled',
         public ?string $mailMailer = null,
-        public string $mailSubjectPrefix = '[Uplinkr]',
+        public string  $mailSubjectPrefix = '[Uplinkr]',
         public ?string $mailFromAddress = null,
         public ?string $mailFromName = null,
-        public bool   $webhookEnabled = false,
+        public bool    $webhookEnabled = false,
         public ?string $webhookUrl = null,
-        public string $webhookMethod = 'POST',
-        public int    $webhookTimeoutSeconds = 10,
-        public int    $webhookConnectTimeoutSeconds = 5,
-        public bool   $webhookVerifyTls = true,
-        public array  $webhookHeaders = ['Content-Type' => 'application/json'],
-        public array  $webhookRetry = ['max_attempts' => 3, 'backoff_ms' => [0, 2000, 10000]],
-        public array  $webhookSigning = ['enabled' => false, 'header' => 'X-Uplinkr-Signature', 'algo' => 'sha256'],
+        public string  $webhookMethod = 'POST',
+        public int     $webhookTimeoutSeconds = 10,
+        public int     $webhookConnectTimeoutSeconds = 5,
+        public bool    $webhookVerifyTls = true,
+        public array   $webhookHeaders = ['Content-Type' => 'application/json'],
+        public array   $webhookRetry = ['max_attempts' => 3, 'backoff_ms' => [0, 2000, 10000]],
+        public array   $webhookSigning = ['enabled' => false, 'header' => 'X-Uplinkr-Signature', 'algo' => 'sha256'],
         public ?string $payloadVersion = 'uplinkr.v1',
-        public array  $mailTo = [],
-        public string $logChannel = 'uplinkr',
-        public array  $logDefinition = [],
+        public array   $mailTo = [],
+        public string  $logChannel = 'uplinkr',
+        public array   $logDefinition = [],
     )
     {
     }
@@ -347,7 +347,7 @@ final class UplinkrConfig
      */
     public function getProbeResultsDateFormat(): string
     {
-        return match($this->probeResultsGrouping) {
+        return match ($this->probeResultsGrouping) {
             'hourly' => 'Y-m-d-H',
             'daily' => 'Y-m-d',
             'monthly' => 'Y-m',
@@ -362,7 +362,7 @@ final class UplinkrConfig
      */
     public function getProbeResultsDatePattern(): string
     {
-        return match($this->probeResultsGrouping) {
+        return match ($this->probeResultsGrouping) {
             'hourly' => '/(\d{4}-\d{2}-\d{2}-\d{2})/',
             'daily' => '/(\d{4}-\d{2}-\d{2})/',
             'monthly' => '/(\d{4}-\d{2})/',
@@ -377,7 +377,7 @@ final class UplinkrConfig
      */
     public function getProbeResultsCarbonFormat(): string
     {
-        return match($this->probeResultsGrouping) {
+        return match ($this->probeResultsGrouping) {
             'hourly' => 'Y-m-d-H',
             'daily' => 'Y-m-d',
             'monthly' => 'Y-m',

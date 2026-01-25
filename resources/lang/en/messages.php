@@ -8,6 +8,20 @@ return [
     'common_process_aborted' => 'The process was aborted.',
 
     /*
+     * Install
+     */
+    'install_running' => 'Installing Uplinkr...',
+    'install_scheduler_not_enabled' => 'Scheduler integration not enabled.',
+    'install_scheduler_enable_later' => 'You can enable it later in config/uplinkr.php',
+    'install_complete' => 'Uplinkr installation complete',
+    'install_assets_published' => 'Config and language files published',
+    'install_config_hint' => 'You can now configure Uplinkr in config/uplinkr.php',
+    'install_config_not_found' => 'Config file not found, scheduler not enabled.',
+    'install_scheduler_already_enabled' => 'Scheduler already enabled',
+    'install_scheduler_enabled' => 'Scheduler integration enabled',
+    'install_success' => 'Uplinkr installed successfully.',
+
+    /*
      * Probe parts
      */
     'probe_checking' => 'Should the check of :url be started?',
@@ -54,6 +68,7 @@ return [
     'project_enable_success' => 'Project :project enabled successfully.',
     'project_alerts_start' => 'Should alert settings for project :project be updated now?',
     'project_alerts_failed' => 'Updating alert settings for project :project failed. Project might not exist.',
+    'project_alerts_validation_failed' => 'Validation failed. Please check your inputs.',
     'project_alerts_success' => 'Alert settings for project :project updated successfully.',
     'project_alerts_decisions_validation_failed' => 'Validation failed. Please provide a valid project name.',
     'project_alerts_decisions_none_project' => 'No alerts triggered for project ":project".',

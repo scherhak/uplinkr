@@ -5,7 +5,6 @@ namespace Uplinkr\Handler\Project\Alerts;
 use Illuminate\Notifications\AnonymousNotifiable;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use JsonException;
 use Uplinkr\Handler\Project\ListHandler;

@@ -5,6 +5,7 @@ namespace Uplinkr\Console\Commands;
 use File;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Uplinkr\Support\CliIcon;
 use Uplinkr\Traits\HandlesProbeOutput;
 use Uplinkr\UplinkrServiceProvider;
 
@@ -47,7 +48,7 @@ class UplinkrInstallCommand extends Command
      */
     public function handle(): int
     {
-        $this->info('Installing Uplinkr ...');
+        $this->info(CliIcon::RUN->label(text: __('uplinkr::messages.install_running')));
 
         // 1. Publish config + lang
         $this->publishAssets();
@@ -56,12 +57,12 @@ class UplinkrInstallCommand extends Command
         if ($this->option('scheduler')) {
             $this->enableScheduler();
         } else {
-            $this->warn('Scheduler integration not enabled.');
-            $this->line('You can enable it later in config/uplinkr.php');
+            $this->warn(CliIcon::WARN->label(text: __('uplinkr::messages.install_scheduler_not_enabled')));
+            $this->line(__('uplinkr::messages.install_scheduler_enable_later'));
         }
 
         $this->newLine();
-        $this->info('Uplinkr installation complete');
+        $this->info(CliIcon::OK->label(text: __('uplinkr::messages.install_complete')));
 
         return self::SUCCESS;
     }
@@ -81,7 +82,8 @@ class UplinkrInstallCommand extends Command
             '--tag' => ['uplinkr-config', 'uplinkr-lang'],
         ]);
 
-        $this->info('Config and language files published');
+        $this->info(CliIcon::OK->label(text: __('uplinkr::messages.install_assets_published')));
+        $this->info(CliIcon::INFO->label(text: __('uplinkr::messages.install_config_hint')));
     }
 
     /**
@@ -98,15 +100,15 @@ class UplinkrInstallCommand extends Command
     {
         $configPath = config_path('uplinkr.php');
 
-        if (! File::exists($configPath)) {
-            $this->warn('⚠ Config file not found, scheduler not enabled.');
+        if (!File::exists($configPath)) {
+            $this->warn(CliIcon::WARN->label(text: __('uplinkr::messages.install_config_not_found')));
             return;
         }
 
         $content = File::get($configPath);
 
         if (str_contains($content, "'enabled' => true")) {
-            $this->line('• Scheduler already enabled');
+            $this->line(CliIcon::WARN->label(text: __('uplinkr::messages.install_scheduler_already_enabled')));
             return;
         }
 
@@ -118,7 +120,7 @@ class UplinkrInstallCommand extends Command
 
         File::put($configPath, $content);
 
-        $this->line('• Scheduler integration enabled');
+        $this->line(CliIcon::OK->label(text: __('uplinkr::messages.install_scheduler_enabled')));
     }
 
 }

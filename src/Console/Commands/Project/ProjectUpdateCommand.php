@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Validator;
 use JsonException;
 use Symfony\Component\Console\Command\Command as CommandAlias;
 use Uplinkr\Handler\Project\UpdateHandler;
+use Uplinkr\Support\CliIcon;
 
 /**
  * Class ProjectUpdateCommand
@@ -83,23 +84,23 @@ class ProjectUpdateCommand extends Command
                 ]);
 
                 if ($success) {
-                    $this->info(__('uplinkr::messages.project_update_success', ['project' => $project]));
+                    $this->info(CliIcon::OK->label(text: __('uplinkr::messages.project_update_success', ['project' => $project])));
 
                     return CommandAlias::SUCCESS;
                 }
 
-                $this->error(__('uplinkr::messages.project_update_failed', ['project' => $project]));
+                $this->error(CliIcon::ERROR->label(text: __('uplinkr::messages.project_update_failed', ['project' => $project])));
 
                 return CommandAlias::FAILURE;
             }
 
-            $this->warn(__('uplinkr::messages.common_process_aborted'));
+            $this->warn(CliIcon::WARN->label(text: __('uplinkr::messages.common_process_aborted')));
 
             return CommandAlias::INVALID;
 
         }
 
-        $this->error(__('uplinkr::messages.project_update_failed_validation'));
+        $this->error(CliIcon::ERROR->label(text: __('uplinkr::messages.project_update_failed', ['project' => $project])));
 
         return CommandAlias::INVALID;
     }

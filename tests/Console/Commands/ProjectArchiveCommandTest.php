@@ -6,6 +6,7 @@ use Mockery;
 use Mockery\MockInterface;
 use Symfony\Component\Console\Command\Command as CommandAlias;
 use Uplinkr\Handler\Project\ArchiveHandler;
+use Uplinkr\Support\CliIcon;
 use Uplinkr\Tests\TestCase;
 
 class ProjectArchiveCommandTest extends TestCase
@@ -39,7 +40,7 @@ class ProjectArchiveCommandTest extends TestCase
 
         $this->artisan('uplinkr:project:archive', ['--project' => $project])
             ->expectsConfirmation(__('uplinkr::messages.project_archive_start', ['project' => $project]), 'yes')
-            ->expectsOutput(__('uplinkr::messages.project_archive_success', ['project' => $project]))
+            ->expectsOutput(CliIcon::OK->label(__('uplinkr::messages.project_archive_success', ['project' => $project])))
             ->assertExitCode(CommandAlias::SUCCESS);
     }
 
@@ -101,7 +102,7 @@ class ProjectArchiveCommandTest extends TestCase
             ->andReturnFalse();
 
         $this->artisan('uplinkr:project:archive', ['--project' => $project])
-            ->expectsOutput(__('uplinkr::messages.project_not_found', ['project' => $project]))
+            ->expectsOutput(CliIcon::ERROR->label(__('uplinkr::messages.project_not_found', ['project' => $project])))
             ->assertExitCode(CommandAlias::INVALID);
     }
 
@@ -124,7 +125,7 @@ class ProjectArchiveCommandTest extends TestCase
 
         $this->artisan('uplinkr:project:archive', ['--project' => $project])
             ->expectsConfirmation(__('uplinkr::messages.project_archive_start', ['project' => $project]), 'yes')
-            ->expectsOutput(__('uplinkr::messages.project_archive_failed', ['project' => $project]))
+            ->expectsOutput(CliIcon::ERROR->label(__('uplinkr::messages.project_archive_failed', ['project' => $project])))
             ->assertExitCode(CommandAlias::INVALID);
     }
 }

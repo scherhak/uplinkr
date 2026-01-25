@@ -8,6 +8,7 @@ use JsonException;
 use Symfony\Component\Console\Command\Command as CommandAlias;
 use Uplinkr\Handler\Project\InitHandler;
 use Uplinkr\Interfaces\ProjectStorageInterface;
+use Uplinkr\Support\CliIcon;
 
 /**
  * Class ProjectInitCommand
@@ -80,18 +81,18 @@ class ProjectInitCommand extends Command
                     'description' => $description,
                 ]);
 
-                $this->info(__('uplinkr::messages.project_init_success', ['project' => $project]));
+                $this->info(CliIcon::OK->label(text: __('uplinkr::messages.project_init_success', ['project' => $project])));
 
                 return CommandAlias::SUCCESS;
             }
 
-            $this->warn(__('uplinkr::messages.common_process_aborted'));
+            $this->warn(CliIcon::WARN->label(text: __('uplinkr::messages.common_process_aborted')));
 
             return CommandAlias::INVALID;
 
         }
 
-        $this->error(__('uplinkr::messages.project_init_failed'));
+        $this->error(CliIcon::ERROR->label(text: __('uplinkr::messages.project_init_failed')));
 
         return CommandAlias::INVALID;
     }

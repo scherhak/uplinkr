@@ -5,6 +5,7 @@ namespace Uplinkr\Console\Commands\Project;
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Command\Command as CommandAlias;
 use Uplinkr\Handler\Project\ArchiveHandler;
+use Uplinkr\Support\CliIcon;
 
 /**
  * Class ProjectArchiveCommand
@@ -45,10 +46,6 @@ class ProjectArchiveCommand extends Command
 
         $exists = $archiveHandler->exists(projectName: $project);
 
-        $this->info(__('uplinkr::messages.project_archive_start', [
-            'project' => $project,
-        ]));
-
         if ($exists) {
 
             if ($force) {
@@ -64,24 +61,24 @@ class ProjectArchiveCommand extends Command
 
                 if ($copied) {
 
-                    $this->info(__('uplinkr::messages.project_archive_success', [
+                    $this->info(CliIcon::OK->label(text: __('uplinkr::messages.project_archive_success', [
                         'project' => $project,
-                    ]));
+                    ])));
 
                     return CommandAlias::SUCCESS;
                 }
 
-                $this->error(__('uplinkr::messages.project_archive_failed', [
+                $this->error(CliIcon::ERROR->label(text: __('uplinkr::messages.project_archive_failed', [
                     'project' => $project,
-                ]));
+                ])));
             }
 
             return CommandAlias::INVALID;
         }
 
-        $this->error(__('uplinkr::messages.project_not_found', [
+        $this->error(CliIcon::ERROR->label(text: __('uplinkr::messages.project_not_found', [
             'project' => $project,
-        ]));
+        ])));
 
         return CommandAlias::INVALID;
     }

@@ -9,6 +9,7 @@ use JsonException;
 use Symfony\Component\Console\Command\Command as CommandAlias;
 use Uplinkr\Handler\Probe\UrlHandler;
 use Uplinkr\Objects\Config\UplinkrConfig;
+use Uplinkr\Support\CliIcon;
 use Uplinkr\Traits\HandlesProbeOutput;
 
 /**
@@ -53,12 +54,12 @@ class ProbeUrlCommand extends Command
      * initiates the `UrlHandler` for processing the URI. It returns a status
      * code indicating the success or failure of the operation.
      *
+     * @param UrlHandler $probeUrlHandler
+     * @param UplinkrConfig $config
      * @return int Returns CommandAlias::SUCCESS if the URI is successfully processed
      *             or CommandAlias::INVALID if the process is canceled or the URI is invalid.
      * @throws JsonException
      * @example php artisan uplinkr:probe-by-uri https scherhak.com
-     * @param UrlHandler $probeUrlHandler
-     * @param UplinkrConfig $config
      */
     public function handle(UrlHandler $probeUrlHandler, UplinkrConfig $config): int
     {
@@ -109,7 +110,7 @@ class ProbeUrlCommand extends Command
             return CommandAlias::INVALID;
         }
 
-        $this->error(__('uplinkr::messages.probe_no_url_provided'));
+        $this->error(CliIcon::ERROR->label(text: __('uplinkr::messages.probe_no_url_provided')));
 
         return CommandAlias::INVALID;
     }

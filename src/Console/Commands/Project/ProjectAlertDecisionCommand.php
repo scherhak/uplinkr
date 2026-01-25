@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Validator;
 use JsonException;
 use Symfony\Component\Console\Command\Command as CommandAlias;
 use Uplinkr\Handler\Project\Alerts\AlertDecisionHandler;
+use Uplinkr\Support\CliIcon;
 use Uplinkr\Support\Logger;
 
 /**
@@ -49,7 +50,7 @@ class ProjectAlertDecisionCommand extends Command
 
             if ($validate->fails()) {
                 $message = __('uplinkr::messages.project_alerts_decisions_validation_failed');
-                $this->error($message);
+                $this->error(CliIcon::ERROR->label(text: $message));
                 Logger::log()->warning($message);
 
                 return CommandAlias::SUCCESS;
@@ -62,7 +63,7 @@ class ProjectAlertDecisionCommand extends Command
             $message = $project
                 ? __('uplinkr::messages.project_alerts_decisions_none_project', ['project' => $project])
                 : __('uplinkr::messages.project_alerts_decisions_none_all');
-            $this->info($message);
+            $this->info(CliIcon::ERROR->label(text: $message));
             Logger::log()->warning($message);
 
             return CommandAlias::SUCCESS;
