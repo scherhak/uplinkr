@@ -4,6 +4,7 @@ namespace Uplinkr\Console\Commands\Project;
 
 use Exception;
 use Illuminate\Console\Command;
+use JsonException;
 use Uplinkr\Handler\Project\AnalyzeHandler;
 use Uplinkr\Handler\Project\SummaryHandler;
 use Uplinkr\Objects\Summary\ProbeResultsSummary;
@@ -11,8 +12,6 @@ use Uplinkr\Objects\Summary\ProbeResultsSummary;
 /**
  * Class ProjectAnalyzeCommand
  * @package Uplinkr\Commands
- *
- * This class is responsible for handling the execution of the `uplinkr:probe-api` command.
  *
  * @author Sascha Scherhak <sascha@uplinkr.dev>
  */
@@ -74,14 +73,15 @@ class ProjectAnalyzeCommand extends Command
      * @param AnalyzeHandler $analyzeHandler
      * @param SummaryHandler $summaryHandler
      * @return void
-     * @throws \JsonException
+     * @throws JsonException
      */
     private function analyzeProjectFiles(
-        string $project,
-        array $files,
+        string         $project,
+        array          $files,
         AnalyzeHandler $analyzeHandler,
         SummaryHandler $summaryHandler
-    ): void {
+    ): void
+    {
         $load = [];
 
         foreach ($files as $file) {

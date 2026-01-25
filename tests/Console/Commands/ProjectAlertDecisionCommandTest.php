@@ -4,6 +4,7 @@ namespace Uplinkr\Tests\Console\Commands;
 
 use Mockery;
 use Uplinkr\Handler\Project\Alerts\AlertDecisionHandler;
+use Uplinkr\Support\CliIcon;
 use Uplinkr\Tests\TestCase;
 use Illuminate\Support\Facades\Log;
 
@@ -30,7 +31,7 @@ class ProjectAlertDecisionCommandTest extends TestCase
         $this->artisan('uplinkr:project:alert:decision', [
             '--project' => 'my-project',
         ])
-            ->expectsOutput(__('uplinkr::messages.project_alerts_decisions_none_project', ['project' => 'my-project']))
+            ->expectsOutput(CliIcon::ERROR->label(__('uplinkr::messages.project_alerts_decisions_none_project', ['project' => 'my-project'])))
             ->assertExitCode(0);
     }
 
@@ -103,7 +104,7 @@ class ProjectAlertDecisionCommandTest extends TestCase
         $this->app->instance(AlertDecisionHandler::class, $handlerMock);
 
         $this->artisan('uplinkr:project:alert:decision')
-            ->expectsOutput(__('uplinkr::messages.project_alerts_decisions_none_all'))
+            ->expectsOutput(CliIcon::ERROR->label(__('uplinkr::messages.project_alerts_decisions_none_all')))
             ->assertExitCode(0);
     }
 }

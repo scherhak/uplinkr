@@ -4,6 +4,7 @@ namespace Uplinkr\Support;
 
 use Illuminate\Support\Facades\Log;
 use Psr\Log\LoggerInterface;
+use Throwable;
 use Uplinkr\Objects\Config\UplinkrConfig;
 
 /**
@@ -23,7 +24,7 @@ class Logger
     {
         try {
             $channel = UplinkrConfig::fromConfig()->getLogChannel();
-        } catch (\Throwable) {
+        } catch (Throwable) {
             $channel = 'uplinkr';
         }
 

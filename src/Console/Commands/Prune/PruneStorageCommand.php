@@ -9,6 +9,7 @@ use InvalidArgumentException;
 use Symfony\Component\Console\Command\Command as CommandAlias;
 use Uplinkr\Handler\Storage\PruneHandler;
 use Uplinkr\Objects\Config\UplinkrConfig;
+use Uplinkr\Support\CliIcon;
 
 /**
  * Class PruneStorageCommand
@@ -69,7 +70,7 @@ class PruneStorageCommand extends Command
 
         // execute it
         if ($execute) {
-            $this->warn(__('uplinkr::messages.prune_start'));
+            $this->warn(CliIcon::WARN->label(__('uplinkr::messages.prune_start')));
 
             // Projects section
             if ($project) {
@@ -83,17 +84,17 @@ class PruneStorageCommand extends Command
                         $deletedCount = $storagePruneHandler->pruneBeforeDate($project, $before);
 
                         if ($deletedCount > 0) {
-                            $this->info(__('uplinkr::messages.prune_before_count_deleted_files', [
+                            $this->line(__('uplinkr::messages.prune_before_count_deleted_files', [
                                 'deletedCount' => $deletedCount,
                                 'before' => $before
                             ]));
                         } else {
-                            $this->warn(__('uplinkr::messages.prune_before_no_files_found', [
+                            $this->warn(CliIcon::WARN->label(__('uplinkr::messages.prune_before_no_files_found', [
                                 'before' => $before
-                            ]));
+                            ])));
                         }
                     } catch (InvalidArgumentException $e) {
-                        $this->error(__('uplinkr::messages.prune_before_invalid_date_format'));
+                        $this->error(CliIcon::ERROR->label(text: __('uplinkr::messages.prune_before_invalid_date_format')));
 
                         return CommandAlias::FAILURE;
                     }
@@ -103,25 +104,27 @@ class PruneStorageCommand extends Command
 
                     if ($projectFolderExists) {
                         Storage::disk($config->getStorageDisc())->deleteDirectory($projectPath);
-                        $this->info(__('uplinkr::messages.prune_project_by_name_success', ['project' => $project]));
+                        $this->info(CliIcon::OK->label(text: __('uplinkr::messages.prune_project_by_name_success', [
+                            'project' => $project]
+                        )));
                     } else {
-                        $this->error(__('uplinkr::messages.prune_project_folder_does_not_exists', [
+                        $this->error(CliIcon::ERROR->label(text: __('uplinkr::messages.prune_project_folder_does_not_exists', [
                             'project' => $project
-                        ]));
+                        ])));
                     }
                 }
             } elseif ($wipeAll) {
 
                 if ($config->allowCompleteWipe()) {
                     $storagePruneHandler->deleteDirectory($config->getStoragePath());
-                    $this->warn(__('uplinkr::messages.prune_wipe_all_success'));
+                    $this->warn(CliIcon::WARN->label(__('uplinkr::messages.prune_wipe_all_success')));
                     $storagePruneHandler->makeDirectory($config->getStoragePath());
-                    $this->info(__('uplinkr::messages.prune_wipe_all_new_folder_created'));
+                    $this->info(CliIcon::OK->label(__('uplinkr::messages.prune_wipe_all_new_folder_created')));
                 } else {
-                    $this->error(__('uplinkr::messages.prune_wipe_all_not_allowed'));
+                    $this->error(CliIcon::ERROR->label(__('uplinkr::messages.prune_wipe_all_not_allowed')));
                 }
             } else {
-                $this->warn(__('uplinkr::messages.prune_wipe_all_no_files_wiped'));
+                $this->warn(CliIcon::WARN->label(__('uplinkr::messages.prune_wipe_all_no_files_wiped')));
             }
 
             return CommandAlias::SUCCESS;

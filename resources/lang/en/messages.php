@@ -68,6 +68,7 @@ return [
     'project_enable_success' => 'Project :project enabled successfully.',
     'project_alerts_start' => 'Should alert settings for project :project be updated now?',
     'project_alerts_failed' => 'Updating alert settings for project :project failed. Project might not exist.',
+    'project_alerts_validation_failed' => 'Validation failed. Please check your inputs.',
     'project_alerts_success' => 'Alert settings for project :project updated successfully.',
     'project_alerts_decisions_validation_failed' => 'Validation failed. Please provide a valid project name.',
     'project_alerts_decisions_none_project' => 'No alerts triggered for project ":project".',

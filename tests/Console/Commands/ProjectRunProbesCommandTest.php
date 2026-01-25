@@ -7,6 +7,7 @@ use Mockery\MockInterface;
 use Symfony\Component\Console\Command\Command as CommandAlias;
 use Uplinkr\Handler\Project\ProbeAllProjectsHandler;
 use Uplinkr\Interfaces\ProjectStorageInterface;
+use Uplinkr\Support\CliIcon;
 use Uplinkr\Tests\TestCase;
 
 class ProjectRunProbesCommandTest extends TestCase
@@ -48,11 +49,11 @@ class ProjectRunProbesCommandTest extends TestCase
 
         $this->artisan('uplinkr:project:run-probes')
             ->expectsConfirmation('Should all probes for all projects be executed?', 'yes')
-            ->expectsOutput('Running all probes...')
+            ->expectsOutput(CliIcon::RUN->label('Running all probes...'))
             ->expectsOutput('Running 1 probes for project project1...')
             ->expectsOutput('Target URL is currently reachable (Response time: 100 ms)')
             ->expectsOutput('Result stored successfully in project project1.')
-            ->expectsOutput('All probes have been executed.')
+            ->expectsOutput(CliIcon::OK->label('All probes have been executed.'))
             ->assertExitCode(CommandAlias::SUCCESS);
     }
 
@@ -79,11 +80,11 @@ class ProjectRunProbesCommandTest extends TestCase
             ->andReturn([$result]);
 
         $this->artisan('uplinkr:project:run-probes', ['--force' => true])
-            ->expectsOutput('Running all probes...')
+            ->expectsOutput(CliIcon::RUN->label('Running all probes...'))
             ->expectsOutput('Running 1 probes for project project1...')
             ->expectsOutput('Target URL is currently reachable (Response time: 100 ms)')
             ->expectsOutput('Result stored successfully in project project1.')
-            ->expectsOutput('All probes have been executed.')
+            ->expectsOutput(CliIcon::OK->label('All probes have been executed.'))
             ->assertExitCode(CommandAlias::SUCCESS);
     }
 
@@ -98,8 +99,8 @@ class ProjectRunProbesCommandTest extends TestCase
             ->andReturn('uplinkr-path');
 
         $this->artisan('uplinkr:project:run-probes', ['--force' => true])
-            ->expectsOutput('Running all probes...')
-            ->expectsOutput('No projects found in uplinkr-path.')
+            ->expectsOutput(CliIcon::RUN->label('Running all probes...'))
+            ->expectsOutput(CliIcon::WARN->label('No projects found in uplinkr-path.'))
             ->assertExitCode(CommandAlias::SUCCESS);
     }
 
@@ -109,7 +110,7 @@ class ProjectRunProbesCommandTest extends TestCase
 
         $this->artisan('uplinkr:project:run-probes')
             ->expectsConfirmation('Should all probes for all projects be executed?', 'no')
-            ->expectsOutput('The process was aborted.')
+            ->expectsOutput(CliIcon::WARN->label('The process was aborted.'))
             ->assertExitCode(CommandAlias::INVALID);
     }
 
@@ -133,9 +134,10 @@ class ProjectRunProbesCommandTest extends TestCase
             ->andReturn([$result]);
 
         $this->artisan('uplinkr:project:run-probes', ['--force' => true])
-            ->expectsOutput('Running all probes...')
-            ->expectsOutput('Project project1 is disabled.')
+            ->expectsOutput(CliIcon::RUN->label('Running all probes...'))
+            ->expectsOutput(CliIcon::WARN->label('Project project1 is disabled.'))
             ->expectsOutput('Running 1 probes for project project2...')
+            ->expectsOutput(CliIcon::OK->label('All probes have been executed.'))
             ->assertExitCode(CommandAlias::SUCCESS);
     }
 
@@ -162,9 +164,10 @@ class ProjectRunProbesCommandTest extends TestCase
             ->andReturn([$result]);
 
         $this->artisan('uplinkr:project:run-probes', ['--force' => true])
-            ->expectsOutput('Running all probes...')
-            ->expectsOutput('Project project1 not found.')
+            ->expectsOutput(CliIcon::RUN->label('Running all probes...'))
+            ->expectsOutput(CliIcon::ERROR->label('Project project1 not found.'))
             ->expectsOutput('Running 1 probes for project project2...')
+            ->expectsOutput(CliIcon::OK->label('All probes have been executed.'))
             ->assertExitCode(CommandAlias::SUCCESS);
     }
 }

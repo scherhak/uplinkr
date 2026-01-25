@@ -100,7 +100,7 @@ class UplinkrInstallCommand extends Command
     {
         $configPath = config_path('uplinkr.php');
 
-        if (! File::exists($configPath)) {
+        if (!File::exists($configPath)) {
             $this->warn(CliIcon::WARN->label(text: __('uplinkr::messages.install_config_not_found')));
             return;
         }

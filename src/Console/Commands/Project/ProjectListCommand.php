@@ -41,7 +41,7 @@ class ProjectListCommand extends Command
         foreach ($projects as $project) {
             $name = basename($project);
             $count = $listHandler->countProbes(path: $project);
-            $this->info(sprintf('%s [%s]', $name, $count));
+            $this->line(sprintf('%s [%s]', $name, $count));
         }
 
         return CommandAlias::SUCCESS;

@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Validator;
 use JsonException;
 use Symfony\Component\Console\Command\Command as CommandAlias;
 use Uplinkr\Handler\Project\Alerts\AlertHandler;
+use Uplinkr\Support\CliIcon;
 
 /**
  * Class ProjectAlertsCommand
@@ -97,23 +98,23 @@ class ProjectAlertsCommand extends Command
                 ]);
 
                 if ($success) {
-                    $this->info(__('uplinkr::messages.project_alerts_success', ['project' => $project]));
+                    $this->info(CliIcon::OK->label(text: __('uplinkr::messages.project_alerts_success', ['project' => $project])));
 
                     return CommandAlias::SUCCESS;
                 }
 
-                $this->error(__('uplinkr::messages.project_alerts_failed', ['project' => $project]));
+                $this->error(CliIcon::ERROR->label(text: __('uplinkr::messages.project_alerts_failed', ['project' => $project])));
 
                 return CommandAlias::FAILURE;
             }
 
-            $this->warn(__('uplinkr::messages.common_process_aborted'));
+            $this->warn(CliIcon::WARN->label(text: __('uplinkr::messages.common_process_aborted')));
 
             return CommandAlias::INVALID;
 
         }
 
-        $this->error('Validation failed. Please check your inputs.');
+        $this->error(CliIcon::ERROR->label(text: __('uplinkr::messages.project_alerts_validation_failed')));
 
         return CommandAlias::INVALID;
     }

@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\Console\Command\Command as CommandAlias;
 use Uplinkr\Handler\Project\RemoveProbeHandler;
+use Uplinkr\Support\CliIcon;
 
 /**
  * Class ProjectRemoveProbeCommand
@@ -76,17 +77,17 @@ class ProjectRemoveProbeCommand extends Command
                     'project' => $project,
                 ]);
 
-                $this->info(__('uplinkr::messages.project_remove_probe_success'));
+                $this->info(CliIcon::OK->label(text: __('uplinkr::messages.project_remove_probe_success')));
 
                 return CommandAlias::SUCCESS;
             }
 
-            $this->warn(__('uplinkr::messages.common_process_aborted'));
+            $this->warn(CliIcon::WARN->label(text: __('uplinkr::messages.common_process_aborted')));
 
             return CommandAlias::INVALID;
         }
 
-        $this->error(__('uplinkr::messages.project_remove_probe_failed'));
+        $this->error(CliIcon::ERROR->label(text: __('uplinkr::messages.project_remove_probe_failed')));
 
         return CommandAlias::INVALID;
     }

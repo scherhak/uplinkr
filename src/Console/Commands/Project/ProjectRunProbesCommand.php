@@ -8,6 +8,7 @@ use Uplinkr\Handler\Project\ProbeAllProjectsHandler;
 use Uplinkr\Interfaces\ProjectStorageInterface;
 use Uplinkr\Objects\Config\UplinkrConfig;
 use Uplinkr\Objects\Project\ProjectValues;
+use Uplinkr\Support\CliIcon;
 use Uplinkr\Support\Logger;
 use Uplinkr\Traits\HandlesProbeOutput;
 
@@ -51,17 +52,17 @@ class ProjectRunProbesCommand extends Command
         $force = $this->option('force');
 
         if (!$force && !$this->confirm(__('uplinkr::messages.project_run_probes_confirm', ['count' => 'all']))) {
-            $this->warn(__('uplinkr::messages.common_process_aborted'));
+            $this->warn(CliIcon::WARN->label(text: __('uplinkr::messages.common_process_aborted')));
 
             return CommandAlias::INVALID;
         }
 
-        $this->info(__('uplinkr::messages.project_run_probes_start'));
+        $this->info(CliIcon::RUN->label(__('uplinkr::messages.project_run_probes_start')));
 
         $projects = $projectStorage->allProjects();
 
         if (empty($projects)) {
-            $this->warn(__('uplinkr::messages.project_run_probes_no_projects', ['path' => $projectStorage->getStoragePath()]));
+            $this->warn(CliIcon::WARN->label(text: __('uplinkr::messages.project_run_probes_no_projects', ['path' => $projectStorage->getStoragePath()])));
 
             return CommandAlias::SUCCESS;
         }
@@ -70,7 +71,7 @@ class ProjectRunProbesCommand extends Command
             if ($project === null) {
                 $projectName = basename($projectStorage->allProjectDirectories()[$key]);
                 $message = __('uplinkr::messages.project_not_found', ['project' => $projectName]);
-                $this->error($message);
+                $this->error(CliIcon::ERROR->label(text: $message));
                 Logger::log()->warning($message);
 
                 continue;
@@ -81,7 +82,7 @@ class ProjectRunProbesCommand extends Command
             $probes = $projectValues->getProbes();
 
             if ($projectValues->getStatus() === 'disabled') {
-                $this->warn(__('uplinkr::messages.project_disabled', ['project' => $projectName]));
+                $this->warn(CliIcon::WARN->label(text: __('uplinkr::messages.project_disabled', ['project' => $projectName])));
                 continue;
             }
 
@@ -90,7 +91,7 @@ class ProjectRunProbesCommand extends Command
                 continue;
             }
 
-            $this->info(__('uplinkr::messages.project_run_probes_running_for_project', [
+            $this->line(__('uplinkr::messages.project_run_probes_running_for_project', [
                 'count' => count($probes),
                 'project' => $projectName
             ]));
@@ -100,7 +101,7 @@ class ProjectRunProbesCommand extends Command
             });
         }
 
-        $this->info(__('uplinkr::messages.project_run_probes_success'));
+        $this->info(CliIcon::OK->label(__('uplinkr::messages.project_run_probes_success')));
 
         return CommandAlias::SUCCESS;
     }
