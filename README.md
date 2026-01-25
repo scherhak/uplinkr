@@ -15,6 +15,8 @@ For more information, visit the official homepage: [uplinkr.dev](https://uplinkr
 - **Project-based organization**: Group your probes into logical projects.
 - **File-based storage**: No database required. All configurations and results are stored as JSON files.
 - **Detailed analysis**: Analyze response times, status codes, and reachability.
+- **Alerting**: Integrated alert system with support for multiple channels (e.g., Mail, Slack) and customizable thresholds.
+- **Scheduler integration**: Automatically run probes using Laravel's task scheduler.
 - **Flexible commands**: Manage projects and probes easily via Artisan commands.
 - **Customizable**: Configure storage paths, disks, and more.
 
@@ -26,10 +28,22 @@ You can install the package via composer:
 composer require scherhak/uplinkr
 ```
 
-The service provider will automatically register itself. You can publish the configuration file with:
+The service provider will automatically register itself. To install the package and publish the required assets, run:
 
 ```bash
-php artisan vendor:publish --provider="Uplinkr\UplinkrServiceProvider" --tag="config"
+php artisan uplinkr:install
+```
+
+You can also enable the automatic scheduler integration during installation:
+
+```bash
+php artisan uplinkr:install --scheduler
+```
+
+Alternatively, you can publish the configuration file manually with:
+
+```bash
+php artisan vendor:publish --provider="Uplinkr\UplinkrServiceProvider" --tag="uplinkr-config"
 ```
 
 ## Usage
@@ -159,10 +173,17 @@ php artisan uplinkr:project:alert:decision --project=my-website
 
 #### Analyze Results
 
-Generate a summary of probe results for a project, including average response times and status code distribution.
+Generate a summary of probe results for a project, including average response times and status code distribution. You can optionally filter by a date range.
 
 ```bash
+# Analyze a specific project
 php artisan uplinkr:project:analyze --project=my-website
+
+# Analyze a project with a date range
+php artisan uplinkr:project:analyze --project=my-website --from=2025-01-01 --to=2025-01-31
+
+# Analyze all projects
+php artisan uplinkr:project:analyze
 ```
 
 #### Prune Storage
@@ -188,6 +209,8 @@ The configuration file is located at `config/uplinkr.php`. Here you can customiz
 - `projects.standard_project`: Default project name used when none is specified.
 - `logging.log_channel`: The log channel Uplinkr should use for its activity (default: `uplinkr`).
 - `logging.log`: Detailed configuration for the log channel (driver, path, level, etc.).
+- `scheduler.enabled`: Enable the automatic execution of probes via Laravel's task scheduler (default: `false`).
+- `scheduler.cron`: The cron expression for the scheduler (default: `* * * * *`).
 
 ## License
 

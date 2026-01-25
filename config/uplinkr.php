@@ -323,10 +323,12 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | LScheduler
+    | Scheduler
     |--------------------------------------------------------------------------
     |
-    | TODO Describe!
+    | Configure the automatic execution of Uplinkr probes.
+    | When enabled, Uplinkr integrates with Laravel's task scheduler
+    | to run your monitoring probes at the specified interval.
     |
     */
     'scheduler' => [
