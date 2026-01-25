@@ -74,9 +74,7 @@ class ResultHandler
             'settings' => $settings,
         ]);
 
-        if ($probeStatus !== 'reachable') {
-            $this->updateState(result: $result);
-        }
+        $this->updateState(result: $result);
 
         return $result;
     }
@@ -93,6 +91,7 @@ class ResultHandler
         $project = Arr::get($result, 'settings.project');
         $url = Arr::get($result, 'settings.url');
         $method = Arr::get($result, 'settings.method', 'GET');
+        $probeStatus = Arr::get($result, 'probe_status', 'error');
 
         if (!$project || !$url) {
             return;
@@ -127,7 +126,12 @@ class ResultHandler
         ];
 
         $probeState['last_seen_executed_at'] = Time::now();
-        $probeState['consecutive_failures']++;
+        if ($probeStatus === 'reachable') {
+            $probeState['consecutive_failures'] = 0;
+            $probeState['consecutive_slow'] = 0;
+        } else {
+            $probeState['consecutive_failures']++;
+        }
 
         $state['probes'][$probeKey] = $probeState;
         $state['updated_at'] = Time::now();

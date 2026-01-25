@@ -75,7 +75,13 @@ class ProjectValues
      */
     public function getStatus(): string
     {
-        return Arr::get($this->data, 'status', 'enabled');
+        $status = Arr::get($this->data, 'status');
+
+        if (is_string($status) && trim($status) !== '') {
+            return $status;
+        }
+
+        return 'enabled';
     }
 
     /**

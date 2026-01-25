@@ -209,7 +209,26 @@ class UrlHandler
      */
     private function getUrl(): string
     {
-        return Arr::get($this->data, 'url');
+        $url = Arr::get($this->data, 'url');
+        if (!is_string($url)) {
+            return '';
+        }
+
+        $url = trim($url);
+        if ($url === '') {
+            return '';
+        }
+
+        $parts = parse_url($url);
+        if (is_array($parts)
+            && isset($parts['scheme'], $parts['host'])
+            && ($parts['path'] ?? '') === ''
+            && empty($parts['query'])
+            && empty($parts['fragment'])) {
+            return rtrim($url, '/') . '/';
+        }
+
+        return $url;
     }
 
     /**

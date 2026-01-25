@@ -2,11 +2,11 @@
 
 namespace Uplinkr\Handler\Project;
 
-use Illuminate\Support\Arr;
 use JsonException;
 use Uplinkr\Handler\Probe\UrlHandler;
 use Uplinkr\Interfaces\ProjectStorageInterface;
 use Uplinkr\Objects\Project\ProjectValues;
+use Uplinkr\Traits\RunsProjectProbes;
 
 /**
  * Class ProbeSelectedProjectsHandler
@@ -16,6 +16,8 @@ use Uplinkr\Objects\Project\ProjectValues;
  */
 class ProbeSelectedProjectsHandler
 {
+    use RunsProjectProbes;
+
     /**
      * ProbeSelectedProjectsHandler constructor.
      *
@@ -52,24 +54,6 @@ class ProbeSelectedProjectsHandler
         }
 
         $probes = $projectValues->getProbes();
-        $results = [];
-
-        foreach ($probes as $probe) {
-            $result = $this->urlHandler->with(data: [
-                'url' => Arr::get($probe, 'url'),
-                'project' => $projectName,
-                'method' => Arr::get($probe, 'method', 'GET'),
-                'headers' => Arr::get($probe, 'headers', []),
-                'body' => Arr::get($probe, 'body', '')
-            ])->handle();
-
-            $results[] = $result;
-
-            if ($callback) {
-                $callback($result, $projectName);
-            }
-        }
-
-        return $results;
+        return $this->runProbes($probes, $projectName, $callback);
     }
 }

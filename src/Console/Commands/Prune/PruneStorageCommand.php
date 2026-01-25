@@ -5,11 +5,13 @@ namespace Uplinkr\Console\Commands\Prune;
 use Illuminate\Console\Command;
 use Illuminate\Console\ConfirmableTrait;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 use InvalidArgumentException;
 use Symfony\Component\Console\Command\Command as CommandAlias;
 use Uplinkr\Handler\Storage\PruneHandler;
 use Uplinkr\Objects\Config\UplinkrConfig;
 use Uplinkr\Support\CliIcon;
+use Uplinkr\Support\Sanitizer;
 
 /**
  * Class PruneStorageCommand
@@ -48,12 +50,39 @@ class PruneStorageCommand extends Command
      *             - CommandAlias::FAILURE if the process encounters an error.
      *             - CommandAlias::INVALID if no action is performed.
      */
-    public function handle(UplinkrConfig $config, PruneHandler $storagePruneHandler): int
+    public function handle(UplinkrConfig $config, PruneHandler $storagePruneHandler, Sanitizer $sanitizer): int
     {
-        $project = $this->option('project');
+        $projectInput = $this->option('project');
         $before = $this->option('before');
         $wipeAll = $this->option('wipe-all');
         $force = $this->option('force');
+
+        $validate = Validator::make(
+            [
+                'project' => $projectInput,
+            ],
+            [
+                'project' => 'nullable|string|min:1',
+            ],
+        );
+
+        if ($validate->fails()) {
+            $message = __('uplinkr::messages.project_update_failed_validation');
+
+            $this->error(CliIcon::ERROR->label(text: $message));
+
+            return CommandAlias::INVALID;
+        }
+
+        $project = $projectInput;
+        if ($projectInput !== null && $projectInput !== '') {
+            $project = $sanitizer->project($projectInput);
+            if ($project === '') {
+                $this->error(CliIcon::ERROR->label(text: __('uplinkr::messages.project_update_failed_validation')));
+
+                return CommandAlias::INVALID;
+            }
+        }
 
         // if force isset - just let it through
         if ($force) {
@@ -62,8 +91,8 @@ class PruneStorageCommand extends Command
             $execute = $this->confirmToProceed(__('uplinkr::messages.prune_wipe_all'));
         } else {
             $message = ($project && $before)
-                ? __('uplinkr::messages.prune_before', ['project' => $project, 'before' => $before])
-                : __('uplinkr::messages.prune_project', ['project' => $project]);
+                ? __('uplinkr::messages.prune_before', ['project' => $projectInput ?? $project, 'before' => $before])
+                : __('uplinkr::messages.prune_project', ['project' => $projectInput ?? $project]);
 
             $execute = $this->confirm($message);
         }
@@ -105,11 +134,11 @@ class PruneStorageCommand extends Command
                     if ($projectFolderExists) {
                         Storage::disk($config->getStorageDisc())->deleteDirectory($projectPath);
                         $this->info(CliIcon::OK->label(text: __('uplinkr::messages.prune_project_by_name_success', [
-                            'project' => $project]
+                            'project' => $projectInput ?? $project]
                         )));
                     } else {
                         $this->error(CliIcon::ERROR->label(text: __('uplinkr::messages.prune_project_folder_does_not_exists', [
-                            'project' => $project
+                            'project' => $projectInput ?? $project
                         ])));
                     }
                 }
