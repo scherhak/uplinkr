@@ -61,9 +61,9 @@ re-initialize it (metadata will be overwritten, but `created_at` and `probes` wi
 php artisan uplinkr:project:init --project=my-website --label="My Website" --description="Main company website monitoring"
 ```
 
-#### Update Project Metadata
+#### Update Project Metadata or Status
 
-Update the label or description of an existing project without affecting probes or creation date.
+Update the label, description, or status of an existing project without affecting probes or creation date.
 
 ```bash
 php artisan uplinkr:project:update --project=my-website --label="Updated Label" --description="Updated description"
@@ -71,7 +71,7 @@ php artisan uplinkr:project:update --project=my-website --label="Updated Label" 
 
 #### List Projects
 
-List all active projects and the number of probes they contain.
+List all projects and the number of stored probe result files.
 
 ```bash
 php artisan uplinkr:project:list
@@ -79,26 +79,17 @@ php artisan uplinkr:project:list
 
 #### Archive a Project
 
-Move a project and its results to the archive folder.
+Copy a project and its results to the archive folder (the original remains).
 
 ```bash
 php artisan uplinkr:project:archive --project=my-website
 ```
 
-#### Disable a Project
-
-Disable a project to prevent it from being monitored.
+#### Enable or Disable a Project
 
 ```bash
-php artisan uplinkr:project:disable --project=my-website
-```
-
-#### Enable a Project
-
-Enable a previously disabled project.
-
-```bash
-php artisan uplinkr:project:enable --project=my-website
+php artisan uplinkr:project:update --project=my-website --status=disabled
+php artisan uplinkr:project:update --project=my-website --status=enabled
 ```
 
 ### Probe Management
@@ -125,7 +116,7 @@ All execution commands support a `--force` flag to skip confirmation prompts.
 
 #### Run All Probes for All Projects
 
-Execute every defined probe across all active projects.
+Execute every defined probe across all projects (disabled projects are skipped).
 
 ```bash
 php artisan uplinkr:project:run-probes
@@ -200,15 +191,14 @@ php artisan uplinkr:prune --wipe-all
 
 ## Configuration
 
-The configuration file is located at `config/uplinkr.php`. Here you can customize:
+The configuration file is located at `config/uplinkr.php`. Common options include:
 
 - `storage.disk`: The Laravel filesystem disk to use (default: `local`).
 - `storage.path`: The base path for storing Uplinkr data (default: `uplinkr`).
-- `storage.allow_complete_wipe`: Safety setting to prevent accidental deletion of all data (default: `false`).
+- `storage.allow_complete_wipe`: Safety setting to allow deletion of all data (default: `false`).
 - `probes.standard_latency`: The default maximum execution time for a URL probe in ms (default: `1500`).
 - `projects.standard_project`: Default project name used when none is specified.
-- `logging.log_channel`: The log channel Uplinkr should use for its activity (default: `uplinkr`).
-- `logging.log`: Detailed configuration for the log channel (driver, path, level, etc.).
+- `notifications.channels.*`: Configure alert notifications (log, mail, webhook).
 - `scheduler.enabled`: Enable the automatic execution of probes via Laravel's task scheduler (default: `false`).
 - `scheduler.cron`: The cron expression for the scheduler (default: `* * * * *`).
 
@@ -223,3 +213,7 @@ Please see [SECURITY.md](SECURITY.md) for our security policy.
 ## Contributing
 
 Please see [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines.
+
+## Changelog
+
+Please see [CHANGELOG.md](CHANGELOG.md) for release notes.
