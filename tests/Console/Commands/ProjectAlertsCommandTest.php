@@ -20,7 +20,7 @@ class ProjectAlertsCommandTest extends TestCase
                 'cooldown_minutes' => 60,
                 'latency_threshold_ms' => 2000,
                 'trigger_after_slow' => 5,
-                'channels' => ['mail', 'slack'],
+                'channels' => ['mail', 'webhook'],
             ])
             ->andReturn(true);
 
@@ -33,7 +33,7 @@ class ProjectAlertsCommandTest extends TestCase
             '--cooldown' => 60,
             '--threshold' => 2000,
             '--slow' => 5,
-            '--channels' => 'mail,slack',
+            '--channels' => 'mail,webhook',
             '--force' => true,
         ])->assertExitCode(0);
     }

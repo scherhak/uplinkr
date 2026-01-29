@@ -26,7 +26,7 @@ class AlertHandlerTest extends TestCase
             'cooldown_minutes' => 60,
             'latency_threshold_ms' => 2000,
             'trigger_after_slow' => 5,
-            'channels' => ['mail', 'slack'],
+            'channels' => ['mail', 'webhook'],
         ];
 
         $storageMock->shouldReceive('findProject')
@@ -44,7 +44,7 @@ class AlertHandlerTest extends TestCase
                     $data['alerts'][0]['cooldown_minutes'] === 60 &&
                     $data['alerts'][0]['latency_threshold_ms'] === 2000 &&
                     $data['alerts'][0]['trigger_after_slow'] === 5 &&
-                    $data['alerts'][0]['channels'] === ['mail', 'slack'] &&
+                    $data['alerts'][0]['channels'] === ['mail', 'webhook'] &&
                     isset($data['updated_at']);
             }));
 

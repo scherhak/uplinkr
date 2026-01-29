@@ -15,7 +15,7 @@ For more information, visit the official homepage: [uplinkr.dev](https://uplinkr
 - **Project-based organization**: Group your probes into logical projects.
 - **File-based storage**: No database required. All configurations and results are stored as JSON files.
 - **Detailed analysis**: Analyze response times, status codes, and reachability.
-- **Alerting**: Integrated alert system with support for multiple channels (e.g., Mail, Slack) and customizable thresholds.
+- **Alerting**: Integrated alert system with support for multiple channels (e.g., Mail, Webhook, Log) and customizable thresholds.
 - **Scheduler integration**: Automatically run probes using Laravel's task scheduler.
 - **Flexible commands**: Manage projects and probes easily via Artisan commands.
 - **Customizable**: Configure storage paths, disks, and more.
@@ -154,7 +154,7 @@ php artisan uplinkr:probe:url --url=https://example.com --project=my-website --l
 Define when and how alerts should be triggered for a specific project.
 
 ```bash
-php artisan uplinkr:project:alerts --project=my-website --enabled=true --failures=3 --cooldown=30 --threshold=2000 --slow=5 --channels=mail,slack
+php artisan uplinkr:project:alerts --project=my-website --enabled=true --failures=3 --cooldown=30 --threshold=2000 --slow=5 --channels=mail,webhook
 ```
 
 #### Check Alert Decisions
@@ -214,4 +214,12 @@ The configuration file is located at `config/uplinkr.php`. Here you can customiz
 
 ## License
 
-The MIT License (MIT). Please see [LICENCE.md](LICENCE.md) for more information.
+The MIT License (MIT). Please see [LICENSE.md](LICENSE.md) for more information.
+
+## Security
+
+Please see [SECURITY.md](SECURITY.md) for our security policy.
+
+## Contributing
+
+Please see [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines.
