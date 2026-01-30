@@ -1,3 +1,7 @@
+<p align="center">
+    <img src=".github/uplinkr-logo.png" alt="Uplinkr Logo" width="200">
+</p>
+
 # Uplinkr
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/scherhak/uplinkr.svg?style=flat-square)](https://packagist.org/packages/scherhak/uplinkr)
