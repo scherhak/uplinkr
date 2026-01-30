@@ -90,6 +90,7 @@ return [
     'project_alerts_mail_alert_settings_head' => 'Current alert settings',
     'project_alerts_mail_alert_settings_trigger_after_failures' => '- The alarm was triggered after :triggerAfterFailures consecutive errors.',
     'project_alerts_mail_alert_settings_latency_threshold_ms' => '- The maximum response time is currently set to :latencyThresholdMs milliseconds.',
+    'project_alerts_mail_alert_settings_latency_cooldown_minutes' => '- The current cooldown for notifications is :cooldownMinutes minutes.',
 
     /*
      * Prune project and probes results

@@ -203,6 +203,7 @@ class AlertDecisionHandler
         }
 
         $lastNotifiedAt = Carbon::parse($lastNotifiedAt);
+
         return $lastNotifiedAt->addMinutes($cooldownMinutes)->isFuture();
     }
 
