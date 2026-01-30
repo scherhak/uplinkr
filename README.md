@@ -5,7 +5,7 @@
 # Uplinkr
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/scherhak/uplinkr.svg?style=flat-square)](https://packagist.org/packages/scherhak/uplinkr)
-[![Total Downloads](https://img.shields.io/packagist/dt/scherhak/uplinkr.svg?style=flat-square)](https://packagist.org/packages/scherhak/uplinkr)
+[![Total Downloads]( https://img.shields.io/packagist/dt/scherhak/uplinkr.svg?style=flat-square)](https://packagist.org/packages/scherhak/uplinkr)
 [![License](https://img.shields.io/packagist/l/scherhak/uplinkr.svg?style=flat-square)](https://packagist.org/packages/scherhak/uplinkr)
 
 Uplinkr is a lightweight, file-based Laravel package for monitoring website availability with zero external
