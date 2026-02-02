@@ -1,15 +1,13 @@
-<div style="text-align: center;">
+<p align="center">
   <img src=".github/uplinkr-mascot-200.png" alt="Uplinkr Logo" width="200">
+</p>
 
-  <h1 style="margin-top: 0;font-size: 3rem;">uplinkr</h1>
+<h1 align="center">Uplinkr</h1>
 
-  <p>
-    Lightweight Laravel monitoring for URLs & APIs.<br>
-    File-based. CLI-first. No external services.
-  </p>
-</div>
-
----
+<p align="center">
+  CLI-first monitoring for Laravel — simple, local, reliable.<br>
+  File-based monitoring for URLs & APIs. No external services.
+</p>
 
 ## What is Uplinkr?
 
