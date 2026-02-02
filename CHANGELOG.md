@@ -2,13 +2,33 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.1.0] - 2026-01-29
+## [Unreleased] - v0.2.0
 
-### Added
-- CLI project management (init, update label/description/status, list, archive).
-- Project probe management (add/remove probes).
-- Probe execution commands (run all projects, run a selected project, probe a single URL).
-- File-based JSON storage with configurable disk/path and prune tooling.
-- Analysis and summary generation for probe results.
-- Alerts configuration and decision checks with log/mail/webhook notifications.
-- Scheduler integration for automated probes and alert decisions.
+Planned for the next release:
+
+**New Features:**
+- TLS certificate validation and monitoring
+- Enhanced analysis tools for probe results
+- Improved archive management and retention policies
+
+**Improvements:**
+- Community feedback integration
+- Extended documentation and examples
+
+---
+
+## [0.1.0] - 2026-02-04
+
+Initial release:
+
+**Core Features:**
+- Complete CLI command suite for project and probe management
+- File-based probe storage with JSON format
+- Multi-channel alerting system (log, mail, webhook)
+- Laravel scheduler integration
+- Zero external dependencies
+
+**Design Principles:**
+- CLI-first approach
+- Scheduler-friendly architecture
+- Automation-ready setup

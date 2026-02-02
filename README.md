@@ -1,51 +1,25 @@
-<p align="center">
-  <img src=".github/uplinkr-logo.png" alt="Uplinkr Logo" width="160">
-</p>
+<div style="text-align: center;">
+  <img src=".github/uplinkr-mascot-200.png" alt="Uplinkr Logo" width="200">
 
-<h1 align="center">Uplinkr</h1>
+  <h1 style="margin-top: 0;font-size: 3rem;">uplinkr</h1>
 
-<p align="center">
-  Lightweight Laravel monitoring for URLs & APIs.<br>
-  File-based. CLI-first. No external services.
-</p>
-
-<p align="center">
-  <a href="https://packagist.org/packages/scherhak/uplinkr">
-    <img src="https://img.shields.io/packagist/v/scherhak/uplinkr.svg?style=flat-square">
-  </a>
-  <a href="https://packagist.org/packages/scherhak/uplinkr">
-    <img src="https://img.shields.io/packagist/dt/scherhak/uplinkr.svg?style=flat-square">
-  </a>
-  <a href="LICENSE.md">
-    <img src="https://img.shields.io/packagist/l/scherhak/uplinkr.svg?style=flat-square">
-  </a>
-</p>
+  <p>
+    Lightweight Laravel monitoring for URLs & APIs.<br>
+    File-based. CLI-first. No external services.
+  </p>
+</div>
 
 ---
 
 ## What is Uplinkr?
 
-**Uplinkr** is a native Laravel package for monitoring reachability and response
-times of URLs and APIs — without databases, SaaS dashboards, or external services.
+**Uplinkr** is a lightweight, file-based uptime and response monitoring package for Laravel. It allows you to monitor your URLs and APIs without requiring a database, storing all probe results as JSON files. Perfect for developers who need simple, reliable monitoring integrated directly into their Laravel applications.
 
-Run probes via Artisan, store results as JSON, evaluate alerts, and keep full
-control over your monitoring stack.
+📖 **Full documentation:** https://uplinkr.dev
 
 ---
 
-## Why Uplinkr?
-
-- ✅ Native **Laravel & Artisan** integration
-- ✅ **File-based JSON storage** (no database)
-- ✅ Built-in **alerting** (mail, webhook, log)
-- ✅ CLI-first & scheduler-friendly
-- ✅ Self-hosted, transparent, extensible
-
-👉 Read more: https://uplinkr.dev/docs/why-uplinkr
-
----
-
-## Install & Run
+## Quick Start
 
 ```bash
 composer require scherhak/uplinkr
@@ -61,15 +35,17 @@ php artisan uplinkr:project:add:probe --project=my-site --url=https://example.co
 php artisan uplinkr:project:run-probes
 ```
 
----
-
-## Documentation
-
-Full documentation, command reference, alerts, and configuration:
-
-➡ https://uplinkr.dev/docs
+➡ See full setup guide: https://uplinkr.dev/getting-started/quick-start/
 
 ---
+
+## Contributing
+
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details.
+
+## Security
+
+If you discover any security related issues, please see [SECURITY.md](SECURITY.md) for how to report them.
 
 ## License
 
