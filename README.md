@@ -15,6 +15,12 @@
 
 📖 **Full documentation:** https://uplinkr.dev
 
+<p>
+  <a href="https://github.com/scherhak/uplinkr/actions/workflows/tests.yml">
+    <img src="https://github.com/scherhak/uplinkr/actions/workflows/tests.yml/badge.svg" alt="tests">
+  </a>
+</p>
+
 ---
 
 ## Quick Start
