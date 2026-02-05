@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Storage;
 use League\Flysystem\UnableToListContents;
 use Mockery;
 use Psr\Log\LoggerInterface;
+use RuntimeException;
 use Uplinkr\Objects\Config\UplinkrConfig;
 use Uplinkr\Storage\FileProjectStorage;
 use Uplinkr\Support\Sanitizer;
@@ -27,8 +28,8 @@ class FileProjectStorageTest extends TestCase
         $this->config = new UplinkrConfig(
             storageDisk: 'local',
             storagePath: 'uplinkr',
-            standardProject: 'test_project',
-            fileExtension: 'json'
+            fileExtension: 'json',
+            standardProject: 'test_project'
         );
 
         $sanitizer = new Sanitizer($this->config);
@@ -168,7 +169,7 @@ class FileProjectStorageTest extends TestCase
         $filesystemMock->shouldReceive('directories')
             ->with('uplinkr')
             ->once()
-            ->andThrow(UnableToListContents::atLocation('uplinkr', 'Permission denied'));
+            ->andThrow(UnableToListContents::atLocation('uplinkr', false, new RuntimeException('Permission denied')));
 
         config(['uplinkr.log_channel' => 'uplinkr']);
 
