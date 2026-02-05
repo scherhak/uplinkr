@@ -5,6 +5,8 @@ namespace Uplinkr\Storage;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
 use JsonException;
+use League\Flysystem\UnableToListContents;
+use Uplinkr\Support\Logger;
 use Uplinkr\Interfaces\ProjectStorageInterface;
 use Uplinkr\Objects\Config\UplinkrConfig;
 use Uplinkr\Objects\Project\ProjectValues;
@@ -193,7 +195,17 @@ class FileProjectStorage implements ProjectStorageInterface
             return [];
         }
 
-        return $disk->directories($storagePath);
+        try {
+            return $disk->directories($storagePath);
+        } catch (UnableToListContents $exception) {
+            Logger::log()->warning('Unable to list uplinkr project directories.', [
+                'disk' => $this->config->getStorageDisc(),
+                'storage_path' => $storagePath,
+                'reason' => $exception->getMessage(),
+            ]);
+
+            return [];
+        }
     }
 
     /**
