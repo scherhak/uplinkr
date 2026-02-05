@@ -2,7 +2,12 @@
 
 namespace Uplinkr\Tests\Storage;
 
+use Illuminate\Contracts\Filesystem\Filesystem;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use League\Flysystem\UnableToListContents;
+use Mockery;
+use Psr\Log\LoggerInterface;
 use Uplinkr\Objects\Config\UplinkrConfig;
 use Uplinkr\Storage\FileProjectStorage;
 use Uplinkr\Support\Sanitizer;
@@ -144,5 +149,47 @@ class FileProjectStorageTest extends TestCase
         $projectNames = array_column($allProjects, 'project');
         $this->assertContains('project-1', $projectNames);
         $this->assertContains('project-2', $projectNames);
+    }
+
+    public function test_it_returns_empty_directories_when_storage_listing_fails(): void
+    {
+        $filesystemMock = Mockery::mock(Filesystem::class);
+
+        Storage::shouldReceive('disk')
+            ->with('local')
+            ->once()
+            ->andReturn($filesystemMock);
+
+        $filesystemMock->shouldReceive('exists')
+            ->with('uplinkr')
+            ->once()
+            ->andReturn(true);
+
+        $filesystemMock->shouldReceive('directories')
+            ->with('uplinkr')
+            ->once()
+            ->andThrow(UnableToListContents::atLocation('uplinkr', 'Permission denied'));
+
+        config(['uplinkr.log_channel' => 'uplinkr']);
+
+        $loggerMock = Mockery::mock(LoggerInterface::class);
+
+        Log::shouldReceive('channel')
+            ->once()
+            ->with('uplinkr')
+            ->andReturn($loggerMock);
+
+        $loggerMock->shouldReceive('warning')
+            ->once()
+            ->with(
+                'Unable to list uplinkr project directories.',
+                Mockery::on(static function (array $context): bool {
+                    return $context['disk'] === 'local'
+                        && $context['storage_path'] === 'uplinkr'
+                        && str_contains((string) $context['reason'], 'Permission denied');
+                })
+            );
+
+        $this->assertSame([], $this->storage->allProjectDirectories());
     }
 }
