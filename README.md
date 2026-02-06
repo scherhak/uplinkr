@@ -10,16 +10,16 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/scherhak/uplinkr/actions/workflows/tests.yml" style="text-decoration: none;">
+  <a href="https://github.com/scherhak/uplinkr/actions/workflows/tests.yml" style="text-decoration: none; border-bottom: none;">
     <img src="https://github.com/scherhak/uplinkr/actions/workflows/tests.yml/badge.svg" alt="tests">
   </a>
-  <a href="https://packagist.org/packages/scherhak/uplinkr" style="text-decoration: none;">
+  <a href="https://packagist.org/packages/scherhak/uplinkr" style="text-decoration: none; border-bottom: none;">
     <img src="https://img.shields.io/packagist/v/scherhak/uplinkr" alt="Latest Stable Version">
   </a>
-  <a href="https://packagist.org/packages/scherhak/uplinkr" style="text-decoration: none;">
+  <a href="https://packagist.org/packages/scherhak/uplinkr" style="text-decoration: none; border-bottom: none;">
     <img src="https://img.shields.io/packagist/dt/scherhak/uplinkr" alt="Total Downloads">
   </a>
-  <a href="https://packagist.org/packages/scherhak/uplinkr" style="text-decoration: none;">
+  <a href="https://packagist.org/packages/scherhak/uplinkr" style="text-decoration: none; border-bottom: none;">
     <img src="https://img.shields.io/packagist/l/scherhak/uplinkr" alt="License">
   </a>
 </p>
