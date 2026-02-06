@@ -9,17 +9,26 @@
   File-based monitoring for URLs & APIs. No external services.
 </p>
 
+<p align="center">
+  <a href="https://github.com/scherhak/uplinkr/actions/workflows/tests.yml">
+    <img src="https://github.com/scherhak/uplinkr/actions/workflows/tests.yml/badge.svg" alt="tests">
+  </a>
+  <a href="https://packagist.org/packages/scherhak/uplinkr">
+    <img src="https://img.shields.io/packagist/v/scherhak/uplinkr" alt="Latest Stable Version">
+  </a>
+  <a href="https://packagist.org/packages/scherhak/uplinkr">
+    <img src="https://img.shields.io/packagist/dt/scherhak/uplinkr" alt="Total Downloads">
+  </a>
+  <a href="https://packagist.org/packages/scherhak/uplinkr">
+    <img src="https://img.shields.io/packagist/l/scherhak/uplinkr" alt="License">
+  </a>
+</p>
+
 ## What is Uplinkr?
 
 **Uplinkr** is a lightweight, file-based uptime and response monitoring package for Laravel. It allows you to monitor your URLs and APIs without requiring a database, storing all probe results as JSON files. Perfect for developers who need simple, reliable monitoring integrated directly into their Laravel applications.
 
-📖 **Full documentation:** https://uplinkr.dev
-
-<p>
-  <a href="https://github.com/scherhak/uplinkr/actions/workflows/tests.yml">
-    <img src="https://github.com/scherhak/uplinkr/actions/workflows/tests.yml/badge.svg" alt="tests">
-  </a>
-</p>
+**Full documentation:** https://uplinkr.dev
 
 ---
 
@@ -39,7 +48,7 @@ php artisan uplinkr:project:add:probe --project=my-site --url=https://example.co
 php artisan uplinkr:project:run-probes
 ```
 
-➡ See full setup guide: https://uplinkr.dev/getting-started/quick-start/
+See full setup guide: https://uplinkr.dev/getting-started/quick-start/
 
 ---
 
