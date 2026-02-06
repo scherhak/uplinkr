@@ -68,6 +68,42 @@ Please include in your PR:
 - How to test the changes?
 - Any breaking changes or deprecations?
 
+## Versioning Policy
+
+Uplinkr follows semantic versioning: `MAJOR.MINOR.PATCH`.
+
+### PATCH (x.y.Z)
+Use PATCH for:
+- Bug fixes and stability improvements
+- Error handling and resilience improvements
+- Logging and observability enhancements
+- Internal refactoring without user-facing behavior changes
+- Test additions or fixes
+- Documentation updates
+
+**Rule:**  
+No new features and no user-facing behavior changes.
+
+### MINOR (x.Y.z)
+Use MINOR for:
+- New features or capabilities
+- New CLI commands or command options
+- New or extended configuration options
+- Backward-compatible behavior improvements
+
+**Rule:**  
+Existing setups must continue to work without manual changes.
+
+### MAJOR (X.y.z)
+Use MAJOR for:
+- Breaking CLI changes (renamed or removed commands/flags)
+- Configuration format changes
+- Storage layout changes
+- Feature removals requiring migration
+
+**Rule:**  
+Manual user action is required.
+
 ## Code Standards
 
 - Follow PSR-12 coding standards (enforced by Pint)
