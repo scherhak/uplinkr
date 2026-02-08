@@ -3,6 +3,7 @@
 namespace Uplinkr\Handler\Project;
 
 use Carbon\CarbonImmutable;
+use DateTimeInterface;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Throwable;
@@ -105,7 +106,7 @@ class SummaryHandler
             ->map(static function ($line): ?int {
                 $executed = Arr::get($line, 'executed');
 
-                if ($executed instanceof \DateTimeInterface) {
+                if ($executed instanceof DateTimeInterface) {
                     return $executed->getTimestamp();
                 }
 

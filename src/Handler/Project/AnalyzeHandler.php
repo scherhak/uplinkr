@@ -160,7 +160,7 @@ class AnalyzeHandler
                 }
 
                 if (!is_array($decoded) || json_last_error() !== JSON_ERROR_NONE) {
-                    Logger::log()->error(__('analyze_invalid_result', [ 'line' => $line ]));
+                    Logger::log()->error(__('uplinkr::messages.analyze_invalid_result', ['line' => $line]));
 
                     return null;
                 }
