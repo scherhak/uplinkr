@@ -134,7 +134,7 @@ class PruneStorageCommand extends Command
                     if ($projectFolderExists) {
                         Storage::disk($config->getStorageDisc())->deleteDirectory($projectPath);
                         $this->info(CliIcon::OK->label(text: __('uplinkr::messages.prune_project_by_name_success', [
-                            'project' => $projectInput ?? $project]
+                                'project' => $projectInput ?? $project]
                         )));
                     } else {
                         $this->error(CliIcon::ERROR->label(text: __('uplinkr::messages.prune_project_folder_does_not_exists', [

@@ -93,6 +93,11 @@ return [
     'project_alerts_mail_alert_settings_latency_cooldown_minutes' => '- The current cooldown for notifications is :cooldownMinutes minutes.',
 
     /*
+     * Analyze parts
+     */
+    'analyze_invalid_result' => 'Invalid probe result in JSON line :line',
+
+    /*
      * Prune project and probes results
      */
     'prune_start' => 'Starting prune process.',
