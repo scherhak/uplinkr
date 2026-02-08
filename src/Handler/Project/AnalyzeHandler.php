@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Storage;
 use JsonException;
 use Throwable;
 use Uplinkr\Objects\Config\UplinkrConfig;
+use Uplinkr\Support\Logger;
 
 /**
  * Class AnalyzeHandler
@@ -159,8 +160,8 @@ class AnalyzeHandler
                 }
 
                 if (!is_array($decoded) || json_last_error() !== JSON_ERROR_NONE) {
-                    // TODO Think about logging invalid lines
-                    // Log::warning('Invalid probe result JSON line', ['line' => $line]);
+                    Logger::log()->error(__('analyze_invalid_result', [ 'line' => $line ]));
+
                     return null;
                 }
 
