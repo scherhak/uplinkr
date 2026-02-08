@@ -26,7 +26,6 @@ final class UplinkrConfig
      * @param string $probeResultsGrouping How to group probe results (hourly, daily, monthly)
      * @param string $standardProject Default project name
      * @param string $standardProjectStatus Default project status
-     * @param string $userAgent User-Agent string for HTTP probes
      * @param string|null $mailMailer Mail mailer name
      * @param string $mailSubjectPrefix Mail subject prefix
      * @param string|null $mailFromAddress Mail from address
@@ -44,6 +43,7 @@ final class UplinkrConfig
      * @param array $mailTo Mail recipients
      * @param string $logChannel Log channel name
      * @param array $logDefinition Log configuration
+     * @param string $userAgent User-Agent string for HTTP probes
      */
     public function __construct(
         public string  $storageDisk = 'local',
@@ -57,7 +57,6 @@ final class UplinkrConfig
         public string  $probeResultsGrouping = 'daily',
         public string  $standardProject = 'standard_project',
         public string  $standardProjectStatus = 'enabled',
-        public string  $userAgent = 'uplinkr-monitor',
         public ?string $mailMailer = null,
         public string  $mailSubjectPrefix = '[Uplinkr]',
         public ?string $mailFromAddress = null,
@@ -75,6 +74,7 @@ final class UplinkrConfig
         public array   $mailTo = [],
         public string  $logChannel = 'uplinkr',
         public array   $logDefinition = [],
+        public string  $userAgent = 'uplinkr-monitor',
     )
     {
     }
@@ -98,7 +98,6 @@ final class UplinkrConfig
             probeResultsGrouping: config('uplinkr.storage.probe_results_grouping', 'daily'),
             standardProject: config('uplinkr.projects.standard_project', 'standard_project'),
             standardProjectStatus: config('uplinkr.projects.standard_project_status', 'enabled'),
-            userAgent: config('uplinkr.probes.user_agent', 'uplinkr-monitor'),
             mailMailer: config('uplinkr.notifications.channels.mail.mailer'),
             mailSubjectPrefix: config('uplinkr.notifications.channels.mail.subject_prefix', '[Uplinkr]'),
             mailFromAddress: config('uplinkr.notifications.channels.mail.from.address'),
@@ -116,6 +115,7 @@ final class UplinkrConfig
             mailTo: config('uplinkr.notifications.channels.mail.to', []),
             logChannel: config('uplinkr.log_channel', 'uplinkr'),
             logDefinition: config('uplinkr.log', []),
+            userAgent: config('uplinkr.probes.user_agent', 'uplinkr-monitor'),
         );
     }
 
