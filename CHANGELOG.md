@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.2] – 2026-02-xx
+
+### Fixed
+
+- The user_agent configuration was defined in config/uplinkr.php but never used.
+Now properly integrated into UplinkrConfig and UrlHandler, replacing the
+hardcoded 'uplinkr-0.1.0' value with the configurable option.
+
+---
+
 ## [0.1.1] – 2026-02-06
 
 ### Fixed

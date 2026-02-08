@@ -30,7 +30,7 @@ class ArchiveHandler
      */
     public function __construct(
         private readonly UplinkrConfig $config,
-        ?Sanitizer $sanitizer = null
+        ?Sanitizer                     $sanitizer = null
     )
     {
         $this->sanitizer = $sanitizer ?? new Sanitizer($this->config);
@@ -73,8 +73,6 @@ class ArchiveHandler
     }
 
     /**
-     * TODO: (0.1.0) Replace/Use this in PruneHandler->deleteDirectory
-     *
      * Deletes a directory corresponding to the specified project name.
      *
      * @param string $projectName The name of the project whose directory is to be deleted.
@@ -88,6 +86,7 @@ class ArchiveHandler
         }
 
         $path = sprintf('%s/%s', $this->config->getStoragePath(), $projectName);
+
         return Storage::disk($this->config->getStorageDisc())->deleteDirectory($path);
     }
 
@@ -100,6 +99,7 @@ class ArchiveHandler
     private function getProjectPath(string $projectName): string
     {
         $projectName = $this->sanitizeProjectName($projectName);
+
         return $this->storage->path(
             sprintf(
                 '%s/%s',
@@ -117,6 +117,7 @@ class ArchiveHandler
     private function setArchivePath(string $projectName): string
     {
         $projectName = $this->sanitizeProjectName($projectName);
+
         return $this->storage->path(
             sprintf(
                 '%s/%s/%s',

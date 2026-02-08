@@ -43,6 +43,7 @@ final class UplinkrConfig
      * @param array $mailTo Mail recipients
      * @param string $logChannel Log channel name
      * @param array $logDefinition Log configuration
+     * @param string $userAgent User-Agent string for HTTP probes
      */
     public function __construct(
         public string  $storageDisk = 'local',
@@ -73,6 +74,7 @@ final class UplinkrConfig
         public array   $mailTo = [],
         public string  $logChannel = 'uplinkr',
         public array   $logDefinition = [],
+        public string  $userAgent = 'uplinkr-monitor',
     )
     {
     }
@@ -113,6 +115,7 @@ final class UplinkrConfig
             mailTo: config('uplinkr.notifications.channels.mail.to', []),
             logChannel: config('uplinkr.log_channel', 'uplinkr'),
             logDefinition: config('uplinkr.log', []),
+            userAgent: config('uplinkr.probes.user_agent', 'uplinkr-monitor'),
         );
     }
 
@@ -349,7 +352,6 @@ final class UplinkrConfig
     {
         return match ($this->probeResultsGrouping) {
             'hourly' => 'Y-m-d-H',
-            'daily' => 'Y-m-d',
             'monthly' => 'Y-m',
             default => 'Y-m-d',
         };
@@ -383,5 +385,15 @@ final class UplinkrConfig
             'monthly' => 'Y-m',
             default => 'Y-m-d',
         };
+    }
+
+    /**
+     * Get the User-Agent string for HTTP probes.
+     *
+     * @return string
+     */
+    public function getUserAgent(): string
+    {
+        return $this->userAgent;
     }
 }

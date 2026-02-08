@@ -21,7 +21,7 @@ class PruneHandler
 
     public function __construct(
         private readonly UplinkrConfig $config,
-        ?Sanitizer $sanitizer = null
+        ?Sanitizer                     $sanitizer = null
     )
     {
         $this->sanitizer = $sanitizer ?? new Sanitizer($this->config);

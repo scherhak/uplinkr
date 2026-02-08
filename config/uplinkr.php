@@ -124,7 +124,7 @@ return [
         | Helps identify Uplinkr probes in server logs.
         |
         */
-        'user_agent' => env('UPLINKR_PROBES_USER_AGENT', 'uplinkr-monitor/0.1.0'),
+        'user_agent' => env('UPLINKR_PROBES_USER_AGENT', 'uplinkr-monitor'),
     ],
 
     /*
