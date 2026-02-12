@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use JsonException;
 use Uplinkr\Interfaces\ProbeResultsStorageInterface;
+use Uplinkr\Jobs\ProbeUrl;
 use Uplinkr\Objects\Config\UplinkrConfig;
 use Uplinkr\Objects\Project\ProjectValues;
 use Uplinkr\Support\Sanitizer;
@@ -58,10 +59,31 @@ class UrlHandler
      * Handles the processing of an HTTP request, including sending the request, handling response,
      * and building and saving the probe result.
      *
-     * @return array|null The resulting data from the probe, or null if the process fails.
+     * If configured for job execution, dispatches a ProbeUrl job instead of executing directly.
+     *
+     * @return array|null The resulting data from the probe, or null if dispatched as job.
      * @throws JsonException
      */
     public function handle(): ?array
+    {
+        // Check if probes should be executed as jobs
+        if ($this->config->shouldExecuteProbesAsJob()) {
+            ProbeUrl::dispatch($this->data)
+                ->onConnection($this->config->getProbeQueueConnection());
+
+            return null;
+        }
+
+        return $this->executeProbe();
+    }
+
+    /**
+     * Executes the actual probe operation.
+     *
+     * @return array The resulting data from the probe.
+     * @throws JsonException
+     */
+    public function executeProbe(): array
     {
         $request = null;
         $startTime = microtime(true);
