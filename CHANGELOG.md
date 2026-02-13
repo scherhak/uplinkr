@@ -12,6 +12,10 @@ All notable changes to this project will be documented in this file.
     - `job`: Asynchronous execution via Laravel queues
   - Queue connection configuration (`probes.queue_connection`)
   - Support for all Laravel queue drivers (sync, database, redis, sqs, beanstalkd)
+- **New Command: `uplinkr:config`**
+  - Display current Uplinkr configuration in structured format
+  - Similar to Laravel's `php artisan config:show uplinkr` command
+  - Hierarchical display of all configuration values
 
 ### Changed
 - **UrlHandler Refactoring**
