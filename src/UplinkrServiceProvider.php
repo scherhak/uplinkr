@@ -18,6 +18,7 @@ use Uplinkr\Console\Commands\Project\ProjectRunProbesCommand;
 use Uplinkr\Console\Commands\Project\ProjectRunSelectedCommand;
 use Uplinkr\Console\Commands\Project\ProjectUpdateCommand;
 use Uplinkr\Console\Commands\Prune\PruneStorageCommand;
+use Uplinkr\Console\Commands\UplinkrConfigCommand;
 use Uplinkr\Console\Commands\UplinkrInstallCommand;
 use Uplinkr\Handler\Probe\ResultHandler;
 use Uplinkr\Handler\Probe\UrlHandler;
@@ -72,6 +73,7 @@ class UplinkrServiceProvider extends ServiceProvider
                 ProjectRunProbesCommand::class,
                 ProjectRunSelectedCommand::class,
                 UplinkrInstallCommand::class,
+                UplinkrConfigCommand::class,
             ]);
 
             $this->app->booted(function () {
