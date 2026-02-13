@@ -13,7 +13,7 @@ use Uplinkr\Support\Time;
  *
  * @author Sascha Scherhak <sascha@uplinkr.dev>
  */
-class AlertHandler
+readonly class AlertHandler
 {
     /**
      * Constructor method for initializing the class with a project storage instance.
