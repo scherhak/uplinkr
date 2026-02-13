@@ -4,14 +4,15 @@ namespace Uplinkr\Tests\Console\Commands;
 
 use Mockery;
 use Uplinkr\Handler\Project\AddProbeHandler;
+use Uplinkr\Interfaces\ProjectStorageInterface;
 use Uplinkr\Tests\TestCase;
 
 class ProjectAddProbeCommandTest extends TestCase
 {
     public function test_it_adds_probe_with_force(): void
     {
-        $handlerMock = Mockery::mock(AddProbeHandler::class);
-        $handlerMock->shouldReceive('handle')
+        $storageMock = Mockery::mock(ProjectStorageInterface::class);
+        $storageMock->shouldReceive('addToProject')
             ->once()
             ->with([
                 'url' => 'https://example.com',
@@ -20,10 +21,9 @@ class ProjectAddProbeCommandTest extends TestCase
                 'headers' => [],
                 'body' => null,
                 'latency' => null,
-            ])
-            ->andReturn(true);
+            ]);
 
-        $this->app->instance(AddProbeHandler::class, $handlerMock);
+        $this->app->instance(ProjectStorageInterface::class, $storageMock);
 
         $this->artisan('uplinkr:project:add:probe', [
             '--url' => 'https://example.com',
@@ -34,12 +34,11 @@ class ProjectAddProbeCommandTest extends TestCase
 
     public function test_it_asks_for_confirmation_without_force(): void
     {
-        $handlerMock = Mockery::mock(AddProbeHandler::class);
-        $handlerMock->shouldReceive('handle')
-            ->once()
-            ->andReturn(true);
+        $storageMock = Mockery::mock(ProjectStorageInterface::class);
+        $storageMock->shouldReceive('addToProject')
+            ->once();
 
-        $this->app->instance(AddProbeHandler::class, $handlerMock);
+        $this->app->instance(ProjectStorageInterface::class, $storageMock);
 
         $this->artisan('uplinkr:project:add:probe', [
             '--url' => 'https://example.com',
@@ -74,8 +73,8 @@ class ProjectAddProbeCommandTest extends TestCase
 
     public function test_it_handles_complex_options(): void
     {
-        $handlerMock = Mockery::mock(AddProbeHandler::class);
-        $handlerMock->shouldReceive('handle')
+        $storageMock = Mockery::mock(ProjectStorageInterface::class);
+        $storageMock->shouldReceive('addToProject')
             ->once()
             ->with([
                 'url' => 'https://example.com/api',
@@ -84,10 +83,9 @@ class ProjectAddProbeCommandTest extends TestCase
                 'headers' => ['Authorization: Bearer token', 'Content-Type: application/json'],
                 'body' => '{"foo":"bar"}',
                 'latency' => 5000,
-            ])
-            ->andReturn(true);
+            ]);
 
-        $this->app->instance(AddProbeHandler::class, $handlerMock);
+        $this->app->instance(ProjectStorageInterface::class, $storageMock);
 
         $this->artisan('uplinkr:project:add:probe', [
             '--url' => 'https://example.com/api',

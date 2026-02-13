@@ -11,24 +11,21 @@ class ProjectInitCommandTest extends TestCase
 {
     public function test_it_initializes_project_with_force(): void
     {
-        $handlerMock = Mockery::mock(InitHandler::class);
         $storageMock = Mockery::mock(ProjectStorageInterface::class);
 
         $storageMock->shouldReceive('findProject')
-            ->once()
+            ->twice()
             ->with('my-project')
             ->andReturnNull();
 
-        $handlerMock->shouldReceive('handle')
+        $storageMock->shouldReceive('saveProject')
             ->once()
-            ->with(Mockery::on(function ($options) {
-                return $options['project'] === 'my-project' &&
-                       $options['label'] === 'My Label' &&
-                       $options['description'] === 'My Description';
-            }))
-            ->andReturn(true);
+            ->with(Mockery::on(function ($data) {
+                return $data['project'] === 'my-project' &&
+                       $data['label'] === 'My Label' &&
+                       $data['description'] === 'My Description';
+            }));
 
-        $this->app->instance(InitHandler::class, $handlerMock);
         $this->app->instance(ProjectStorageInterface::class, $storageMock);
 
         $this->artisan('uplinkr:project:init', [
@@ -41,18 +38,16 @@ class ProjectInitCommandTest extends TestCase
 
     public function test_it_asks_for_confirmation_without_force(): void
     {
-        $handlerMock = Mockery::mock(InitHandler::class);
         $storageMock = Mockery::mock(ProjectStorageInterface::class);
 
         $storageMock->shouldReceive('findProject')
+            ->twice()
             ->with('my-project')
             ->andReturnNull();
 
-        $handlerMock->shouldReceive('handle')
-            ->once()
-            ->andReturn(true);
+        $storageMock->shouldReceive('saveProject')
+            ->once();
 
-        $this->app->instance(InitHandler::class, $handlerMock);
         $this->app->instance(ProjectStorageInterface::class, $storageMock);
 
         $this->artisan('uplinkr:project:init', [

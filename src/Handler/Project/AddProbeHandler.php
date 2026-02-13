@@ -10,7 +10,7 @@ use Uplinkr\Interfaces\ProjectStorageInterface;
  *
  * @author Sascha Scherhak <sascha@uplinkr.dev>
  */
-class AddProbeHandler
+readonly class AddProbeHandler
 {
     /**
      * Constructor method for initializing the class with a project storage instance.

@@ -4,27 +4,25 @@ namespace Uplinkr\Tests\Console\Commands;
 
 use Mockery;
 use Uplinkr\Handler\Project\Alerts\AlertHandler;
+use Uplinkr\Interfaces\ProjectStorageInterface;
 use Uplinkr\Tests\TestCase;
 
 class ProjectAlertsCommandTest extends TestCase
 {
     public function test_it_updates_project_alerts_with_force(): void
     {
-        $handlerMock = Mockery::mock(AlertHandler::class);
-        $handlerMock->shouldReceive('handle')
+        $storageMock = Mockery::mock(ProjectStorageInterface::class);
+        $storageMock->shouldReceive('findProject')
             ->once()
-            ->with([
+            ->with('my-project')
+            ->andReturn([
                 'project' => 'my-project',
-                'enabled' => true,
-                'trigger_after_failures' => 5,
-                'cooldown_minutes' => 60,
-                'latency_threshold_ms' => 2000,
-                'trigger_after_slow' => 5,
-                'channels' => ['mail', 'webhook'],
-            ])
-            ->andReturn(true);
+                'alerts' => [],
+            ]);
+        $storageMock->shouldReceive('saveProject')
+            ->once();
 
-        $this->app->instance(AlertHandler::class, $handlerMock);
+        $this->app->instance(ProjectStorageInterface::class, $storageMock);
 
         $this->artisan('uplinkr:project:alerts', [
             '--project' => 'my-project',
@@ -40,12 +38,17 @@ class ProjectAlertsCommandTest extends TestCase
 
     public function test_it_asks_for_confirmation_without_force(): void
     {
-        $handlerMock = Mockery::mock(AlertHandler::class);
-        $handlerMock->shouldReceive('handle')
+        $storageMock = Mockery::mock(ProjectStorageInterface::class);
+        $storageMock->shouldReceive('findProject')
             ->once()
-            ->andReturn(true);
+            ->andReturn([
+                'project' => 'my-project',
+                'alerts' => [],
+            ]);
+        $storageMock->shouldReceive('saveProject')
+            ->once();
 
-        $this->app->instance(AlertHandler::class, $handlerMock);
+        $this->app->instance(ProjectStorageInterface::class, $storageMock);
 
         $this->artisan('uplinkr:project:alerts', [
             '--project' => 'my-project',
