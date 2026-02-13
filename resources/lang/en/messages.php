@@ -30,6 +30,7 @@ return [
     'probe_error' => 'An error is occurred.',
     'probe_no_url_provided' => 'No URL provided.',
     'probe_stored' => 'Result stored successfully in project :project.',
+    'probe_dispatched_as_job' => 'Probe dispatched as job for project :project.',
 
     /*
      * Projects parts
