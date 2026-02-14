@@ -118,11 +118,14 @@ class FileProjectStorage implements ProjectStorageInterface
 
         foreach ($probes as $key => $probe) {
             if (Arr::get($probe, 'url') === Arr::get($probeData, 'url')) {
+                $headers = Arr::get($probeData, 'headers', Arr::get($probeData, 'header'));
                 $probes[$key] = [
                     'url' => Arr::get($probeData, 'url'),
                     'project' => $projectName,
                     'method' => Arr::get($probeData, 'method', 'GET'),
-                    'header' => Arr::get($probeData, 'headers'),
+                    // Keep both keys for backward compatibility while standardizing on "headers".
+                    'headers' => $headers,
+                    'header' => $headers,
                     'body' => Arr::get($probeData, 'body'),
                 ];
                 $found = true;
@@ -131,11 +134,14 @@ class FileProjectStorage implements ProjectStorageInterface
         }
 
         if (!$found) {
+            $headers = Arr::get($probeData, 'headers', Arr::get($probeData, 'header'));
             $probes[] = [
                 'url' => Arr::get($probeData, 'url'),
                 'project' => $projectName,
                 'method' => Arr::get($probeData, 'method', 'GET'),
-                'header' => Arr::get($probeData, 'headers'),
+                // Keep both keys for backward compatibility while standardizing on "headers".
+                'headers' => $headers,
+                'header' => $headers,
                 'body' => Arr::get($probeData, 'body'),
             ];
         }

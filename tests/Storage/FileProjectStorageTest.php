@@ -63,6 +63,7 @@ class FileProjectStorageTest extends TestCase
         $updatedProject = $this->storage->findProject('my-test-project');
         $this->assertCount(1, $updatedProject['probes']);
         $this->assertEquals('http://example.com', $updatedProject['probes'][0]['url']);
+        $this->assertEquals(['Authorization' => 'Bearer test'], $updatedProject['probes'][0]['headers']);
         $this->assertEquals(['Authorization' => 'Bearer test'], $updatedProject['probes'][0]['header']);
         $this->assertEquals('{"foo":"bar"}', $updatedProject['probes'][0]['body']);
     }
@@ -98,6 +99,7 @@ class FileProjectStorageTest extends TestCase
         $updatedProject = $this->storage->findProject('my-test-project');
         $this->assertCount(1, $updatedProject['probes']);
         $this->assertEquals('POST', $updatedProject['probes'][0]['method']);
+        $this->assertEquals(['X-Test' => 'value'], $updatedProject['probes'][0]['headers']);
         $this->assertEquals(['X-Test' => 'value'], $updatedProject['probes'][0]['header']);
         $this->assertEquals('test body', $updatedProject['probes'][0]['body']);
     }

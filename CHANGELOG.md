@@ -83,6 +83,11 @@ Default remains `true` for backward compatibility.
   - `PruneHandler` now parses probe-result dates according to configured grouping (`daily`, `hourly`, `monthly`)
   - Removed redundant JSON error check in legacy JSONL decode path
   - Normalized `Arr` imports in project handlers to `Illuminate\Support\Arr`
+- **Storage and Object Consistency**
+  - Standardized probe header persistence in project storage to use `headers`
+  - Added backward-compatible support for legacy `header` key
+  - `ProjectValues` now normalizes legacy probe entries from `header` to `headers`
+  - Fixed minor documentation typo in `FileProbeResultsStorage` docblock
 
 ### Testing
 - Extended `ProbeUrlHandlerTest` with job execution scenarios
@@ -96,6 +101,8 @@ Default remains `true` for backward compatibility.
   - Config command escaping and explicit empty-array rendering
   - Custom filename separators in analyze date extraction
   - Hourly grouped probe-result pruning
+  - Header key normalization in project values and project storage
+  - Pretty-print probe-result config getter assertions in config object tests
 
 ### Migration Notes
 - **No breaking changes** – default behavior remains synchronous (`direct` mode)

@@ -144,7 +144,7 @@ class FileProbeResultsStorage implements ProbeResultsStorageInterface
         return $this->config->getFileExtension();
     }
 
-    /**w
+    /**
      * Generates a sanitized URL from the given data array.
      *
      * Processes the input to ensure a valid URL structure,
