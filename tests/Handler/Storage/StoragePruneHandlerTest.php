@@ -192,4 +192,35 @@ class StoragePruneHandlerTest extends TestCase
         Storage::disk('local')->assertMissing($oldFile);
         Storage::disk('local')->assertExists($newFile);
     }
+
+    public function test_prune_before_date_supports_monthly_probe_result_grouping_deterministically(): void
+    {
+        Storage::fake('local');
+
+        $config = new UplinkrConfig(
+            storageDisk: 'local',
+            storagePath: 'uplinkr',
+            standardProject: 'test_project',
+            probeResultsPath: 'probes',
+            probeFilenameSeparator: '@',
+            fileExtension: 'log',
+            probeResultsGrouping: 'monthly',
+        );
+        $handler = new PruneHandler($config);
+
+        $project = 'test_project';
+        $basePath = "uplinkr/{$project}/probes";
+
+        $oldFile = "{$basePath}/probe@2023-06.log";
+        $newFile = "{$basePath}/probe@2023-07.log";
+
+        Storage::disk('local')->put($oldFile, 'dummy content');
+        Storage::disk('local')->put($newFile, 'dummy content');
+
+        $deletedCount = $handler->pruneBeforeDate($project, '2023-06-15');
+
+        $this->assertEquals(1, $deletedCount);
+        Storage::disk('local')->assertMissing($oldFile);
+        Storage::disk('local')->assertExists($newFile);
+    }
 }

@@ -85,7 +85,10 @@ class PruneHandler
                 $datePart = end($parts);
 
                 try {
-                    $fileDate = Carbon::createFromFormat($this->config->getProbeResultsCarbonFormat(), $datePart);
+                    $fileDate = Carbon::createFromFormat(
+                        '!' . $this->config->getProbeResultsCarbonFormat(),
+                        $datePart
+                    );
                     if (!$fileDate) {
                         continue;
                     }
