@@ -85,6 +85,7 @@ return [
     'project_alerts_mail_details_reason' => '- Reason: Multiple consecutive failures, or response times that are too slow.',
     'project_alerts_mail_details_failure_count' => '- Failure count: :failureCount',
     'project_alerts_mail_details_alert_time' => '- Alert time: :alertTime',
+    'project_alerts_mail_details_probe_tls_expiration_date' => '- TLS certificate expiration date: :probeTlsExpirationDate',
     'project_alerts_mail_accompanying_text_head' => 'What this means',
     'project_alerts_mail_accompanying_text' => 'The monitored URL could not be accessed successfully for an extended period of time, or responded too slowly. Please check the status of the server, the network connection, and/or the SSL certificate configuration.',
     'project_alerts_mail_accompanying_text_note' => 'You will automatically receive further notifications in :cooldownMinutes minutes, if the issue persists.',
