@@ -15,10 +15,10 @@ use Uplinkr\Support\Sanitizer;
  *
  * @author Sascha Scherhak <sascha@uplinkr.dev>
  */
-class SummaryHandler
+readonly class SummaryHandler
 {
     public function __construct(
-        private readonly Sanitizer $sanitizer
+        private Sanitizer $sanitizer
     )
     {
     }
