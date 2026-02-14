@@ -3,7 +3,6 @@
 namespace Uplinkr\Tests\Console\Commands;
 
 use Mockery;
-use Uplinkr\Handler\Project\RemoveProbeHandler;
 use Uplinkr\Interfaces\ProjectStorageInterface;
 use Uplinkr\Tests\TestCase;
 

@@ -4,6 +4,7 @@ namespace Uplinkr\Console\Commands;
 
 use Illuminate\Console\Command;
 use JsonException;
+use Symfony\Component\Console\Formatter\OutputFormatter;
 use Uplinkr\Support\CliIcon;
 
 /**
@@ -71,15 +72,22 @@ class UplinkrConfigCommand extends Command
         foreach ($config as $key => $value) {
             $fullKey = $prefix ? "{$prefix}.{$key}" : $key;
             $indent = str_repeat('  ', $depth);
+            $escapedKey = OutputFormatter::escape((string) $fullKey);
 
             if (is_array($value)) {
+                if ($value === []) {
+                    $this->line("{$indent}<fg=yellow>{$escapedKey}</>: <fg=cyan>[]</>");
+                    continue;
+                }
+
                 // Display section header
-                $this->line("{$indent}<fg=green>{$fullKey}</>");
+                $this->line("{$indent}<fg=green>{$escapedKey}</>");
                 $this->displayConfig($value, $fullKey, $depth + 1);
             } else {
                 // Display key-value pair
                 $displayValue = $this->formatValue($value);
-                $this->line("{$indent}<fg=yellow>{$fullKey}</>: <fg=cyan>{$displayValue}</>");
+                $escapedValue = OutputFormatter::escape($displayValue);
+                $this->line("{$indent}<fg=yellow>{$escapedKey}</>: <fg=cyan>{$escapedValue}</>");
             }
         }
 

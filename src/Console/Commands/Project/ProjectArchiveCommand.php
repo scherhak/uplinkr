@@ -4,7 +4,7 @@ namespace Uplinkr\Console\Commands\Project;
 
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Command\Command as CommandAlias;
-use Uplinkr\Handler\Project\ArchiveHandler;
+use Uplinkr\Handler\Project\Archive\ArchiveHandler;
 use Uplinkr\Support\CliIcon;
 use Uplinkr\Support\Sanitizer;
 

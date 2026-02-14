@@ -5,8 +5,8 @@ namespace Uplinkr\Console\Commands\Project;
 use Exception;
 use Illuminate\Console\Command;
 use JsonException;
-use Uplinkr\Handler\Project\AnalyzeHandler;
-use Uplinkr\Handler\Project\SummaryHandler;
+use Uplinkr\Handler\Project\Analyze\AnalyzeHandler;
+use Uplinkr\Handler\Project\Analyze\SummaryHandler;
 use Uplinkr\Objects\Summary\ProbeResultsSummary;
 
 /**

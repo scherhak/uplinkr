@@ -1,6 +1,6 @@
 <?php
 
-namespace Uplinkr\Handler\Project;
+namespace Uplinkr\Handler\Project\Probes;
 
 use Uplinkr\Interfaces\ProjectStorageInterface;
 

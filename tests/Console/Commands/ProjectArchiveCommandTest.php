@@ -5,7 +5,7 @@ namespace Uplinkr\Tests\Console\Commands;
 use Mockery;
 use Mockery\MockInterface;
 use Symfony\Component\Console\Command\Command as CommandAlias;
-use Uplinkr\Handler\Project\ArchiveHandler;
+use Uplinkr\Handler\Project\Archive\ArchiveHandler;
 use Uplinkr\Support\CliIcon;
 use Uplinkr\Tests\TestCase;
 
