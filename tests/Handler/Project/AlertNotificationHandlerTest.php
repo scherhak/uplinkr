@@ -4,6 +4,7 @@ namespace Handler\Project;
 
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Uplinkr\Handler\Project\Alerts\AlertNotificationHandler;
 use Uplinkr\Tests\TestCase;
 
@@ -22,6 +23,7 @@ class AlertNotificationHandlerTest extends TestCase
             'probe' => 'https://example.com',
             'reason' => 'consecutive_failures',
             'count' => 3,
+            'probe_tls_expiration_date' => '2027-01-01T00:00:00+00:00',
             'alert' => [
                 'channels' => ['webhook']
             ]
@@ -80,9 +82,43 @@ class AlertNotificationHandlerTest extends TestCase
         $notification->toWebhook(null);
 
         Http::assertSent(function ($request) use ($alertData, $secret) {
-            $expectedSignature = 'sha256=' . hash_hmac('sha256', json_encode($alertData), $secret);
+            $payload = array_merge($alertData, ['probe_tls_expiration_date' => null]);
+            $expectedSignature = 'sha256=' . hash_hmac('sha256', json_encode($payload), $secret);
             return $request->hasHeader('X-Signature', $expectedSignature);
         });
+    }
+
+    public function test_to_array_contains_probe_tls_expiration_date_key_even_when_missing(): void
+    {
+        $notification = new AlertNotificationHandler([
+            'project' => 'No TLS Project',
+        ]);
+
+        $payload = $notification->toArray(null);
+
+        $this->assertArrayHasKey('probe_tls_expiration_date', $payload);
+        $this->assertNull($payload['probe_tls_expiration_date']);
+    }
+
+    public function test_to_log_includes_probe_tls_expiration_date_in_message_and_context(): void
+    {
+        Log::shouldReceive('channel')->andReturnSelf();
+        Log::shouldReceive('warning')
+            ->once()
+            ->withArgs(function (string $message, array $context): bool {
+                return str_contains($message, 'TLS expiration date: 2027-01-01T00:00:00+00:00')
+                    && ($context['probe_tls_expiration_date'] ?? null) === '2027-01-01T00:00:00+00:00';
+            });
+
+        $notification = new AlertNotificationHandler([
+            'project' => 'Test Project',
+            'probe' => 'GET https://example.com',
+            'reason' => 'consecutive_failures',
+            'count' => 3,
+            'probe_tls_expiration_date' => '2027-01-01T00:00:00+00:00',
+        ]);
+
+        $notification->toLog(null);
     }
 
 }

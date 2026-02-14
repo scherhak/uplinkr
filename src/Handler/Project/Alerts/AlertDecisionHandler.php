@@ -261,7 +261,8 @@ class AlertDecisionHandler
             'probe' => $probeKey,
             'alert' => $alert,
             'reason' => 'consecutive_failures',
-            'count' => $consecutiveFailures
+            'count' => $consecutiveFailures,
+            'probe_tls_expiration_date' => Arr::get($probeData, 'probe_tls_expiration_date'),
         ]));
 
         return [
@@ -269,7 +270,8 @@ class AlertDecisionHandler
             'probe' => $probeKey,
             'alert' => $alert,
             'reason' => 'consecutive_failures',
-            'count' => $consecutiveFailures
+            'count' => $consecutiveFailures,
+            'probe_tls_expiration_date' => Arr::get($probeData, 'probe_tls_expiration_date'),
         ];
     }
 

@@ -85,13 +85,14 @@ class AlertNotificationHandler extends Notification
 
         Logger::log()->warning(
             sprintf(
-                'Alert triggered for project "%s" on probe "%s". Reason: %s (%d failures)',
+                'Alert triggered for project "%s" on probe "%s". Reason: %s (%d failures). TLS expiration date: %s',
                 $context['project'],
                 $context['probe'],
                 $context['reason'],
-                $context['count']
+                $context['count'],
+                $context['probe_tls_expiration_date'] ?? 'n/a'
             ),
-            $this->alertData
+            $this->toArray($notifiable)
         );
     }
 
@@ -287,6 +288,7 @@ class AlertNotificationHandler extends Notification
             'probe' => Arr::get($this->alertData, 'probe'),
             'reason' => Arr::get($this->alertData, 'reason'),
             'count' => Arr::get($this->alertData, 'count'),
+            'probe_tls_expiration_date' => Arr::get($this->alertData, 'probe_tls_expiration_date'),
             'alert_time' => now()->toDateTimeString(),
             'trigger_after_failures' => Arr::get($this->alertData, 'alert.trigger_after_failures'),
             'cooldown_minutes' => Arr::get($this->alertData, 'alert.cooldown_minutes'),
@@ -333,6 +335,9 @@ class AlertNotificationHandler extends Notification
                 __('uplinkr::messages.project_alerts_mail_details_reason'),
                 __('uplinkr::messages.project_alerts_mail_details_failure_count', ['failureCount' => $context['count']]),
                 __('uplinkr::messages.project_alerts_mail_details_alert_time', ['alertTime' => $context['alert_time']]),
+                __('uplinkr::messages.project_alerts_mail_details_probe_tls_expiration_date', [
+                    'probeTlsExpirationDate' => $context['probe_tls_expiration_date'] ?? 'n/a',
+                ]),
                 __('uplinkr::messages.project_alerts_mail_accompanying_text_head'),
                 __('uplinkr::messages.project_alerts_mail_accompanying_text'),
                 __('uplinkr::messages.project_alerts_mail_accompanying_text_note', ['cooldownMinutes' => $context['cooldown_minutes']]),
@@ -371,6 +376,8 @@ class AlertNotificationHandler extends Notification
      */
     public function toArray(mixed $notifiable): array
     {
-        return $this->alertData;
+        return array_merge($this->alertData, [
+            'probe_tls_expiration_date' => Arr::get($this->alertData, 'probe_tls_expiration_date'),
+        ]);
     }
 }

@@ -54,6 +54,18 @@ return [
 
         /*
         |--------------------------------------------------------------------------
+        | Pretty Print Probe Results
+        |--------------------------------------------------------------------------
+        |
+        | Controls whether probe result JSON files in "<project>/probes" are
+        | formatted with indentation. Disable in production to reduce file size
+        | and I/O overhead.
+        |
+        */
+        'pretty_print_probe_results' => (bool)env('UPLINKR_STORAGE_PRETTY_PRINT_PROBE_RESULTS', true),
+
+        /*
+        |--------------------------------------------------------------------------
         | Archive Folder
         |--------------------------------------------------------------------------
         |
