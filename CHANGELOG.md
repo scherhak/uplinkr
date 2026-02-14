@@ -16,6 +16,18 @@ All notable changes to this project will be documented in this file.
   - Display current Uplinkr configuration in structured format
   - Similar to Laravel's `php artisan config:show uplinkr` command
   - Hierarchical display of all configuration values
+- **TLS Metadata for Probe Results**
+  - HTTPS probes now resolve certificate expiration dates
+  - New result field: `probe_tls_expiration_date` (ISO-8601 or `null`)
+  - Optional per-probe TLS options:
+    - `tls.enabled`
+    - `tls.timeout`
+    - `tls.verify_peer`
+    - `tls.verify_peer_name`
+    - `tls.allow_self_signed`
+    - `tls.peer_name`
+    - `tls.cafile`
+    - `tls.capath`
 
 ### Changed
 - **UrlHandler Refactoring**
@@ -30,6 +42,18 @@ All notable changes to this project will be documented in this file.
   - `HandlesProbeOutput` trait now handles `null` results gracefully
   - New translation key: `probe_dispatched_as_job`
   - Clear feedback when probes are dispatched to queue vs executed directly
+- **Alert Notification Payloads**
+  - `probe_tls_expiration_date` is now propagated through alert decisions
+  - Included in mail, webhook, and log notifications
+- **Probe Result Serialization**
+  - Probe result file formatting is now configurable
+  - Pretty printing can be disabled for compact JSON output in high-volume environments
+- **Project Handler Structure**
+  - Project handlers reorganized into focused namespaces:
+    - `Handler\\Project\\Analyze\\...`
+    - `Handler\\Project\\Archive\\...`
+    - `Handler\\Project\\Probes\\...`
+  - Updated imports in commands, service provider bindings, and tests
 
 ### Configuration
 New configuration options in `config/uplinkr.php` under `probes`:
@@ -38,14 +62,37 @@ New configuration options in `config/uplinkr.php` under `probes`:
 'queue_connection' => env('UPLINKR_PROBES_QUEUE_CONNECTION', 'sync'),
 ```
 
+New storage option in `config/uplinkr.php` under `storage`:
+```php
+'pretty_print_probe_results' => (bool)env('UPLINKR_STORAGE_PRETTY_PRINT_PROBE_RESULTS', true),
+```
+
+Default remains `true` for backward compatibility.
+
+### Fixed
+- **Config Command Output Escaping**
+  - Escapes keys and values in `uplinkr:config` output to prevent accidental console markup parsing
+  - Empty arrays are now displayed explicitly as `[]`
+- **Analyze Command Test Stability**
+  - Adjusted test setup for readonly `SummaryHandler`
+  - Reduced brittle mocking and aligned test behavior with current handler design
+- **Probe HTTP Test Stability**
+  - Stabilized HTTP fakes for probe tests to avoid strict URL-match brittleness
+
 ### Testing
 - Extended `ProbeUrlHandlerTest` with job execution scenarios
 - Added tests for direct execution mode
 - Added tests for job dispatch mode
 - Added tests for `executeProbe()` method
+- Added coverage for:
+  - TLS expiration field in probe results
+  - Alert notification payload/log/mail propagation of TLS metadata
+  - Configurable probe-result pretty printing
+  - Config command escaping and explicit empty-array rendering
 
 ### Migration Notes
 - **No breaking changes** – default behavior remains synchronous (`direct` mode)
+- Existing storage behavior remains unchanged by default (`pretty_print_probe_results = true`)
 - To enable async execution:
   1. Set `UPLINKR_PROBES_EXECUTION_MODE=job` in `.env`
   2. Configure a queue connection: `UPLINKR_PROBES_QUEUE_CONNECTION=redis`
@@ -56,6 +103,8 @@ New configuration options in `config/uplinkr.php` under `probes`:
 - Better scalability with multiple probes across projects
 - Improved response times for CLI commands and scheduler tasks
 - Flexible deployment: choose sync or async based on your needs
+- Better certificate observability through TLS expiration metadata
+- Reduced storage footprint and I/O when compact probe-result JSON is enabled
 
 ---
 
@@ -121,4 +170,3 @@ When directory listing fails, Uplinkr now emits a warning log with:
 - Initial MVP release
 - API and internal behavior may evolve in future minor versions
 - No breaking changes
-
