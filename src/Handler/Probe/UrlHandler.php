@@ -261,7 +261,7 @@ class UrlHandler
         $context = stream_context_create(['ssl' => $sslContext]);
 
         $socket = @stream_socket_client(
-            sprintf('ssl://%s:%d', $host, $port),
+            $this->buildTlsSocketTarget($host, $port),
             $errorCode,
             $errorMessage,
             $timeout,
@@ -292,6 +292,22 @@ class UrlHandler
         }
 
         return gmdate('c', (int)$validToTimestamp);
+    }
+
+    /**
+     * Builds the TLS socket target and brackets IPv6 hosts when needed.
+     *
+     * @param string $host
+     * @param int $port
+     * @return string
+     */
+    private function buildTlsSocketTarget(string $host, int $port): string
+    {
+        if (str_contains($host, ':') && !str_starts_with($host, '[')) {
+            $host = '[' . $host . ']';
+        }
+
+        return sprintf('ssl://%s:%d', $host, $port);
     }
 
     /**
