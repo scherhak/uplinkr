@@ -52,7 +52,7 @@ class ProbeUrlHandlerTest extends TestCase
     {
         Queue::fake();
         Http::fake([
-            'https://example.com' => Http::response('OK', 200),
+            '*' => Http::response('OK', 200),
         ]);
 
         $storageMock = $this->createMock(ProbeResultsStorageInterface::class);
@@ -113,7 +113,7 @@ class ProbeUrlHandlerTest extends TestCase
     public function test_execute_probe_performs_http_request_and_saves_result(): void
     {
         Http::fake([
-            'https://example.com' => Http::response('OK', 200),
+            '*' => Http::response('OK', 200),
         ]);
 
         $storageMock = $this->createMock(ProbeResultsStorageInterface::class);
