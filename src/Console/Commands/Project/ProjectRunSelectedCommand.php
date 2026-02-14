@@ -5,7 +5,7 @@ namespace Uplinkr\Console\Commands\Project;
 use Illuminate\Console\Command;
 use JsonException;
 use Symfony\Component\Console\Command\Command as CommandAlias;
-use Uplinkr\Handler\Project\ProbeSelectedProjectsHandler;
+use Uplinkr\Handler\Project\Probes\ProbeSelectedProjectsHandler;
 use Uplinkr\Interfaces\ProjectStorageInterface;
 use Uplinkr\Objects\Config\UplinkrConfig;
 use Uplinkr\Objects\Project\ProjectValues;

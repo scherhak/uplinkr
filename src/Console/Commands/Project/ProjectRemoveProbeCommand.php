@@ -5,7 +5,7 @@ namespace Uplinkr\Console\Commands\Project;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\Console\Command\Command as CommandAlias;
-use Uplinkr\Handler\Project\RemoveProbeHandler;
+use Uplinkr\Handler\Project\Probes\RemoveProbeHandler;
 use Uplinkr\Support\CliIcon;
 
 /**

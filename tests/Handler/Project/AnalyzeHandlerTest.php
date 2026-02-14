@@ -3,7 +3,7 @@
 namespace Uplinkr\Tests\Handler\Project;
 
 use Illuminate\Support\Facades\Storage;
-use Uplinkr\Handler\Project\AnalyzeHandler;
+use Uplinkr\Handler\Project\Analyze\AnalyzeHandler;
 use Uplinkr\Objects\Config\UplinkrConfig;
 use Uplinkr\Tests\TestCase;
 

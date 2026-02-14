@@ -1,6 +1,6 @@
 <?php
 
-namespace Uplinkr\Handler\Project;
+namespace Uplinkr\Handler\Project\Probes;
 
 use Uplinkr\Interfaces\ProjectStorageInterface;
 
@@ -19,7 +19,7 @@ readonly class RemoveProbeHandler
      * @return void
      */
     public function __construct(
-        private readonly ProjectStorageInterface $projectStorage
+        private ProjectStorageInterface $projectStorage
     )
     {
     }

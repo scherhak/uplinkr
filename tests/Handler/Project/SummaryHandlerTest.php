@@ -2,8 +2,8 @@
 
 namespace Uplinkr\Tests\Handler\Project;
 
+use Uplinkr\Handler\Project\Analyze\SummaryHandler;
 use Uplinkr\Objects\Config\UplinkrConfig;
-use Uplinkr\Handler\Project\SummaryHandler;
 use Uplinkr\Objects\Summary\ProbeResultsSummary;
 use Uplinkr\Support\Sanitizer;
 use Uplinkr\Tests\TestCase;
