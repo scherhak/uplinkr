@@ -21,6 +21,7 @@ final class UplinkrConfig
      * @param int $standardLatency Standard latency threshold in milliseconds
      * @param string $probeFilenameSeparator Separator for probe filenames
      * @param string $fileExtension Default file extension
+     * @param bool $prettyPrintProbeResults Whether probe result JSON should be pretty-printed
      * @param string $archivedFolder Archived projects folder name
      * @param bool $allowCompleteWipe Allow complete wipe of data
      * @param string $probeResultsGrouping How to group probe results (hourly, daily, monthly)
@@ -54,6 +55,7 @@ final class UplinkrConfig
         public int     $standardLatency = 1500,
         public string  $probeFilenameSeparator = '@',
         public string  $fileExtension = 'json',
+        public bool    $prettyPrintProbeResults = true,
         public string  $archivedFolder = 'archived',
         public bool    $allowCompleteWipe = false,
         public string  $probeResultsGrouping = 'daily',
@@ -97,6 +99,7 @@ final class UplinkrConfig
             standardLatency: config('uplinkr.probes.standard_latency', 1500),
             probeFilenameSeparator: config('uplinkr.storage.probe_filename_separator', '@'),
             fileExtension: config('uplinkr.storage.file_extension', 'json'),
+            prettyPrintProbeResults: config('uplinkr.storage.pretty_print_probe_results', true),
             archivedFolder: config('uplinkr.storage.archive_folder', 'archived'),
             allowCompleteWipe: config('uplinkr.storage.allow_complete_wipe', false),
             probeResultsGrouping: config('uplinkr.storage.probe_results_grouping', 'daily'),
@@ -185,6 +188,14 @@ final class UplinkrConfig
     public function getProbeFilenameSeparator(): string
     {
         return $this->probeFilenameSeparator;
+    }
+
+    /**
+     * @return bool
+     */
+    public function shouldPrettyPrintProbeResults(): bool
+    {
+        return $this->prettyPrintProbeResults;
     }
 
     /**

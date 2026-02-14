@@ -53,10 +53,15 @@ class FileProbeResultsStorage implements ProbeResultsStorageInterface
         }
 
         $existingData[] = $resultData;
+        $flags = JSON_THROW_ON_ERROR;
+
+        if ($this->config->shouldPrettyPrintProbeResults()) {
+            $flags |= JSON_PRETTY_PRINT;
+        }
 
         $disk->put(
             $filename,
-            json_encode($existingData, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR)
+            json_encode($existingData, $flags)
         );
     }
 

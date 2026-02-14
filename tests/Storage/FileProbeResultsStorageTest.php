@@ -94,4 +94,32 @@ class FileProbeResultsStorageTest extends TestCase
         
         Storage::disk('local')->assertExists($expectedFilename);
     }
+
+    public function test_save_result_can_be_written_without_pretty_print(): void
+    {
+        $config = new UplinkrConfig(
+            storageDisk: 'local',
+            storagePath: 'uplinkr',
+            probeResultsPath: 'probes',
+            fileExtension: 'json',
+            prettyPrintProbeResults: false
+        );
+        $storage = new FileProbeResultsStorage($config, new Sanitizer($config));
+
+        $resultData = [
+            'settings' => [
+                'url' => 'http://example.com',
+                'project' => 'my-project'
+            ],
+            'probe_status' => 'reachable',
+        ];
+
+        $storage->saveResult($resultData);
+
+        $expectedFilename = 'uplinkr/my-project/probes/example_com@' . date('Y-m-d') . '.json';
+        $content = Storage::disk('local')->get($expectedFilename);
+
+        $this->assertStringNotContainsString("\n    ", $content);
+        $this->assertSame('[{"settings":{"url":"http:\/\/example.com","project":"my-project"},"probe_status":"reachable"}]', $content);
+    }
 }
