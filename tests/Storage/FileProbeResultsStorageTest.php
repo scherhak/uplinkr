@@ -38,7 +38,8 @@ class FileProbeResultsStorageTest extends TestCase
                 'project' => 'my-project'
             ],
             'probe_status' => 'reachable',
-            'probe_message' => ['duration_ms' => 100]
+            'probe_message' => ['duration_ms' => 100],
+            'probe_tls_expiration_date' => '2026-12-31T23:59:59+00:00',
         ];
 
         $this->storage->saveResult($resultData);

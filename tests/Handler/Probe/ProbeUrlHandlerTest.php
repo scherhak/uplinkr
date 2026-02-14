@@ -71,11 +71,14 @@ class ProbeUrlHandlerTest extends TestCase
         $result = $handler->with([
             'url' => 'https://example.com',
             'method' => 'GET',
-            'project' => 'test-project'
+            'project' => 'test-project',
+            'tls' => ['enabled' => false],
         ])->handle();
 
         $this->assertIsArray($result);
         $this->assertArrayHasKey('probe_status', $result);
+        $this->assertArrayHasKey('probe_tls_expiration_date', $result);
+        $this->assertNull($result['probe_tls_expiration_date']);
         Queue::assertNothingPushed();
     }
 
@@ -99,7 +102,8 @@ class ProbeUrlHandlerTest extends TestCase
         $data = [
             'url' => 'https://example.com',
             'method' => 'GET',
-            'project' => 'test-project'
+            'project' => 'test-project',
+            'tls' => ['enabled' => false],
         ];
 
         $result = $handler->with($data)->handle();
@@ -137,10 +141,13 @@ class ProbeUrlHandlerTest extends TestCase
         $result = $handler->with([
             'url' => 'https://example.com',
             'method' => 'GET',
-            'project' => 'test-project'
+            'project' => 'test-project',
+            'tls' => ['enabled' => false],
         ])->executeProbe();
 
         $this->assertIsArray($result);
         $this->assertEquals('reachable', $result['probe_status']);
+        $this->assertArrayHasKey('probe_tls_expiration_date', $result);
+        $this->assertNull($result['probe_tls_expiration_date']);
     }
 }

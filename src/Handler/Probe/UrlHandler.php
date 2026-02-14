@@ -173,6 +173,7 @@ class UrlHandler
     private function buildProbeResult(mixed $request, float $durationTime, array $probeMessage, string $probeStatus): array
     {
         $requestResult = $this->getRequestResult($request);
+        $requestResult['probe_tls_expiration_date'] = $this->getProbeTlsExpirationDate();
 
         return $this->resultHandler
             ->with(result: $requestResult)
@@ -204,6 +205,113 @@ class UrlHandler
         }
 
         return [];
+    }
+
+    /**
+     * Resolves TLS certificate expiration date for HTTPS probes.
+     *
+     * @return string|null ISO-8601 date when available.
+     */
+    private function getProbeTlsExpirationDate(): ?string
+    {
+        if (!$this->isTlsCheckEnabled()) {
+            return null;
+        }
+
+        $urlParts = parse_url($this->getUrl());
+        if (!is_array($urlParts)) {
+            return null;
+        }
+
+        $host = Arr::get($urlParts, 'host');
+        if (!is_string($host) || trim($host) === '') {
+            return null;
+        }
+
+        $port = (int)Arr::get($urlParts, 'port', 443);
+        if ($port <= 0) {
+            $port = 443;
+        }
+
+        $tlsOptions = Arr::get($this->data, 'tls', []);
+        $timeout = (float)Arr::get($tlsOptions, 'timeout', 3.0);
+        if ($timeout <= 0) {
+            $timeout = 3.0;
+        }
+
+        $sslContext = [
+            'capture_peer_cert' => true,
+            'verify_peer' => (bool)Arr::get($tlsOptions, 'verify_peer', true),
+            'verify_peer_name' => (bool)Arr::get($tlsOptions, 'verify_peer_name', true),
+            'allow_self_signed' => (bool)Arr::get($tlsOptions, 'allow_self_signed', false),
+            'SNI_enabled' => true,
+            'peer_name' => (string)Arr::get($tlsOptions, 'peer_name', $host),
+        ];
+
+        $caFile = Arr::get($tlsOptions, 'cafile');
+        if (is_string($caFile) && trim($caFile) !== '') {
+            $sslContext['cafile'] = $caFile;
+        }
+
+        $caPath = Arr::get($tlsOptions, 'capath');
+        if (is_string($caPath) && trim($caPath) !== '') {
+            $sslContext['capath'] = $caPath;
+        }
+
+        $context = stream_context_create(['ssl' => $sslContext]);
+
+        $socket = @stream_socket_client(
+            sprintf('ssl://%s:%d', $host, $port),
+            $errorCode,
+            $errorMessage,
+            $timeout,
+            STREAM_CLIENT_CONNECT,
+            $context
+        );
+
+        if ($socket === false) {
+            return null;
+        }
+
+        $params = stream_context_get_params($socket);
+        fclose($socket);
+
+        $certificate = Arr::get($params, 'options.ssl.peer_certificate');
+        if (!is_resource($certificate) && !is_object($certificate)) {
+            return null;
+        }
+
+        $parsedCertificate = openssl_x509_parse($certificate);
+        if (!is_array($parsedCertificate)) {
+            return null;
+        }
+
+        $validToTimestamp = Arr::get($parsedCertificate, 'validTo_time_t');
+        if (!is_int($validToTimestamp) && !ctype_digit((string)$validToTimestamp)) {
+            return null;
+        }
+
+        return gmdate('c', (int)$validToTimestamp);
+    }
+
+    /**
+     * Checks whether TLS validation for expiration date should be executed.
+     *
+     * @return bool
+     */
+    private function isTlsCheckEnabled(): bool
+    {
+        $urlParts = parse_url($this->getUrl());
+        if (!is_array($urlParts)) {
+            return false;
+        }
+
+        $scheme = strtolower((string)Arr::get($urlParts, 'scheme', ''));
+        if ($scheme !== 'https') {
+            return false;
+        }
+
+        return (bool)Arr::get($this->data, 'tls.enabled', true);
     }
 
     /**

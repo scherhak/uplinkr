@@ -47,6 +47,7 @@ class ProbeAllProjectsHandlerTest extends TestCase
                 'method' => 'GET',
                 'headers' => [],
                 'body' => '',
+                'tls' => [],
             ])
             ->andReturnSelf();
 
@@ -59,6 +60,7 @@ class ProbeAllProjectsHandlerTest extends TestCase
                 'method' => 'POST',
                 'headers' => ['Auth: None'],
                 'body' => '{"key":"val"}',
+                'tls' => [],
             ])
             ->andReturnSelf();
 

@@ -38,6 +38,7 @@ class ProbeSelectedProjectsHandlerTest extends TestCase
                 'method' => 'GET',
                 'headers' => [],
                 'body' => '',
+                'tls' => [],
             ])
             ->andReturnSelf();
 
@@ -50,6 +51,7 @@ class ProbeSelectedProjectsHandlerTest extends TestCase
                 'method' => 'POST',
                 'headers' => ['X-Header: Value'],
                 'body' => '{"foo":"bar"}',
+                'tls' => [],
             ])
             ->andReturnSelf();
 
