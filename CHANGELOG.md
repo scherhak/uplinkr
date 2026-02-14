@@ -78,6 +78,11 @@ Default remains `true` for backward compatibility.
   - Reduced brittle mocking and aligned test behavior with current handler design
 - **Probe HTTP Test Stability**
   - Stabilized HTTP fakes for probe tests to avoid strict URL-match brittleness
+- **Handler Consistency and Date Parsing**
+  - `AnalyzeHandler::extractDateFromFilename()` now respects the configured probe filename separator
+  - `PruneHandler` now parses probe-result dates according to configured grouping (`daily`, `hourly`, `monthly`)
+  - Removed redundant JSON error check in legacy JSONL decode path
+  - Normalized `Arr` imports in project handlers to `Illuminate\Support\Arr`
 
 ### Testing
 - Extended `ProbeUrlHandlerTest` with job execution scenarios
@@ -89,6 +94,8 @@ Default remains `true` for backward compatibility.
   - Alert notification payload/log/mail propagation of TLS metadata
   - Configurable probe-result pretty printing
   - Config command escaping and explicit empty-array rendering
+  - Custom filename separators in analyze date extraction
+  - Hourly grouped probe-result pruning
 
 ### Migration Notes
 - **No breaking changes** – default behavior remains synchronous (`direct` mode)

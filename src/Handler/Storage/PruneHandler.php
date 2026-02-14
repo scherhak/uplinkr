@@ -47,13 +47,17 @@ class PruneHandler
         }
 
         try {
-            $beforeDate = Carbon::createFromFormat('Y-m-d', $beforeDateString)?->startOfDay();
+            $beforeDate = Carbon::createFromFormat('Y-m-d', $beforeDateString);
         } catch (Exception $e) {
             throw new InvalidArgumentException(sprintf('Invalid date format: %s (ex: %s)',
                     $beforeDateString,
                     $e->getMessage())
             );
         }
+        if (!$beforeDate) {
+            throw new InvalidArgumentException(sprintf('Invalid date format: %s', $beforeDateString));
+        }
+        $beforeDate = $beforeDate->startOfDay();
 
         // Build path: storage_path/project/probes
         $storagePath = $this->config->getStoragePath();
@@ -81,7 +85,11 @@ class PruneHandler
                 $datePart = end($parts);
 
                 try {
-                    $fileDate = Carbon::createFromFormat('Y-m-d', $datePart)?->startOfDay();
+                    $fileDate = Carbon::createFromFormat($this->config->getProbeResultsCarbonFormat(), $datePart);
+                    if (!$fileDate) {
+                        continue;
+                    }
+                    $fileDate = $fileDate->startOfDay();
 
                     if ($fileDate->lessThan($beforeDate)) {
                         Storage::disk($this->config->getStorageDisc())->delete($file);

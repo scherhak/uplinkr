@@ -2,7 +2,7 @@
 
 namespace Uplinkr\Handler\Project\Alerts;
 
-use Arr;
+use Illuminate\Support\Arr;
 use JsonException;
 use Uplinkr\Interfaces\ProjectStorageInterface;
 use Uplinkr\Support\Time;

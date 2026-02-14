@@ -159,7 +159,7 @@ class AnalyzeHandler
                     return null;
                 }
 
-                if (!is_array($decoded) || json_last_error() !== JSON_ERROR_NONE) {
+                if (!is_array($decoded)) {
                     Logger::log()->error(__('uplinkr::messages.analyze_invalid_result', ['line' => $line]));
 
                     return null;
@@ -225,9 +225,10 @@ class AnalyzeHandler
     {
         $filename = basename($path);
         $pattern = $this->config->getProbeResultsDatePattern();
+        $separator = preg_quote($this->config->getProbeFilenameSeparator(), '/');
 
-        // Extract the pattern between @ and .
-        if (preg_match('/@' . trim($pattern, '/') . '\./', $filename, $matches)) {
+        // Extract the pattern between separator and extension.
+        if (preg_match('/' . $separator . trim($pattern, '/') . '\./', $filename, $matches)) {
             return $matches[1];
         }
 
