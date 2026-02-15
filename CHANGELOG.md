@@ -45,6 +45,14 @@ All notable changes to this project will be documented in this file.
 - **Alert Notification Payloads**
   - `probe_tls_expiration_date` is now propagated through alert decisions
   - Included in mail, webhook, and log notifications
+- **Project-Level Alert Aggregation**
+  - Alert notifications are now grouped per project instead of sending one message per failed probe
+  - `AlertDecisionHandler` keeps the existing decision logic (`trigger_after_failures`, cooldown, enabled state) and sends grouped notifications after decision collection
+  - Grouping key uses project + alert configuration to keep channel/cooldown semantics intact
+- **Alert Notification Rendering**
+  - `AlertNotificationHandler` now supports aggregated payloads via `probes[]` while remaining backward compatible with legacy single-probe payloads
+  - Aggregated mail notifications now include a compact per-probe list (probe, failure count, TLS value)
+  - Aggregated payload probes are sorted by probe name for deterministic output in mail, log, and webhook data
 - **Probe Result Serialization**
   - Probe result file formatting is now configurable
   - Pretty printing can be disabled for compact JSON output in high-volume environments
@@ -103,6 +111,8 @@ Default remains `true` for backward compatibility.
   - Hourly grouped probe-result pruning
   - Header key normalization in project values and project storage
   - Pretty-print probe-result config getter assertions in config object tests
+  - Project-level aggregated alert notification dispatch behavior
+  - Aggregated alert log output and deterministic probe ordering in notification payloads
 
 ### Migration Notes
 - **No breaking changes** – default behavior remains synchronous (`direct` mode)

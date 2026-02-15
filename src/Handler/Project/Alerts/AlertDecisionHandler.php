@@ -71,6 +71,8 @@ class AlertDecisionHandler
             $this->saveState($projectName, $state);
         }
 
+        $this->notifyGroupedDecisions($result['decisions']);
+
         return $result['decisions'];
     }
 
@@ -248,23 +250,6 @@ class AlertDecisionHandler
             $consecutiveFailures
         ));
 
-        $notifiable = new AnonymousNotifiable;
-
-        // Configure mail routing if mail channel is enabled
-        $mailRecipients = $this->config->getMailTo();
-        if (!empty($mailRecipients)) {
-            $notifiable->route('mail', $mailRecipients);
-        }
-
-        $notifiable->notify(new AlertNotificationHandler([
-            'project' => $projectName,
-            'probe' => $probeKey,
-            'alert' => $alert,
-            'reason' => 'consecutive_failures',
-            'count' => $consecutiveFailures,
-            'probe_tls_expiration_date' => Arr::get($probeData, 'probe_tls_expiration_date'),
-        ]));
-
         return [
             'project' => $projectName,
             'probe' => $probeKey,
@@ -342,5 +327,53 @@ class AlertDecisionHandler
             'decisions' => $decisions,
             'state_updated' => $stateUpdated
         ];
+    }
+
+    /**
+     * Sends aggregated notifications grouped by project and alert configuration.
+     *
+     * @param array $decisions
+     * @return void
+     */
+    private function notifyGroupedDecisions(array $decisions): void
+    {
+        if (empty($decisions)) {
+            return;
+        }
+
+        $grouped = [];
+
+        foreach ($decisions as $decision) {
+            $alert = Arr::get($decision, 'alert', []);
+            $groupKey = md5(json_encode([
+                'project' => Arr::get($decision, 'project'),
+                'alert' => $alert,
+            ]));
+
+            if (!isset($grouped[$groupKey])) {
+                $grouped[$groupKey] = [
+                    'project' => Arr::get($decision, 'project'),
+                    'alert' => $alert,
+                    'probes' => [],
+                ];
+            }
+
+            $grouped[$groupKey]['probes'][] = [
+                'probe' => Arr::get($decision, 'probe'),
+                'reason' => Arr::get($decision, 'reason'),
+                'count' => Arr::get($decision, 'count'),
+                'probe_tls_expiration_date' => Arr::get($decision, 'probe_tls_expiration_date'),
+            ];
+        }
+
+        $notifiable = new AnonymousNotifiable;
+        $mailRecipients = $this->config->getMailTo();
+        if (!empty($mailRecipients)) {
+            $notifiable->route('mail', $mailRecipients);
+        }
+
+        foreach ($grouped as $notificationData) {
+            $notifiable->notify(new AlertNotificationHandler($notificationData));
+        }
     }
 }
