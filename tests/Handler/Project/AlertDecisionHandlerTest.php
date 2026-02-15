@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 use Mockery;
 use Uplinkr\Handler\Project\Alerts\AlertDecisionHandler;
+use Uplinkr\Handler\Project\Alerts\AlertNotificationHandler;
 use Uplinkr\Handler\Project\ListHandler;
 use Uplinkr\Interfaces\ProjectStorageInterface;
 use Uplinkr\Objects\Config\UplinkrConfig;
@@ -350,5 +351,36 @@ class AlertDecisionHandlerTest extends TestCase
         $result = $this->handler->handle($projectName);
 
         $this->assertCount(0, $result);
+    }
+
+    public function test_it_sends_a_single_aggregated_notification_for_multiple_failed_probes_in_one_project(): void
+    {
+        Log::shouldReceive('channel')->andReturnSelf();
+        Log::shouldReceive('warning')->twice();
+
+        $projectName = 'aggregated-project';
+        $this->mockProject($projectName, [
+            'project' => $projectName,
+            'alerts' => [
+                ['enabled' => true, 'trigger_after_failures' => 2, 'channels' => ['mail']]
+            ]
+        ]);
+
+        $this->mockState($projectName, [
+            'project' => $projectName,
+            'probes' => [
+                'GET https://a.example.com' => ['consecutive_failures' => 2],
+                'GET https://b.example.com' => ['consecutive_failures' => 2],
+            ]
+        ]);
+
+        $decisions = $this->handler->handle($projectName);
+
+        $this->assertCount(2, $decisions);
+        Notification::assertSentOnDemandTimes(AlertNotificationHandler::class, 1);
+        Notification::assertSentOnDemand(AlertNotificationHandler::class, function ($notification): bool {
+            $payload = $notification->toArray(null);
+            return isset($payload['probes']) && count($payload['probes']) === 2;
+        });
     }
 }
