@@ -201,6 +201,33 @@ class AlertNotificationHandlerTest extends TestCase
                     && str_contains($line, 'TLS: n/a')
             )
         );
+
+        $this->assertTrue(
+            collect($mail->introLines)->contains(
+                static fn(string $line): bool => str_contains($line, 'GET https://example.org')
+                    && str_contains($line, 'Failures: 4')
+                    && str_contains($line, 'TLS: 2027-01-01 00:00:00 UTC')
+            )
+        );
+    }
+
+    public function test_to_mail_formats_single_probe_tls_date_for_readability(): void
+    {
+        $notification = new AlertNotificationHandler([
+            'project' => 'Readable Project',
+            'probe' => 'GET https://example.com',
+            'reason' => 'consecutive_failures',
+            'count' => 2,
+            'probe_tls_expiration_date' => '2027-01-25T23:59:59+00:00',
+            'alert' => ['channels' => ['mail']],
+        ]);
+
+        $mail = $notification->toMail(null);
+
+        $this->assertContains(
+            '- TLS certificate expiration date: 2027-01-25 23:59:59 UTC',
+            $mail->introLines
+        );
     }
 
 }
