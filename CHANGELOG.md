@@ -30,6 +30,8 @@ All notable changes to this project will be documented in this file.
     - `tls.capath`
 
 ### Changed
+- **Composer Platform Requirements**
+  - Added `ext-openssl` as an explicit Composer requirement to ensure TLS certificate parsing support is available at install time
 - **UrlHandler Refactoring**
   - `handle()` method now dispatches jobs when `execution_mode = 'job'`
   - Extracted probe execution logic into new public `executeProbe()` method
