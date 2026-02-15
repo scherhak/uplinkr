@@ -171,4 +171,36 @@ class AlertNotificationHandlerTest extends TestCase
         $this->assertSame('GET https://z.example.com', $payload['probes'][1]['probe']);
     }
 
+    public function test_to_mail_uses_na_for_null_tls_in_aggregated_probe_lines(): void
+    {
+        $notification = new AlertNotificationHandler([
+            'project' => 'Aggregated Project',
+            'alert' => ['channels' => ['mail']],
+            'probes' => [
+                [
+                    'probe' => 'GET https://example.com',
+                    'reason' => 'consecutive_failures',
+                    'count' => 3,
+                    'probe_tls_expiration_date' => null,
+                ],
+                [
+                    'probe' => 'GET https://example.org',
+                    'reason' => 'consecutive_failures',
+                    'count' => 4,
+                    'probe_tls_expiration_date' => '2027-01-01T00:00:00+00:00',
+                ],
+            ],
+        ]);
+
+        $mail = $notification->toMail(null);
+
+        $this->assertTrue(
+            collect($mail->introLines)->contains(
+                static fn(string $line): bool => str_contains($line, 'GET https://example.com')
+                    && str_contains($line, 'Failures: 3')
+                    && str_contains($line, 'TLS: n/a')
+            )
+        );
+    }
+
 }

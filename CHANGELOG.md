@@ -78,6 +78,9 @@ New storage option in `config/uplinkr.php` under `storage`:
 Default remains `true` for backward compatibility.
 
 ### Fixed
+- **TLS Metadata in Aggregated Alert Messages**
+  - Persisted `probe_tls_expiration_date` into `state.json` probe entries so alert decisions can reliably access TLS metadata
+  - Aggregated mail output now renders `n/a` when TLS expiration is `null` instead of leaving the value empty
 - **Config Command Output Escaping**
   - Escapes keys and values in `uplinkr:config` output to prevent accidental console markup parsing
   - Empty arrays are now displayed explicitly as `[]`

@@ -472,7 +472,7 @@ class AlertNotificationHandler extends Notification
             $lines[] = __('uplinkr::messages.project_alerts_mail_details_probe_aggregated', [
                 'probe' => Arr::get($probe, 'probe'),
                 'failureCount' => Arr::get($probe, 'count'),
-                'probeTlsExpirationDate' => Arr::get($probe, 'probe_tls_expiration_date', 'n/a'),
+                'probeTlsExpirationDate' => Arr::get($probe, 'probe_tls_expiration_date') ?? 'n/a',
             ]);
         }
 
