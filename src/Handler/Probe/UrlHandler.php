@@ -260,14 +260,23 @@ class UrlHandler
 
         $context = stream_context_create(['ssl' => $sslContext]);
 
-        $socket = @stream_socket_client(
-            $this->buildTlsSocketTarget($host, $port),
-            $errorCode,
-            $errorMessage,
-            $timeout,
-            STREAM_CLIENT_CONNECT,
-            $context
-        );
+        // Avoid global warning output from failed TLS socket attempts without using error suppression.
+        set_error_handler(static function (): bool {
+            return true;
+        });
+
+        try {
+            $socket = stream_socket_client(
+                $this->buildTlsSocketTarget($host, $port),
+                $errorCode,
+                $errorMessage,
+                $timeout,
+                STREAM_CLIENT_CONNECT,
+                $context
+            );
+        } finally {
+            restore_error_handler();
+        }
 
         if ($socket === false) {
             return null;

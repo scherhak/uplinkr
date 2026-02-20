@@ -67,11 +67,11 @@ class AlertDecisionHandler
             $config['default_cooldown']
         );
 
+        $this->notifyGroupedDecisions($result['decisions']);
+
         if ($result['state_updated']) {
             $this->saveState($projectName, $state);
         }
-
-        $this->notifyGroupedDecisions($result['decisions']);
 
         return $result['decisions'];
     }
@@ -335,7 +335,7 @@ class AlertDecisionHandler
      * @param array $decisions
      * @return void
      */
-    private function notifyGroupedDecisions(array $decisions): void
+    protected function notifyGroupedDecisions(array $decisions): void
     {
         if (empty($decisions)) {
             return;

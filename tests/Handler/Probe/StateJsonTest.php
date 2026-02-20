@@ -76,4 +76,25 @@ class StateJsonTest extends TestCase
         $stateContent = json_decode(Storage::disk('local')->get($stateFile), true);
         $this->assertEquals(2, $stateContent['probes']['GET https://uplinkr.dev']['consecutive_failures']);
     }
+
+    public function test_it_persists_probe_tls_expiration_date_in_state(): void
+    {
+        $handler = new ResultHandler($this->config, $this->sanitizer);
+        $handler->with(['probe_tls_expiration_date' => '2027-01-01T00:00:00+00:00'])->build(
+            1.0,
+            ['lang_key' => 'messages.probe_unreachable'],
+            'unreachable',
+            [
+                'url' => 'https://uplinkr.dev',
+                'project' => 'uplinkr-dev',
+                'method' => 'GET',
+            ]
+        );
+
+        $stateContent = json_decode(Storage::disk('local')->get('uplinkr/uplinkr-dev/state.json'), true);
+        $this->assertSame(
+            '2027-01-01T00:00:00+00:00',
+            $stateContent['probes']['GET https://uplinkr.dev']['probe_tls_expiration_date']
+        );
+    }
 }

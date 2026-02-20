@@ -30,6 +30,8 @@ All notable changes to this project will be documented in this file.
     - `tls.capath`
 
 ### Changed
+- **Composer Platform Requirements**
+  - Added `ext-openssl` as an explicit Composer requirement to ensure TLS certificate parsing support is available at install time
 - **UrlHandler Refactoring**
   - `handle()` method now dispatches jobs when `execution_mode = 'job'`
   - Extracted probe execution logic into new public `executeProbe()` method
@@ -78,6 +80,9 @@ New storage option in `config/uplinkr.php` under `storage`:
 Default remains `true` for backward compatibility.
 
 ### Fixed
+- **TLS Metadata in Aggregated Alert Messages**
+  - Persisted `probe_tls_expiration_date` into `state.json` probe entries so alert decisions can reliably access TLS metadata
+  - Aggregated mail output now renders `n/a` when TLS expiration is `null` instead of leaving the value empty
 - **Config Command Output Escaping**
   - Escapes keys and values in `uplinkr:config` output to prevent accidental console markup parsing
   - Empty arrays are now displayed explicitly as `[]`

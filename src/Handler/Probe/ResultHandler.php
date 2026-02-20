@@ -126,6 +126,7 @@ class ResultHandler
         ];
 
         $probeState['last_seen_executed_at'] = Time::now();
+        $probeState['probe_tls_expiration_date'] = Arr::get($result, 'probe_tls_expiration_date');
         if ($probeStatus === 'reachable') {
             $probeState['consecutive_failures'] = 0;
             $probeState['consecutive_slow'] = 0;

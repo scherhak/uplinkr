@@ -7,6 +7,7 @@ use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
 use JsonException;
 use Uplinkr\Objects\Config\UplinkrConfig;
@@ -440,7 +441,7 @@ class AlertNotificationHandler extends Notification
             __('uplinkr::messages.project_alerts_mail_details_failure_count', ['failureCount' => $context['count']]),
             __('uplinkr::messages.project_alerts_mail_details_alert_time', ['alertTime' => $context['alert_time']]),
             __('uplinkr::messages.project_alerts_mail_details_probe_tls_expiration_date', [
-                'probeTlsExpirationDate' => $context['probe_tls_expiration_date'] ?? 'n/a',
+                'probeTlsExpirationDate' => $this->formatProbeTlsExpirationDate($context['probe_tls_expiration_date'] ?? null),
             ]),
             __('uplinkr::messages.project_alerts_mail_accompanying_text_head'),
             __('uplinkr::messages.project_alerts_mail_accompanying_text'),
@@ -472,7 +473,7 @@ class AlertNotificationHandler extends Notification
             $lines[] = __('uplinkr::messages.project_alerts_mail_details_probe_aggregated', [
                 'probe' => Arr::get($probe, 'probe'),
                 'failureCount' => Arr::get($probe, 'count'),
-                'probeTlsExpirationDate' => Arr::get($probe, 'probe_tls_expiration_date', 'n/a'),
+                'probeTlsExpirationDate' => $this->formatProbeTlsExpirationDate(Arr::get($probe, 'probe_tls_expiration_date')),
             ]);
         }
 
@@ -486,5 +487,20 @@ class AlertNotificationHandler extends Notification
             __('uplinkr::messages.project_alerts_mail_alert_settings_latency_threshold_ms', ['latencyThresholdMs' => $context['latency_threshold_ms']]),
             __('uplinkr::messages.project_alerts_mail_alert_settings_latency_cooldown_minutes', ['cooldownMinutes' => $context['cooldown_minutes']]),
         ]);
+    }
+
+    private function formatProbeTlsExpirationDate(?string $value): string
+    {
+        if ($value === null || trim($value) === '') {
+            return 'n/a';
+        }
+
+        try {
+            return Carbon::parse($value)
+                ->setTimezone('UTC')
+                ->format('Y-m-d H:i:s \U\T\C');
+        } catch (Exception) {
+            return $value;
+        }
     }
 }
