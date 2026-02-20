@@ -72,7 +72,7 @@ class UplinkrConfigCommand extends Command
         foreach ($config as $key => $value) {
             $fullKey = $prefix ? "{$prefix}.{$key}" : $key;
             $indent = str_repeat('  ', $depth);
-            $escapedKey = OutputFormatter::escape((string) $fullKey);
+            $escapedKey = OutputFormatter::escape((string)$fullKey);
 
             if (is_array($value)) {
                 if ($value === []) {
@@ -110,7 +110,7 @@ class UplinkrConfigCommand extends Command
             is_bool($value) => $value ? 'true' : 'false',
             is_null($value) => 'null',
             is_string($value) => $value === '' ? '""' : $value,
-            is_numeric($value) => (string) $value,
+            is_numeric($value) => (string)$value,
             default => json_encode($value, JSON_THROW_ON_ERROR)
         };
     }
