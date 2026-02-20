@@ -80,6 +80,9 @@ New storage option in `config/uplinkr.php` under `storage`:
 Default remains `true` for backward compatibility.
 
 ### Fixed
+- **Atomic Alert-State Persistence for Grouped Notifications**
+  - `AlertDecisionHandler` now persists probe alert state immediately after each successfully delivered grouped notification batch
+  - Prevents duplicate alerts when a later grouped notification fails in the same run
 - **TLS Metadata in Aggregated Alert Messages**
   - Persisted `probe_tls_expiration_date` into `state.json` probe entries so alert decisions can reliably access TLS metadata
   - Aggregated mail output now renders `n/a` when TLS expiration is `null` instead of leaving the value empty

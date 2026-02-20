@@ -60,6 +60,8 @@ class AlertDecisionHandler
             return [];
         }
 
+        $initialState = $state;
+
         $result = $this->processProbeAlerts(
             $projectName,
             $state,
@@ -67,11 +69,7 @@ class AlertDecisionHandler
             $config['default_cooldown']
         );
 
-        $this->notifyGroupedDecisions($result['decisions']);
-
-        if ($result['state_updated']) {
-            $this->saveState($projectName, $state);
-        }
+        $this->notifyGroupedDecisions($projectName, $result['decisions'], $initialState);
 
         return $result['decisions'];
     }
@@ -332,10 +330,13 @@ class AlertDecisionHandler
     /**
      * Sends aggregated notifications grouped by project and alert configuration.
      *
+     * @param string $projectName
      * @param array $decisions
+     * @param array $state
      * @return void
+     * @throws JsonException
      */
-    protected function notifyGroupedDecisions(array $decisions): void
+    protected function notifyGroupedDecisions(string $projectName, array $decisions, array $state): void
     {
         if (empty($decisions)) {
             return;
@@ -372,8 +373,27 @@ class AlertDecisionHandler
             $notifiable->route('mail', $mailRecipients);
         }
 
+        $persistedState = $state;
+
         foreach ($grouped as $notificationData) {
             $notifiable->notify(new AlertNotificationHandler($notificationData));
+
+            $triggerAfterFailures = Arr::get($notificationData, 'alert.trigger_after_failures', 3);
+            foreach (Arr::get($notificationData, 'probes', []) as $probeData) {
+                $probeKey = Arr::get($probeData, 'probe');
+                if (!is_string($probeKey) || $probeKey === '') {
+                    continue;
+                }
+
+                $this->updateProbeState(
+                    $persistedState,
+                    $probeKey,
+                    $triggerAfterFailures,
+                    Arr::get($probeData, 'count', 0)
+                );
+            }
+
+            $this->saveState($projectName, $persistedState);
         }
     }
 }
