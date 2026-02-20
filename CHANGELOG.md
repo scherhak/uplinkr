@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.2.0] – 2026-02-xx
+## [0.2.0] – 2026-02-21
 
 ### Added
 - **Asynchronous Probe Execution via Jobs**
@@ -13,7 +13,7 @@ All notable changes to this project will be documented in this file.
   - Queue connection configuration (`probes.queue_connection`)
   - Support for all Laravel queue drivers (sync, database, redis, sqs, beanstalkd)
 - **New Command: `uplinkr:config`**
-  - Display current Uplinkr configuration in structured format
+  - Display the current Uplinkr configuration in structured format
   - Similar to Laravel's `php artisan config:show uplinkr` command
   - Hierarchical display of all configuration values
 - **TLS Metadata for Probe Results**
