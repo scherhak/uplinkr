@@ -413,7 +413,7 @@ class AlertNotificationHandler extends Notification
         if (is_array($probes) && !empty($probes)) {
             $probes = array_values(array_filter($probes, static fn($probe): bool => is_array($probe)));
             usort($probes, static function (array $left, array $right): int {
-                return strcmp((string) Arr::get($left, 'probe', ''), (string) Arr::get($right, 'probe', ''));
+                return strcmp((string)Arr::get($left, 'probe', ''), (string)Arr::get($right, 'probe', ''));
             });
             return $probes;
         }
