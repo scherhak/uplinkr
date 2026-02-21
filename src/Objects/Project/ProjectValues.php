@@ -35,7 +35,22 @@ class ProjectValues
      */
     public function getProbes(): array
     {
-        return Arr::get($this->data, 'probes', []);
+        $probes = Arr::get($this->data, 'probes', []);
+        if (!is_array($probes)) {
+            return [];
+        }
+
+        return array_map(static function ($probe): array {
+            if (!is_array($probe)) {
+                return [];
+            }
+
+            if (!Arr::has($probe, 'headers') && Arr::has($probe, 'header')) {
+                $probe['headers'] = Arr::get($probe, 'header');
+            }
+
+            return $probe;
+        }, $probes);
     }
 
     /**

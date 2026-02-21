@@ -4,6 +4,7 @@ namespace Handler\Project;
 
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Uplinkr\Handler\Project\Alerts\AlertNotificationHandler;
 use Uplinkr\Tests\TestCase;
 
@@ -22,6 +23,7 @@ class AlertNotificationHandlerTest extends TestCase
             'probe' => 'https://example.com',
             'reason' => 'consecutive_failures',
             'count' => 3,
+            'probe_tls_expiration_date' => '2027-01-01T00:00:00+00:00',
             'alert' => [
                 'channels' => ['webhook']
             ]
@@ -80,9 +82,152 @@ class AlertNotificationHandlerTest extends TestCase
         $notification->toWebhook(null);
 
         Http::assertSent(function ($request) use ($alertData, $secret) {
-            $expectedSignature = 'sha256=' . hash_hmac('sha256', json_encode($alertData), $secret);
+            $payload = array_merge($alertData, ['probe_tls_expiration_date' => null]);
+            $expectedSignature = 'sha256=' . hash_hmac('sha256', json_encode($payload), $secret);
             return $request->hasHeader('X-Signature', $expectedSignature);
         });
+    }
+
+    public function test_to_array_contains_probe_tls_expiration_date_key_even_when_missing(): void
+    {
+        $notification = new AlertNotificationHandler([
+            'project' => 'No TLS Project',
+        ]);
+
+        $payload = $notification->toArray(null);
+
+        $this->assertArrayHasKey('probe_tls_expiration_date', $payload);
+        $this->assertNull($payload['probe_tls_expiration_date']);
+    }
+
+    public function test_to_log_includes_probe_tls_expiration_date_in_message_and_context(): void
+    {
+        Log::shouldReceive('channel')->andReturnSelf();
+        Log::shouldReceive('warning')
+            ->once()
+            ->withArgs(function (string $message, array $context): bool {
+                return str_contains($message, 'TLS expiration date: 2027-01-01T00:00:00+00:00')
+                    && ($context['probe_tls_expiration_date'] ?? null) === '2027-01-01T00:00:00+00:00';
+            });
+
+        $notification = new AlertNotificationHandler([
+            'project' => 'Test Project',
+            'probe' => 'GET https://example.com',
+            'reason' => 'consecutive_failures',
+            'count' => 3,
+            'probe_tls_expiration_date' => '2027-01-01T00:00:00+00:00',
+        ]);
+
+        $notification->toLog(null);
+    }
+
+    public function test_to_log_uses_aggregated_message_for_multiple_probes(): void
+    {
+        Log::shouldReceive('channel')->andReturnSelf();
+        Log::shouldReceive('warning')
+            ->once()
+            ->withArgs(function (string $message, array $context): bool {
+                return str_contains($message, 'on 2 probes.')
+                    && isset($context['probes'])
+                    && count($context['probes']) === 2;
+            });
+
+        $notification = new AlertNotificationHandler([
+            'project' => 'Aggregated Project',
+            'alert' => ['channels' => ['log']],
+            'probes' => [
+                [
+                    'probe' => 'GET https://example.com',
+                    'reason' => 'consecutive_failures',
+                    'count' => 3,
+                    'probe_tls_expiration_date' => '2027-01-01T00:00:00+00:00',
+                ],
+                [
+                    'probe' => 'GET https://example.org',
+                    'reason' => 'consecutive_failures',
+                    'count' => 4,
+                    'probe_tls_expiration_date' => null,
+                ],
+            ],
+        ]);
+
+        $notification->toLog(null);
+    }
+
+    public function test_to_array_sorts_aggregated_probes_by_probe_name(): void
+    {
+        $notification = new AlertNotificationHandler([
+            'project' => 'Sorted Project',
+            'alert' => ['channels' => ['webhook']],
+            'probes' => [
+                ['probe' => 'GET https://z.example.com', 'count' => 3],
+                ['probe' => 'GET https://a.example.com', 'count' => 2],
+            ],
+        ]);
+
+        $payload = $notification->toArray(null);
+
+        $this->assertSame('GET https://a.example.com', $payload['probes'][0]['probe']);
+        $this->assertSame('GET https://z.example.com', $payload['probes'][1]['probe']);
+    }
+
+    public function test_to_mail_uses_na_for_null_tls_in_aggregated_probe_lines(): void
+    {
+        $notification = new AlertNotificationHandler([
+            'project' => 'Aggregated Project',
+            'alert' => ['channels' => ['mail']],
+            'probes' => [
+                [
+                    'probe' => 'GET https://example.com',
+                    'reason' => 'consecutive_failures',
+                    'count' => 3,
+                    'probe_tls_expiration_date' => null,
+                ],
+                [
+                    'probe' => 'GET https://example.org',
+                    'reason' => 'consecutive_failures',
+                    'count' => 4,
+                    'probe_tls_expiration_date' => '2027-01-01T00:00:00+00:00',
+                ],
+            ],
+        ]);
+
+        $mail = $notification->toMail(null);
+
+        $this->assertTrue(
+            collect($mail->introLines)->contains(
+                static fn(string $line): bool => str_contains($line, 'GET https://example.com')
+                    && str_contains($line, 'Failures: 3')
+                    && str_contains($line, 'TLS: n/a')
+            )
+        );
+
+        $this->assertTrue(
+            collect($mail->introLines)->contains(
+                static fn(string $line): bool => str_contains($line, 'GET https://example.org')
+                    && str_contains($line, 'Failures: 4')
+                    && str_contains($line, 'TLS: 2027-01-01 00:00:00 UTC')
+            )
+        );
+    }
+
+    public function test_to_mail_formats_single_probe_tls_date_for_readability(): void
+    {
+        $notification = new AlertNotificationHandler([
+            'project' => 'Readable Project',
+            'probe' => 'GET https://example.com',
+            'reason' => 'consecutive_failures',
+            'count' => 2,
+            'probe_tls_expiration_date' => '2027-01-25T23:59:59+00:00',
+            'alert' => ['channels' => ['mail']],
+        ]);
+
+        $mail = $notification->toMail(null);
+
+        $this->assertContains(
+            '- TLS certificate expiration date: 2027-01-25 23:59:59 UTC',
+            $mail->introLines
+        );
     }
 
 }

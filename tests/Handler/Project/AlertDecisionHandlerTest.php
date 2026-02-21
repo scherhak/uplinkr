@@ -2,11 +2,13 @@
 
 namespace Uplinkr\Tests\Handler\Project\Alerts;
 
+use Exception;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 use Mockery;
 use Uplinkr\Handler\Project\Alerts\AlertDecisionHandler;
+use Uplinkr\Handler\Project\Alerts\AlertNotificationHandler;
 use Uplinkr\Handler\Project\ListHandler;
 use Uplinkr\Interfaces\ProjectStorageInterface;
 use Uplinkr\Objects\Config\UplinkrConfig;
@@ -350,5 +352,83 @@ class AlertDecisionHandlerTest extends TestCase
         $result = $this->handler->handle($projectName);
 
         $this->assertCount(0, $result);
+    }
+
+    public function test_it_sends_a_single_aggregated_notification_for_multiple_failed_probes_in_one_project(): void
+    {
+        Log::shouldReceive('channel')->andReturnSelf();
+        Log::shouldReceive('warning')->twice();
+
+        $projectName = 'aggregated-project';
+        $this->mockProject($projectName, [
+            'project' => $projectName,
+            'alerts' => [
+                ['enabled' => true, 'trigger_after_failures' => 2, 'channels' => ['mail']]
+            ]
+        ]);
+
+        $this->mockState($projectName, [
+            'project' => $projectName,
+            'probes' => [
+                'GET https://a.example.com' => ['consecutive_failures' => 2],
+                'GET https://b.example.com' => ['consecutive_failures' => 2],
+            ]
+        ]);
+
+        $decisions = $this->handler->handle($projectName);
+
+        $this->assertCount(2, $decisions);
+        Notification::assertSentOnDemandTimes(AlertNotificationHandler::class, 1);
+        Notification::assertSentOnDemand(AlertNotificationHandler::class, function ($notification): bool {
+            $payload = $notification->toArray(null);
+            return isset($payload['probes']) && count($payload['probes']) === 2;
+        });
+    }
+
+    public function test_it_does_not_persist_notified_state_when_notification_fails(): void
+    {
+        Log::shouldReceive('channel')->andReturnSelf();
+        Log::shouldReceive('warning')->once();
+
+        $projectName = 'test-project';
+        $this->mockProject($projectName, [
+            'project' => $projectName,
+            'alerts' => [
+                ['enabled' => true, 'trigger_after_failures' => 3, 'channels' => ['mail']]
+            ]
+        ]);
+
+        $this->mockState($projectName, [
+            'project' => $projectName,
+            'probes' => [
+                'GET https://example.com' => ['consecutive_failures' => 3, 'consecutive_slow' => 0]
+            ]
+        ]);
+
+        $this->handler = $this->getMockBuilder(AlertDecisionHandler::class)
+            ->setConstructorArgs([
+                $this->storageMock,
+                $this->listHandlerMock,
+                $this->config,
+                $this->sanitizer,
+            ])
+            ->onlyMethods(['notifyGroupedDecisions'])
+            ->getMock();
+
+        $this->handler->expects($this->once())
+            ->method('notifyGroupedDecisions')
+            ->willThrowException(new Exception('notification failed'));
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('notification failed');
+
+        try {
+            $this->handler->handle($projectName);
+        } finally {
+            $state = $this->getUpdatedState($projectName);
+            $this->assertEquals(3, $state['probes']['GET https://example.com']['consecutive_failures']);
+            $this->assertArrayNotHasKey('last_notified_failure_at', $state['probes']['GET https://example.com']);
+            $this->assertArrayNotHasKey('total_failures', $state['probes']['GET https://example.com']);
+        }
     }
 }

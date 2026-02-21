@@ -3,22 +3,22 @@
 namespace Uplinkr\Tests\Console\Commands;
 
 use Mockery;
-use Uplinkr\Handler\Project\RemoveProbeHandler;
+use Uplinkr\Interfaces\ProjectStorageInterface;
 use Uplinkr\Tests\TestCase;
 
 class ProjectRemoveProbeCommandTest extends TestCase
 {
     public function test_it_removes_probe_with_force(): void
     {
-        $handlerMock = Mockery::mock(RemoveProbeHandler::class);
-        $handlerMock->shouldReceive('handle')
+        $storageMock = Mockery::mock(ProjectStorageInterface::class);
+        $storageMock->shouldReceive('removeFromProject')
             ->once()
             ->with([
                 'url' => 'http://example.com',
                 'project' => 'my-project',
             ]);
 
-        $this->app->instance(RemoveProbeHandler::class, $handlerMock);
+        $this->app->instance(ProjectStorageInterface::class, $storageMock);
 
         $this->artisan('uplinkr:project:remove:probe', [
             '--url' => 'http://example.com',
@@ -29,11 +29,11 @@ class ProjectRemoveProbeCommandTest extends TestCase
 
     public function test_it_asks_for_confirmation_without_force(): void
     {
-        $handlerMock = Mockery::mock(RemoveProbeHandler::class);
-        $handlerMock->shouldReceive('handle')
+        $storageMock = Mockery::mock(ProjectStorageInterface::class);
+        $storageMock->shouldReceive('removeFromProject')
             ->once();
 
-        $this->app->instance(RemoveProbeHandler::class, $handlerMock);
+        $this->app->instance(ProjectStorageInterface::class, $storageMock);
 
         $this->artisan('uplinkr:project:remove:probe', [
             '--url' => 'http://example.com',

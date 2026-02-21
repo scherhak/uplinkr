@@ -60,6 +60,8 @@ class AlertDecisionHandler
             return [];
         }
 
+        $initialState = $state;
+
         $result = $this->processProbeAlerts(
             $projectName,
             $state,
@@ -67,9 +69,7 @@ class AlertDecisionHandler
             $config['default_cooldown']
         );
 
-        if ($result['state_updated']) {
-            $this->saveState($projectName, $state);
-        }
+        $this->notifyGroupedDecisions($projectName, $result['decisions'], $initialState);
 
         return $result['decisions'];
     }
@@ -248,28 +248,13 @@ class AlertDecisionHandler
             $consecutiveFailures
         ));
 
-        $notifiable = new AnonymousNotifiable;
-
-        // Configure mail routing if mail channel is enabled
-        $mailRecipients = $this->config->getMailTo();
-        if (!empty($mailRecipients)) {
-            $notifiable->route('mail', $mailRecipients);
-        }
-
-        $notifiable->notify(new AlertNotificationHandler([
-            'project' => $projectName,
-            'probe' => $probeKey,
-            'alert' => $alert,
-            'reason' => 'consecutive_failures',
-            'count' => $consecutiveFailures
-        ]));
-
         return [
             'project' => $projectName,
             'probe' => $probeKey,
             'alert' => $alert,
             'reason' => 'consecutive_failures',
-            'count' => $consecutiveFailures
+            'count' => $consecutiveFailures,
+            'probe_tls_expiration_date' => Arr::get($probeData, 'probe_tls_expiration_date'),
         ];
     }
 
@@ -340,5 +325,75 @@ class AlertDecisionHandler
             'decisions' => $decisions,
             'state_updated' => $stateUpdated
         ];
+    }
+
+    /**
+     * Sends aggregated notifications grouped by project and alert configuration.
+     *
+     * @param string $projectName
+     * @param array $decisions
+     * @param array $state
+     * @return void
+     * @throws JsonException
+     */
+    protected function notifyGroupedDecisions(string $projectName, array $decisions, array $state): void
+    {
+        if (empty($decisions)) {
+            return;
+        }
+
+        $grouped = [];
+
+        foreach ($decisions as $decision) {
+            $alert = Arr::get($decision, 'alert', []);
+            $groupKey = md5(json_encode([
+                'project' => Arr::get($decision, 'project'),
+                'alert' => $alert,
+            ]));
+
+            if (!isset($grouped[$groupKey])) {
+                $grouped[$groupKey] = [
+                    'project' => Arr::get($decision, 'project'),
+                    'alert' => $alert,
+                    'probes' => [],
+                ];
+            }
+
+            $grouped[$groupKey]['probes'][] = [
+                'probe' => Arr::get($decision, 'probe'),
+                'reason' => Arr::get($decision, 'reason'),
+                'count' => Arr::get($decision, 'count'),
+                'probe_tls_expiration_date' => Arr::get($decision, 'probe_tls_expiration_date'),
+            ];
+        }
+
+        $notifiable = new AnonymousNotifiable;
+        $mailRecipients = $this->config->getMailTo();
+        if (!empty($mailRecipients)) {
+            $notifiable->route('mail', $mailRecipients);
+        }
+
+        $persistedState = $state;
+
+        foreach ($grouped as $notificationData) {
+            $notifiable->notify(new AlertNotificationHandler($notificationData));
+
+            $triggerAfterFailures = Arr::get($notificationData, 'alert.trigger_after_failures', 3);
+            foreach (Arr::get($notificationData, 'probes', []) as $probeData) {
+                $probeKey = Arr::get($probeData, 'probe');
+                if (!is_string($probeKey) || $probeKey === '') {
+                    continue;
+                }
+
+                $this->updateProbeState(
+                    $persistedState,
+                    $probeKey,
+                    $triggerAfterFailures,
+                    Arr::get($probeData, 'count', 0)
+                );
+            }
+
+            $this->saveState($projectName, $persistedState);
+        }
     }
 }

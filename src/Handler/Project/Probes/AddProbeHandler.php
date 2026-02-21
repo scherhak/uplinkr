@@ -1,16 +1,16 @@
 <?php
 
-namespace Uplinkr\Handler\Project;
+namespace Uplinkr\Handler\Project\Probes;
 
 use Uplinkr\Interfaces\ProjectStorageInterface;
 
 /**
- * Class RemoveProbeHandler
+ * Class AddProbeHandler
  * @package Uplinkr\Handler\Project
  *
  * @author Sascha Scherhak <sascha@uplinkr.dev>
  */
-class RemoveProbeHandler
+readonly class AddProbeHandler
 {
     /**
      * Constructor method for initializing the class with a project storage instance.
@@ -25,15 +25,16 @@ class RemoveProbeHandler
     }
 
     /**
-     * Removes a probe from an existing project.
+     * Adds a probe to an existing project.
      *
-     * @param array $options An associative array containing probe details: 'url', 'project'.
+     * @param array $options An associative array containing probe details: 'url', 'project', 'method', 'headers', 'body' and 'latency'.
      * @return bool
      */
     public function handle(array $options): bool
     {
-        $this->projectStorage->removeFromProject($options);
+        $this->projectStorage->addToProject($options);
 
         return true;
     }
+
 }

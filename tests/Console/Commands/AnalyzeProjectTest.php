@@ -5,24 +5,24 @@ namespace Console\Commands;
 use Mockery;
 use Mockery\MockInterface;
 use Symfony\Component\Console\Command\Command as CommandAlias;
-use Uplinkr\Handler\Project\AnalyzeHandler;
-use Uplinkr\Handler\Project\SummaryHandler;
+use Uplinkr\Handler\Project\Analyze\AnalyzeHandler;
+use Uplinkr\Handler\Project\Analyze\SummaryHandler;
 use Uplinkr\Tests\TestCase;
 
 class AnalyzeProjectTest extends TestCase
 {
     private MockInterface|AnalyzeHandler $analyzeHandlerMock;
-    private MockInterface|SummaryHandler $summaryHandlerMock;
+    private SummaryHandler $summaryHandler;
 
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->analyzeHandlerMock = Mockery::mock(AnalyzeHandler::class);
-        $this->summaryHandlerMock = Mockery::mock(SummaryHandler::class);
+        $this->summaryHandler = new SummaryHandler(new \Uplinkr\Support\Sanitizer(new \Uplinkr\Objects\Config\UplinkrConfig()));
 
         $this->app->instance(AnalyzeHandler::class, $this->analyzeHandlerMock);
-        $this->app->instance(SummaryHandler::class, $this->summaryHandlerMock);
+        $this->app->instance(SummaryHandler::class, $this->summaryHandler);
     }
 
     /**
@@ -33,22 +33,13 @@ class AnalyzeProjectTest extends TestCase
         $project = 'test-project';
         $files = ['path/to/test@2023-01-01.json'];
         $content = '{"some":"json"}';
-        $results = [['url' => 'http://example.com']];
-
-        $summaryObj = new \Uplinkr\Objects\Summary\ProbeResultsSummary(
-            url: 'http://example.com',
-            total: 1,
-            reachable: 1,
-            unreachable: 0,
-            error: 0,
-            unknown: 0,
-            firstExecutedAt: '100',
-            lastExecutedAt: '100',
-            avgDurationMs: 100.0,
-            statusHeaderCounts: [200 => 1]
-        );
-
-        $summary = ['example_com' => $summaryObj];
+        $results = [[
+            'settings' => ['url' => 'http://example.com'],
+            'probe_status' => 'reachable',
+            'probe_message' => ['duration_ms' => 100.0],
+            'executed' => 100,
+            'status_header' => 200,
+        ]];
 
         $this->analyzeHandlerMock->shouldReceive('probeResultsList')
             ->with($project, null, null)
@@ -64,11 +55,6 @@ class AnalyzeProjectTest extends TestCase
             ->with($content)
             ->once()
             ->andReturn($results);
-
-        $this->summaryHandlerMock->shouldReceive('summarizeProbeResults')
-            ->with($results)
-            ->once()
-            ->andReturn($summary);
 
         $this->analyzeHandlerMock->shouldReceive('extractDateFromFilename')
             ->with('path/to/test@2023-01-01.json')

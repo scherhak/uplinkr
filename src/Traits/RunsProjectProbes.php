@@ -27,7 +27,8 @@ trait RunsProjectProbes
                 'project' => $projectName,
                 'method' => Arr::get($probe, 'method', 'GET'),
                 'headers' => Arr::get($probe, 'headers', []),
-                'body' => Arr::get($probe, 'body', '')
+                'body' => Arr::get($probe, 'body', ''),
+                'tls' => Arr::get($probe, 'tls', []),
             ])->handle();
 
             $results[] = $result;

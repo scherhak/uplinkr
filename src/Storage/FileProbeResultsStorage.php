@@ -53,10 +53,15 @@ class FileProbeResultsStorage implements ProbeResultsStorageInterface
         }
 
         $existingData[] = $resultData;
+        $flags = JSON_THROW_ON_ERROR;
+
+        if ($this->config->shouldPrettyPrintProbeResults()) {
+            $flags |= JSON_PRETTY_PRINT;
+        }
 
         $disk->put(
             $filename,
-            json_encode($existingData, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR)
+            json_encode($existingData, $flags)
         );
     }
 
@@ -139,7 +144,7 @@ class FileProbeResultsStorage implements ProbeResultsStorageInterface
         return $this->config->getFileExtension();
     }
 
-    /**w
+    /**
      * Generates a sanitized URL from the given data array.
      *
      * Processes the input to ensure a valid URL structure,

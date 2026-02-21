@@ -4,24 +4,27 @@ namespace Uplinkr\Tests\Console\Commands;
 
 use Mockery;
 use Uplinkr\Handler\Project\UpdateHandler;
+use Uplinkr\Interfaces\ProjectStorageInterface;
 use Uplinkr\Tests\TestCase;
 
 class ProjectUpdateCommandTest extends TestCase
 {
     public function test_it_updates_project_with_force(): void
     {
-        $handlerMock = Mockery::mock(UpdateHandler::class);
-        $handlerMock->shouldReceive('handle')
+        $storageMock = Mockery::mock(ProjectStorageInterface::class);
+        $storageMock->shouldReceive('findProject')
             ->once()
-            ->with([
+            ->with('my-project')
+            ->andReturn([
                 'project' => 'my-project',
-                'label' => 'New Label',
-                'description' => 'New Description',
-                'status' => null,
-            ])
-            ->andReturn(true);
+                'label' => 'Old Label',
+                'description' => 'Old Description',
+                'probes' => [],
+            ]);
+        $storageMock->shouldReceive('saveProject')
+            ->once();
 
-        $this->app->instance(UpdateHandler::class, $handlerMock);
+        $this->app->instance(ProjectStorageInterface::class, $storageMock);
 
         $this->artisan('uplinkr:project:update', [
             '--project' => 'my-project',
@@ -33,12 +36,18 @@ class ProjectUpdateCommandTest extends TestCase
 
     public function test_it_asks_for_confirmation_without_force(): void
     {
-        $handlerMock = Mockery::mock(UpdateHandler::class);
-        $handlerMock->shouldReceive('handle')
+        $storageMock = Mockery::mock(ProjectStorageInterface::class);
+        $storageMock->shouldReceive('findProject')
             ->once()
-            ->andReturn(true);
+            ->andReturn([
+                'project' => 'my-project',
+                'label' => 'Old Label',
+                'probes' => [],
+            ]);
+        $storageMock->shouldReceive('saveProject')
+            ->once();
 
-        $this->app->instance(UpdateHandler::class, $handlerMock);
+        $this->app->instance(ProjectStorageInterface::class, $storageMock);
 
         $this->artisan('uplinkr:project:update', [
             '--project' => 'my-project',
@@ -59,12 +68,13 @@ class ProjectUpdateCommandTest extends TestCase
 
     public function test_it_fails_if_handler_returns_false(): void
     {
-        $handlerMock = Mockery::mock(UpdateHandler::class);
-        $handlerMock->shouldReceive('handle')
+        $storageMock = Mockery::mock(ProjectStorageInterface::class);
+        $storageMock->shouldReceive('findProject')
             ->once()
-            ->andReturn(false);
+            ->with('non-existent')
+            ->andReturn(null);
 
-        $this->app->instance(UpdateHandler::class, $handlerMock);
+        $this->app->instance(ProjectStorageInterface::class, $storageMock);
 
         $this->artisan('uplinkr:project:update', [
             '--project' => 'non-existent',
@@ -82,18 +92,18 @@ class ProjectUpdateCommandTest extends TestCase
 
     public function test_it_updates_project_status_to_disabled(): void
     {
-        $handlerMock = Mockery::mock(UpdateHandler::class);
-        $handlerMock->shouldReceive('handle')
+        $storageMock = Mockery::mock(ProjectStorageInterface::class);
+        $storageMock->shouldReceive('findProject')
             ->once()
-            ->with([
+            ->andReturn([
                 'project' => 'my-project',
-                'label' => null,
-                'description' => null,
-                'status' => 'disabled',
-            ])
-            ->andReturn(true);
+                'status' => 'enabled',
+                'probes' => [],
+            ]);
+        $storageMock->shouldReceive('saveProject')
+            ->once();
 
-        $this->app->instance(UpdateHandler::class, $handlerMock);
+        $this->app->instance(ProjectStorageInterface::class, $storageMock);
 
         $this->artisan('uplinkr:project:update', [
             '--project' => 'my-project',
@@ -104,18 +114,18 @@ class ProjectUpdateCommandTest extends TestCase
 
     public function test_it_updates_project_status_to_enabled(): void
     {
-        $handlerMock = Mockery::mock(UpdateHandler::class);
-        $handlerMock->shouldReceive('handle')
+        $storageMock = Mockery::mock(ProjectStorageInterface::class);
+        $storageMock->shouldReceive('findProject')
             ->once()
-            ->with([
+            ->andReturn([
                 'project' => 'my-project',
-                'label' => null,
-                'description' => null,
-                'status' => 'enabled',
-            ])
-            ->andReturn(true);
+                'status' => 'disabled',
+                'probes' => [],
+            ]);
+        $storageMock->shouldReceive('saveProject')
+            ->once();
 
-        $this->app->instance(UpdateHandler::class, $handlerMock);
+        $this->app->instance(ProjectStorageInterface::class, $storageMock);
 
         $this->artisan('uplinkr:project:update', [
             '--project' => 'my-project',

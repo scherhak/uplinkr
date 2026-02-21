@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use JsonException;
 use Uplinkr\Interfaces\ProbeResultsStorageInterface;
+use Uplinkr\Jobs\ProbeUrl;
 use Uplinkr\Objects\Config\UplinkrConfig;
 use Uplinkr\Objects\Project\ProjectValues;
 use Uplinkr\Support\Sanitizer;
@@ -58,10 +59,31 @@ class UrlHandler
      * Handles the processing of an HTTP request, including sending the request, handling response,
      * and building and saving the probe result.
      *
-     * @return array|null The resulting data from the probe, or null if the process fails.
+     * If configured for job execution, dispatches a ProbeUrl job instead of executing directly.
+     *
+     * @return array|null The resulting data from the probe, or null if dispatched as job.
      * @throws JsonException
      */
     public function handle(): ?array
+    {
+        // Check if probes should be executed as jobs
+        if ($this->config->shouldExecuteProbesAsJob()) {
+            ProbeUrl::dispatch($this->data)
+                ->onConnection($this->config->getProbeQueueConnection());
+
+            return null;
+        }
+
+        return $this->executeProbe();
+    }
+
+    /**
+     * Executes the actual probe operation.
+     *
+     * @return array The resulting data from the probe.
+     * @throws JsonException
+     */
+    public function executeProbe(): array
     {
         $request = null;
         $startTime = microtime(true);
@@ -151,6 +173,7 @@ class UrlHandler
     private function buildProbeResult(mixed $request, float $durationTime, array $probeMessage, string $probeStatus): array
     {
         $requestResult = $this->getRequestResult($request);
+        $requestResult['probe_tls_expiration_date'] = $this->getProbeTlsExpirationDate();
 
         return $this->resultHandler
             ->with(result: $requestResult)
@@ -182,6 +205,138 @@ class UrlHandler
         }
 
         return [];
+    }
+
+    /**
+     * Resolves TLS certificate expiration date for HTTPS probes.
+     *
+     * @return string|null ISO-8601 date when available.
+     */
+    private function getProbeTlsExpirationDate(): ?string
+    {
+        if (!$this->isTlsCheckEnabled()) {
+            return null;
+        }
+
+        $urlParts = parse_url($this->getUrl());
+        if (!is_array($urlParts)) {
+            return null;
+        }
+
+        $host = Arr::get($urlParts, 'host');
+        if (!is_string($host) || trim($host) === '') {
+            return null;
+        }
+
+        $port = (int)Arr::get($urlParts, 'port', 443);
+        if ($port <= 0) {
+            $port = 443;
+        }
+
+        $tlsOptions = Arr::get($this->data, 'tls', []);
+        $timeout = (float)Arr::get($tlsOptions, 'timeout', 3.0);
+        if ($timeout <= 0) {
+            $timeout = 3.0;
+        }
+
+        $sslContext = [
+            'capture_peer_cert' => true,
+            'verify_peer' => (bool)Arr::get($tlsOptions, 'verify_peer', true),
+            'verify_peer_name' => (bool)Arr::get($tlsOptions, 'verify_peer_name', true),
+            'allow_self_signed' => (bool)Arr::get($tlsOptions, 'allow_self_signed', false),
+            'SNI_enabled' => true,
+            'peer_name' => (string)Arr::get($tlsOptions, 'peer_name', $host),
+        ];
+
+        $caFile = Arr::get($tlsOptions, 'cafile');
+        if (is_string($caFile) && trim($caFile) !== '') {
+            $sslContext['cafile'] = $caFile;
+        }
+
+        $caPath = Arr::get($tlsOptions, 'capath');
+        if (is_string($caPath) && trim($caPath) !== '') {
+            $sslContext['capath'] = $caPath;
+        }
+
+        $context = stream_context_create(['ssl' => $sslContext]);
+
+        // Avoid global warning output from failed TLS socket attempts without using error suppression.
+        set_error_handler(static function (): bool {
+            return true;
+        });
+
+        try {
+            $socket = stream_socket_client(
+                $this->buildTlsSocketTarget($host, $port),
+                $errorCode,
+                $errorMessage,
+                $timeout,
+                STREAM_CLIENT_CONNECT,
+                $context
+            );
+        } finally {
+            restore_error_handler();
+        }
+
+        if ($socket === false) {
+            return null;
+        }
+
+        $params = stream_context_get_params($socket);
+        fclose($socket);
+
+        $certificate = Arr::get($params, 'options.ssl.peer_certificate');
+        if (!is_resource($certificate) && !is_object($certificate)) {
+            return null;
+        }
+
+        $parsedCertificate = openssl_x509_parse($certificate);
+        if (!is_array($parsedCertificate)) {
+            return null;
+        }
+
+        $validToTimestamp = Arr::get($parsedCertificate, 'validTo_time_t');
+        if (!is_int($validToTimestamp) && !ctype_digit((string)$validToTimestamp)) {
+            return null;
+        }
+
+        return gmdate('c', (int)$validToTimestamp);
+    }
+
+    /**
+     * Builds the TLS socket target and brackets IPv6 hosts when needed.
+     *
+     * @param string $host
+     * @param int $port
+     * @return string
+     */
+    private function buildTlsSocketTarget(string $host, int $port): string
+    {
+        if (str_contains($host, ':') && !str_starts_with($host, '[')) {
+            $host = '[' . $host . ']';
+        }
+
+        return sprintf('ssl://%s:%d', $host, $port);
+    }
+
+    /**
+     * Checks whether TLS validation for expiration date should be executed.
+     *
+     * @return bool
+     */
+    private function isTlsCheckEnabled(): bool
+    {
+        $urlParts = parse_url($this->getUrl());
+        if (!is_array($urlParts)) {
+            return false;
+        }
+
+        $scheme = strtolower((string)Arr::get($urlParts, 'scheme', ''));
+        if ($scheme !== 'https') {
+            return false;
+        }
+
+        return (bool)Arr::get($this->data, 'tls.enabled', true);
     }
 
     /**

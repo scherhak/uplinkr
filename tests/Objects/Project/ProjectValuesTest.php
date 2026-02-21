@@ -27,4 +27,21 @@ class ProjectValuesTest extends TestCase
         $values = new ProjectValues(['project' => 'my-project']);
         $this->assertEquals('my-project', $values->getName());
     }
+
+    public function test_getProbes_normalizes_legacy_header_key_to_headers(): void
+    {
+        $values = new ProjectValues([
+            'probes' => [
+                [
+                    'url' => 'https://example.com',
+                    'header' => ['Authorization: Bearer test'],
+                ],
+            ],
+        ]);
+
+        $probes = $values->getProbes();
+
+        $this->assertEquals(['Authorization: Bearer test'], $probes[0]['headers']);
+        $this->assertEquals(['Authorization: Bearer test'], $probes[0]['header']);
+    }
 }

@@ -14,7 +14,7 @@ use Uplinkr\Support\Time;
  *
  * @author Sascha Scherhak <sascha@uplinkr.dev>
  */
-class InitHandler
+readonly class InitHandler
 {
     /**
      * Constructor method for initializing the class with a project storage instance.

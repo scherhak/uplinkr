@@ -54,6 +54,18 @@ return [
 
         /*
         |--------------------------------------------------------------------------
+        | Pretty Print Probe Results
+        |--------------------------------------------------------------------------
+        |
+        | Controls whether probe result JSON files in "<project>/probes" are
+        | formatted with indentation. Disable in production to reduce file size
+        | and I/O overhead.
+        |
+        */
+        'pretty_print_probe_results' => (bool)env('UPLINKR_STORAGE_PRETTY_PRINT_PROBE_RESULTS', true),
+
+        /*
+        |--------------------------------------------------------------------------
         | Archive Folder
         |--------------------------------------------------------------------------
         |
@@ -101,6 +113,53 @@ return [
     |
     */
     'probes' => [
+
+        /*
+        |--------------------------------------------------------------------------
+        | Execution mode
+        |--------------------------------------------------------------------------
+        |
+        | Defines how URL probes are executed:
+        |
+        | - 'direct': Probes are executed synchronously within the current request.
+        |   This is suitable for low-frequency monitoring or when immediate results
+        |   are required. Use this mode for simple setups or when you don't have
+        |   a queue worker running.
+        |
+        | - 'job': Probes are dispatched as queued jobs and executed asynchronously
+        |   by queue workers. This is recommended for high-frequency monitoring,
+        |   multiple probes, or when you want to avoid blocking the main request.
+        |   Requires a properly configured queue connection and running queue workers.
+        |
+        | Possible values: 'direct', 'job'
+        | Default: 'direct'
+        |
+        */
+        'execution_mode' => env('UPLINKR_PROBES_EXECUTION_MODE', 'direct'),
+
+        /*
+        |--------------------------------------------------------------------------
+        | Queue Connection
+        |--------------------------------------------------------------------------
+        |
+        | The queue connection to use when execution_mode is set to 'job'.
+        | This should match one of the connections defined in config/queue.php.
+        |
+        | Common options:
+        | - 'sync': Executes jobs synchronously (useful for local development/testing)
+        | - 'database': Uses database as queue driver (simple, no additional services)
+        | - 'redis': Uses Redis as queue driver (recommended for production, fast)
+        | - 'sqs': Uses Amazon SQS (recommended for AWS deployments)
+        | - 'beanstalkd': Uses Beanstalkd queue service
+        |
+        | Note: Make sure your chosen connection is properly configured in
+        | config/queue.php and that queue workers are running:
+        |   php artisan queue:work <connection-name>
+        |
+        | Default: 'sync'
+        |
+        */
+        'queue_connection' => env('UPLINKR_PROBES_QUEUE_CONNECTION', 'sync'),
 
         /*
         |--------------------------------------------------------------------------

@@ -30,6 +30,7 @@ return [
     'probe_error' => 'An error is occurred.',
     'probe_no_url_provided' => 'No URL provided.',
     'probe_stored' => 'Result stored successfully in project :project.',
+    'probe_dispatched_as_job' => 'Probe dispatched as job for project :project.',
 
     /*
      * Projects parts
@@ -77,13 +78,18 @@ return [
     'project_alerts_decisions_found_all' => 'Found :count alert decision(s) across all projects:',
     'project_alerts_decisions_list_item' => ' - Project: :project | Probe: :probe | Reason: :reason | Count: :count',
     'project_alerts_mail_subject' => ':prefix Alert: Project ":project" - Probe ":probe" failed',
+    'project_alerts_mail_subject_aggregated' => ':prefix Alert: Project ":project" - :probeCount probes failed',
     'project_alerts_mail_greeting' => 'An alert has been triggered for project :project!',
     'project_alerts_mail_details_head' => 'Notification details',
     'project_alerts_mail_details_project' => '- Project: :project',
+    'project_alerts_mail_details_probes_count' => '- Affected probes: :probeCount',
+    'project_alerts_mail_details_probe_list_head' => '- Affected probes list:',
+    'project_alerts_mail_details_probe_aggregated' => '  - :probe | Failures: :failureCount | TLS: :probeTlsExpirationDate',
     'project_alerts_mail_details_probe' => '- Probe: :probe',
     'project_alerts_mail_details_reason' => '- Reason: Multiple consecutive failures, or response times that are too slow.',
     'project_alerts_mail_details_failure_count' => '- Failure count: :failureCount',
     'project_alerts_mail_details_alert_time' => '- Alert time: :alertTime',
+    'project_alerts_mail_details_probe_tls_expiration_date' => '- TLS certificate expiration date: :probeTlsExpirationDate',
     'project_alerts_mail_accompanying_text_head' => 'What this means',
     'project_alerts_mail_accompanying_text' => 'The monitored URL could not be accessed successfully for an extended period of time, or responded too slowly. Please check the status of the server, the network connection, and/or the SSL certificate configuration.',
     'project_alerts_mail_accompanying_text_note' => 'You will automatically receive further notifications in :cooldownMinutes minutes, if the issue persists.',

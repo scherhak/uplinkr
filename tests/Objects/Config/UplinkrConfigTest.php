@@ -16,6 +16,7 @@ class UplinkrConfigTest extends TestCase
         $this->assertEquals('probes', $config->getProbeResultsPath());
         $this->assertEquals('json', $config->getFileExtension());
         $this->assertEquals('@', $config->getProbeFilenameSeparator());
+        $this->assertTrue($config->shouldPrettyPrintProbeResults());
         $this->assertEquals('archived', $config->getArchivedFolder());
         $this->assertEquals('standard_project', $config->getStandardProject());
         $this->assertEquals('enabled', $config->getStandardProjectStatus());
@@ -34,6 +35,7 @@ class UplinkrConfigTest extends TestCase
             standardLatency: 2000,
             probeFilenameSeparator: '#',
             fileExtension: 'log',
+            prettyPrintProbeResults: false,
             archivedFolder: 'old',
             allowCompleteWipe: true,
             standardProject: 'my_project',
@@ -48,6 +50,7 @@ class UplinkrConfigTest extends TestCase
         $this->assertEquals('custom_probes', $config->getProbeResultsPath());
         $this->assertEquals('log', $config->getFileExtension());
         $this->assertEquals('#', $config->getProbeFilenameSeparator());
+        $this->assertFalse($config->shouldPrettyPrintProbeResults());
         $this->assertEquals('old', $config->getArchivedFolder());
         $this->assertEquals('my_project', $config->getStandardProject());
         $this->assertEquals('disabled', $config->getStandardProjectStatus());

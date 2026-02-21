@@ -38,7 +38,8 @@ class FileProbeResultsStorageTest extends TestCase
                 'project' => 'my-project'
             ],
             'probe_status' => 'reachable',
-            'probe_message' => ['duration_ms' => 100]
+            'probe_message' => ['duration_ms' => 100],
+            'probe_tls_expiration_date' => '2026-12-31T23:59:59+00:00',
         ];
 
         $this->storage->saveResult($resultData);
@@ -92,5 +93,33 @@ class FileProbeResultsStorageTest extends TestCase
         $expectedFilename = 'uplinkr/' . $this->config->getStandardProject() . '/probes/example_com@' . date('Y-m-d') . '.json';
         
         Storage::disk('local')->assertExists($expectedFilename);
+    }
+
+    public function test_save_result_can_be_written_without_pretty_print(): void
+    {
+        $config = new UplinkrConfig(
+            storageDisk: 'local',
+            storagePath: 'uplinkr',
+            probeResultsPath: 'probes',
+            fileExtension: 'json',
+            prettyPrintProbeResults: false
+        );
+        $storage = new FileProbeResultsStorage($config, new Sanitizer($config));
+
+        $resultData = [
+            'settings' => [
+                'url' => 'http://example.com',
+                'project' => 'my-project'
+            ],
+            'probe_status' => 'reachable',
+        ];
+
+        $storage->saveResult($resultData);
+
+        $expectedFilename = 'uplinkr/my-project/probes/example_com@' . date('Y-m-d') . '.json';
+        $content = Storage::disk('local')->get($expectedFilename);
+
+        $this->assertStringNotContainsString("\n    ", $content);
+        $this->assertSame('[{"settings":{"url":"http:\/\/example.com","project":"my-project"},"probe_status":"reachable"}]', $content);
     }
 }

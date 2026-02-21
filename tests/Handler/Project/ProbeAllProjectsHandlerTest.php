@@ -4,7 +4,7 @@ namespace Uplinkr\Tests\Handler\Project;
 
 use Mockery;
 use Uplinkr\Handler\Probe\UrlHandler;
-use Uplinkr\Handler\Project\ProbeAllProjectsHandler;
+use Uplinkr\Handler\Project\Probes\ProbeAllProjectsHandler;
 use Uplinkr\Interfaces\ProjectStorageInterface;
 use Uplinkr\Tests\TestCase;
 
@@ -47,6 +47,7 @@ class ProbeAllProjectsHandlerTest extends TestCase
                 'method' => 'GET',
                 'headers' => [],
                 'body' => '',
+                'tls' => [],
             ])
             ->andReturnSelf();
 
@@ -59,6 +60,7 @@ class ProbeAllProjectsHandlerTest extends TestCase
                 'method' => 'POST',
                 'headers' => ['Auth: None'],
                 'body' => '{"key":"val"}',
+                'tls' => [],
             ])
             ->andReturnSelf();
 

@@ -2,7 +2,145 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.1.2] – 2026-02-xx
+## [0.2.0] – 2026-02-21
+
+### Added
+- **Asynchronous Probe Execution via Jobs**
+  - New `ProbeUrl` job class for executing URL probes in queue workers
+  - Configurable execution mode via `config/uplinkr.php`:
+    - `direct`: Synchronous execution (default, backward compatible)
+    - `job`: Asynchronous execution via Laravel queues
+  - Queue connection configuration (`probes.queue_connection`)
+  - Support for all Laravel queue drivers (sync, database, redis, sqs, beanstalkd)
+- **New Command: `uplinkr:config`**
+  - Display the current Uplinkr configuration in structured format
+  - Similar to Laravel's `php artisan config:show uplinkr` command
+  - Hierarchical display of all configuration values
+- **TLS Metadata for Probe Results**
+  - HTTPS probes now resolve certificate expiration dates
+  - New result field: `probe_tls_expiration_date` (ISO-8601 or `null`)
+  - Optional per-probe TLS options:
+    - `tls.enabled`
+    - `tls.timeout`
+    - `tls.verify_peer`
+    - `tls.verify_peer_name`
+    - `tls.allow_self_signed`
+    - `tls.peer_name`
+    - `tls.cafile`
+    - `tls.capath`
+
+### Changed
+- **Composer Platform Requirements**
+  - Added `ext-openssl` as an explicit Composer requirement to ensure TLS certificate parsing support is available at install time
+- **UrlHandler Refactoring**
+  - `handle()` method now dispatches jobs when `execution_mode = 'job'`
+  - Extracted probe execution logic into new public `executeProbe()` method
+  - Returns `null` when dispatching jobs (instead of probe result array)
+- **UplinkrConfig Extension**
+  - Added `probeExecutionMode` property with getter and helper methods
+  - Added `probeQueueConnection` property with getter
+  - New convenience method: `shouldExecuteProbesAsJob()`
+- **Improved Console Output**
+  - `HandlesProbeOutput` trait now handles `null` results gracefully
+  - New translation key: `probe_dispatched_as_job`
+  - Clear feedback when probes are dispatched to queue vs executed directly
+- **Alert Notification Payloads**
+  - `probe_tls_expiration_date` is now propagated through alert decisions
+  - Included in mail, webhook, and log notifications
+- **Project-Level Alert Aggregation**
+  - Alert notifications are now grouped per project instead of sending one message per failed probe
+  - `AlertDecisionHandler` keeps the existing decision logic (`trigger_after_failures`, cooldown, enabled state) and sends grouped notifications after decision collection
+  - Grouping key uses project + alert configuration to keep channel/cooldown semantics intact
+- **Alert Notification Rendering**
+  - `AlertNotificationHandler` now supports aggregated payloads via `probes[]` while remaining backward compatible with legacy single-probe payloads
+  - Aggregated mail notifications now include a compact per-probe list (probe, failure count, TLS value)
+  - Aggregated payload probes are sorted by probe name for deterministic output in mail, log, and webhook data
+- **Probe Result Serialization**
+  - Probe result file formatting is now configurable
+  - Pretty printing can be disabled for compact JSON output in high-volume environments
+- **Project Handler Structure**
+  - Project handlers reorganized into focused namespaces:
+    - `Handler\\Project\\Analyze\\...`
+    - `Handler\\Project\\Archive\\...`
+    - `Handler\\Project\\Probes\\...`
+  - Updated imports in commands, service provider bindings, and tests
+
+### Configuration
+New configuration options in `config/uplinkr.php` under `probes`:
+```php
+'execution_mode' => env('UPLINKR_PROBES_EXECUTION_MODE', 'direct'),
+'queue_connection' => env('UPLINKR_PROBES_QUEUE_CONNECTION', 'sync'),
+```
+
+New storage option in `config/uplinkr.php` under `storage`:
+```php
+'pretty_print_probe_results' => (bool)env('UPLINKR_STORAGE_PRETTY_PRINT_PROBE_RESULTS', true),
+```
+
+Default remains `true` for backward compatibility.
+
+### Fixed
+- **Atomic Alert-State Persistence for Grouped Notifications**
+  - `AlertDecisionHandler` now persists probe alert state immediately after each successfully delivered grouped notification batch
+  - Prevents duplicate alerts when a later grouped notification fails in the same run
+- **TLS Metadata in Aggregated Alert Messages**
+  - Persisted `probe_tls_expiration_date` into `state.json` probe entries so alert decisions can reliably access TLS metadata
+  - Aggregated mail output now renders `n/a` when TLS expiration is `null` instead of leaving the value empty
+- **Config Command Output Escaping**
+  - Escapes keys and values in `uplinkr:config` output to prevent accidental console markup parsing
+  - Empty arrays are now displayed explicitly as `[]`
+- **Analyze Command Test Stability**
+  - Adjusted test setup for readonly `SummaryHandler`
+  - Reduced brittle mocking and aligned test behavior with current handler design
+- **Probe HTTP Test Stability**
+  - Stabilized HTTP fakes for probe tests to avoid strict URL-match brittleness
+- **Handler Consistency and Date Parsing**
+  - `AnalyzeHandler::extractDateFromFilename()` now respects the configured probe filename separator
+  - `PruneHandler` now parses probe-result dates according to configured grouping (`daily`, `hourly`, `monthly`)
+  - Removed redundant JSON error check in legacy JSONL decode path
+  - Normalized `Arr` imports in project handlers to `Illuminate\Support\Arr`
+- **Storage and Object Consistency**
+  - Standardized probe header persistence in project storage to use `headers`
+  - Added backward-compatible support for legacy `header` key
+  - `ProjectValues` now normalizes legacy probe entries from `header` to `headers`
+  - Fixed minor documentation typo in `FileProbeResultsStorage` docblock
+
+### Testing
+- Extended `ProbeUrlHandlerTest` with job execution scenarios
+- Added tests for direct execution mode
+- Added tests for job dispatch mode
+- Added tests for `executeProbe()` method
+- Added coverage for:
+  - TLS expiration field in probe results
+  - Alert notification payload/log/mail propagation of TLS metadata
+  - Configurable probe-result pretty printing
+  - Config command escaping and explicit empty-array rendering
+  - Custom filename separators in analyze date extraction
+  - Hourly grouped probe-result pruning
+  - Header key normalization in project values and project storage
+  - Pretty-print probe-result config getter assertions in config object tests
+  - Project-level aggregated alert notification dispatch behavior
+  - Aggregated alert log output and deterministic probe ordering in notification payloads
+
+### Migration Notes
+- **No breaking changes** – default behavior remains synchronous (`direct` mode)
+- Existing storage behavior remains unchanged by default (`pretty_print_probe_results = true`)
+- To enable async execution:
+  1. Set `UPLINKR_PROBES_EXECUTION_MODE=job` in `.env`
+  2. Configure a queue connection: `UPLINKR_PROBES_QUEUE_CONNECTION=redis`
+  3. Start queue workers: `php artisan queue:work redis`
+
+### Benefits
+- Non-blocking probe execution for high-frequency monitoring
+- Better scalability with multiple probes across projects
+- Improved response times for CLI commands and scheduler tasks
+- Flexible deployment: choose sync or async based on your needs
+- Better certificate observability through TLS expiration metadata
+- Reduced storage footprint and I/O when compact probe-result JSON is enabled
+
+---
+
+## [0.1.2] – 2026-02-08
 
 ### Fixed
 
@@ -64,4 +202,3 @@ When directory listing fails, Uplinkr now emits a warning log with:
 - Initial MVP release
 - API and internal behavior may evolve in future minor versions
 - No breaking changes
-

@@ -3,7 +3,7 @@
 namespace Uplinkr\Tests\Handler\Project;
 
 use Illuminate\Support\Facades\Storage;
-use Uplinkr\Handler\Project\AnalyzeHandler;
+use Uplinkr\Handler\Project\Analyze\AnalyzeHandler;
 use Uplinkr\Objects\Config\UplinkrConfig;
 use Uplinkr\Tests\TestCase;
 
@@ -100,5 +100,20 @@ class AnalyzeHandlerTest extends TestCase
         $this->assertCount(2, $savedData['example_com']);
         $this->assertEquals(1, $savedData['example_com']['2023-01-01']['total']);
         $this->assertEquals(2, $savedData['example_com']['2023-01-02']['total']);
+    }
+
+    public function test_extract_date_from_filename_uses_configured_separator(): void
+    {
+        $config = new UplinkrConfig(
+            storageDisk: 'local',
+            storagePath: 'uplinkr',
+            probeResultsPath: 'probes',
+            probeFilenameSeparator: '#'
+        );
+        $handler = new AnalyzeHandler($config);
+
+        $date = $handler->extractDateFromFilename('uplinkr/test_project/probes/example_com#2026-02-14.json');
+
+        $this->assertSame('2026-02-14', $date);
     }
 }

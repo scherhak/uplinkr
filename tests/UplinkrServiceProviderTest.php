@@ -2,16 +2,14 @@
 
 namespace Uplinkr\Tests;
 
-use Illuminate\Support\Facades\Notification;
 use Uplinkr\Handler\Probe\ResultHandler;
 use Uplinkr\Handler\Probe\UrlHandler;
-use Uplinkr\Handler\Project\ProbeAllProjectsHandler;
-use Uplinkr\Handler\Project\ProbeSelectedProjectsHandler;
+use Uplinkr\Handler\Project\Probes\ProbeAllProjectsHandler;
+use Uplinkr\Handler\Project\Probes\ProbeSelectedProjectsHandler;
 use Uplinkr\Interfaces\ProbeResultsStorageInterface;
 use Uplinkr\Interfaces\ProjectStorageInterface;
 use Uplinkr\Objects\Config\UplinkrConfig;
 use Uplinkr\Support\Sanitizer;
-use Uplinkr\UplinkrServiceProvider;
 
 class UplinkrServiceProviderTest extends TestCase
 {

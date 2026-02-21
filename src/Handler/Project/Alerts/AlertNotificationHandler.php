@@ -7,6 +7,7 @@ use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
 use JsonException;
 use Uplinkr\Objects\Config\UplinkrConfig;
@@ -83,15 +84,28 @@ class AlertNotificationHandler extends Notification
     {
         $context = $this->resolveAlertContext();
 
+        if (count($context['probes']) > 1) {
+            Logger::log()->warning(
+                sprintf(
+                    'Alert triggered for project "%s" on %d probes.',
+                    $context['project'],
+                    count($context['probes'])
+                ),
+                $this->toArray($notifiable)
+            );
+            return;
+        }
+
         Logger::log()->warning(
             sprintf(
-                'Alert triggered for project "%s" on probe "%s". Reason: %s (%d failures)',
+                'Alert triggered for project "%s" on probe "%s". Reason: %s (%d failures). TLS expiration date: %s',
                 $context['project'],
                 $context['probe'],
                 $context['reason'],
-                $context['count']
+                $context['count'],
+                $context['probe_tls_expiration_date'] ?? 'n/a'
             ),
-            $this->alertData
+            $this->toArray($notifiable)
         );
     }
 
@@ -282,11 +296,16 @@ class AlertNotificationHandler extends Notification
      */
     private function resolveAlertContext(): array
     {
+        $probes = $this->resolveProbes();
+        $firstProbe = $probes[0] ?? [];
+
         return [
             'project' => Arr::get($this->alertData, 'project'),
-            'probe' => Arr::get($this->alertData, 'probe'),
-            'reason' => Arr::get($this->alertData, 'reason'),
-            'count' => Arr::get($this->alertData, 'count'),
+            'probe' => Arr::get($firstProbe, 'probe'),
+            'reason' => Arr::get($firstProbe, 'reason'),
+            'count' => Arr::get($firstProbe, 'count'),
+            'probe_tls_expiration_date' => Arr::get($firstProbe, 'probe_tls_expiration_date'),
+            'probes' => $probes,
             'alert_time' => now()->toDateTimeString(),
             'trigger_after_failures' => Arr::get($this->alertData, 'alert.trigger_after_failures'),
             'cooldown_minutes' => Arr::get($this->alertData, 'alert.cooldown_minutes'),
@@ -319,28 +338,28 @@ class AlertNotificationHandler extends Notification
      */
     private function buildMailMessage(array $context, array $mailConfig): MailMessage
     {
-        return (new MailMessage)
-            ->error()
-            ->subject(__('uplinkr::messages.project_alerts_mail_subject', [
+        $isAggregated = count($context['probes']) > 1;
+        $subject = $isAggregated
+            ? __('uplinkr::messages.project_alerts_mail_subject_aggregated', [
+                'prefix' => $mailConfig['subject_prefix'],
+                'project' => $context['project'],
+                'probeCount' => count($context['probes']),
+            ])
+            : __('uplinkr::messages.project_alerts_mail_subject', [
                 'prefix' => $mailConfig['subject_prefix'],
                 'project' => $context['project'],
                 'probe' => $context['probe'],
-            ]))
-            ->greeting(__('uplinkr::messages.project_alerts_mail_greeting', ['project' => $context['project']]))
-            ->lines([
-                __('uplinkr::messages.project_alerts_mail_details_head'),
-                __('uplinkr::messages.project_alerts_mail_details_probe', ['probe' => $context['probe']]),
-                __('uplinkr::messages.project_alerts_mail_details_reason'),
-                __('uplinkr::messages.project_alerts_mail_details_failure_count', ['failureCount' => $context['count']]),
-                __('uplinkr::messages.project_alerts_mail_details_alert_time', ['alertTime' => $context['alert_time']]),
-                __('uplinkr::messages.project_alerts_mail_accompanying_text_head'),
-                __('uplinkr::messages.project_alerts_mail_accompanying_text'),
-                __('uplinkr::messages.project_alerts_mail_accompanying_text_note', ['cooldownMinutes' => $context['cooldown_minutes']]),
-                __('uplinkr::messages.project_alerts_mail_alert_settings_head'),
-                __('uplinkr::messages.project_alerts_mail_alert_settings_trigger_after_failures', ['triggerAfterFailures' => $context['trigger_after_failures']]),
-                __('uplinkr::messages.project_alerts_mail_alert_settings_latency_threshold_ms', ['latencyThresholdMs' => $context['latency_threshold_ms']]),
-                __('uplinkr::messages.project_alerts_mail_alert_settings_latency_cooldown_minutes', ['cooldownMinutes' => $context['cooldown_minutes']]),
             ]);
+
+        $lines = $isAggregated
+            ? $this->buildAggregatedMailLines($context)
+            : $this->buildSingleMailLines($context);
+
+        return (new MailMessage)
+            ->error()
+            ->subject($subject)
+            ->greeting(__('uplinkr::messages.project_alerts_mail_greeting', ['project' => $context['project']]))
+            ->lines($lines);
     }
 
     /**
@@ -371,6 +390,117 @@ class AlertNotificationHandler extends Notification
      */
     public function toArray(mixed $notifiable): array
     {
-        return $this->alertData;
+        $probes = $this->resolveProbes();
+        $data = $this->alertData;
+
+        if (Arr::has($this->alertData, 'probes')) {
+            $data['probes'] = $probes;
+        }
+
+        return array_merge($data, [
+            'probe_tls_expiration_date' => Arr::get($probes[0] ?? [], 'probe_tls_expiration_date'),
+        ]);
+    }
+
+    /**
+     * Resolves probes from aggregated or legacy single-probe payloads.
+     *
+     * @return array
+     */
+    private function resolveProbes(): array
+    {
+        $probes = Arr::get($this->alertData, 'probes');
+        if (is_array($probes) && !empty($probes)) {
+            $probes = array_values(array_filter($probes, static fn($probe): bool => is_array($probe)));
+            usort($probes, static function (array $left, array $right): int {
+                return strcmp((string)Arr::get($left, 'probe', ''), (string)Arr::get($right, 'probe', ''));
+            });
+            return $probes;
+        }
+
+        return [[
+            'probe' => Arr::get($this->alertData, 'probe'),
+            'reason' => Arr::get($this->alertData, 'reason'),
+            'count' => Arr::get($this->alertData, 'count'),
+            'probe_tls_expiration_date' => Arr::get($this->alertData, 'probe_tls_expiration_date'),
+        ]];
+    }
+
+    /**
+     * Builds mail lines for a single-probe alert.
+     *
+     * @param array $context
+     * @return array
+     */
+    private function buildSingleMailLines(array $context): array
+    {
+        return [
+            __('uplinkr::messages.project_alerts_mail_details_head'),
+            __('uplinkr::messages.project_alerts_mail_details_probe', ['probe' => $context['probe']]),
+            __('uplinkr::messages.project_alerts_mail_details_reason'),
+            __('uplinkr::messages.project_alerts_mail_details_failure_count', ['failureCount' => $context['count']]),
+            __('uplinkr::messages.project_alerts_mail_details_alert_time', ['alertTime' => $context['alert_time']]),
+            __('uplinkr::messages.project_alerts_mail_details_probe_tls_expiration_date', [
+                'probeTlsExpirationDate' => $this->formatProbeTlsExpirationDate($context['probe_tls_expiration_date'] ?? null),
+            ]),
+            __('uplinkr::messages.project_alerts_mail_accompanying_text_head'),
+            __('uplinkr::messages.project_alerts_mail_accompanying_text'),
+            __('uplinkr::messages.project_alerts_mail_accompanying_text_note', ['cooldownMinutes' => $context['cooldown_minutes']]),
+            __('uplinkr::messages.project_alerts_mail_alert_settings_head'),
+            __('uplinkr::messages.project_alerts_mail_alert_settings_trigger_after_failures', ['triggerAfterFailures' => $context['trigger_after_failures']]),
+            __('uplinkr::messages.project_alerts_mail_alert_settings_latency_threshold_ms', ['latencyThresholdMs' => $context['latency_threshold_ms']]),
+            __('uplinkr::messages.project_alerts_mail_alert_settings_latency_cooldown_minutes', ['cooldownMinutes' => $context['cooldown_minutes']]),
+        ];
+    }
+
+    /**
+     * Builds mail lines for an aggregated multi-probe alert.
+     *
+     * @param array $context
+     * @return array
+     */
+    private function buildAggregatedMailLines(array $context): array
+    {
+        $lines = [
+            __('uplinkr::messages.project_alerts_mail_details_head'),
+            __('uplinkr::messages.project_alerts_mail_details_project', ['project' => $context['project']]),
+            __('uplinkr::messages.project_alerts_mail_details_probes_count', ['probeCount' => count($context['probes'])]),
+            __('uplinkr::messages.project_alerts_mail_details_alert_time', ['alertTime' => $context['alert_time']]),
+            __('uplinkr::messages.project_alerts_mail_details_probe_list_head'),
+        ];
+
+        foreach ($context['probes'] as $probe) {
+            $lines[] = __('uplinkr::messages.project_alerts_mail_details_probe_aggregated', [
+                'probe' => Arr::get($probe, 'probe'),
+                'failureCount' => Arr::get($probe, 'count'),
+                'probeTlsExpirationDate' => $this->formatProbeTlsExpirationDate(Arr::get($probe, 'probe_tls_expiration_date')),
+            ]);
+        }
+
+        return array_merge($lines, [
+            __('uplinkr::messages.project_alerts_mail_details_reason'),
+            __('uplinkr::messages.project_alerts_mail_accompanying_text_head'),
+            __('uplinkr::messages.project_alerts_mail_accompanying_text'),
+            __('uplinkr::messages.project_alerts_mail_accompanying_text_note', ['cooldownMinutes' => $context['cooldown_minutes']]),
+            __('uplinkr::messages.project_alerts_mail_alert_settings_head'),
+            __('uplinkr::messages.project_alerts_mail_alert_settings_trigger_after_failures', ['triggerAfterFailures' => $context['trigger_after_failures']]),
+            __('uplinkr::messages.project_alerts_mail_alert_settings_latency_threshold_ms', ['latencyThresholdMs' => $context['latency_threshold_ms']]),
+            __('uplinkr::messages.project_alerts_mail_alert_settings_latency_cooldown_minutes', ['cooldownMinutes' => $context['cooldown_minutes']]),
+        ]);
+    }
+
+    private function formatProbeTlsExpirationDate(?string $value): string
+    {
+        if ($value === null || trim($value) === '') {
+            return 'n/a';
+        }
+
+        try {
+            return Carbon::parse($value)
+                ->setTimezone('UTC')
+                ->format('Y-m-d H:i:s \U\T\C');
+        } catch (Exception) {
+            return $value;
+        }
     }
 }
