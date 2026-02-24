@@ -215,6 +215,11 @@ class AlertNotificationHandler extends Notification
         return $pendingRequest;
     }
 
+    /**
+     * @param PendingRequest $pendingRequest
+     * @param UplinkrConfig $config
+     * @return void
+     */
     private function applyRetry(PendingRequest $pendingRequest, UplinkrConfig $config): void
     {
         $retryConfig = $config->getWebhookRetry();
