@@ -410,5 +410,22 @@ return [
          */
 
         'cron' => '* * * * *',
+
+        /*
+         |--------------------------------------------------------------------------
+         | Alert Decision Cron Expression
+         |--------------------------------------------------------------------------
+         |
+         | Optional separate schedule for alert decisions. This is useful when
+         | probes run asynchronously via queue jobs and state updates may arrive
+         | after the probe dispatch command has already exited.
+         |
+         | Default is every 2 minutes to give queued probe jobs time to
+         | persist fresh state before alert decisions are evaluated.
+         |
+         | Set to null to reuse the main scheduler cron expression.
+         |
+         */
+        'alert_cron' => '*/2 * * * *',
     ],
 ];

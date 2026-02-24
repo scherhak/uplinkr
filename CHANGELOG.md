@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.1] – 2026-02-xx
+
+### Changed
+- **Scheduler Configuration**
+  - Added `scheduler.alert_cron` in `config/uplinkr.php` to allow a separate cron expression for `uplinkr:project:alert:decision`
+  - `scheduler.alert_cron` defaults to `*/2 * * * *` to provide a safer delay for async probe execution (`probes.execution_mode = job`)
+  - Setting `scheduler.alert_cron` to `null` reuses `scheduler.cron` for backward-compatible scheduling behavior
+
+### Fixed
+- **Scheduler Race Reduction for Async Probe Execution**
+  - `uplinkr:project:alert:decision` is no longer scheduled with `runInBackground()`
+  - Reduces the risk of alert decisions reading stale `state.json` when probe runs dispatch queued jobs and return before workers persist probe state
+
+
 ## [0.2.0] – 2026-02-21
 
 ### Added
