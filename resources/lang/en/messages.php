@@ -83,7 +83,7 @@ return [
     'project_alerts_mail_details_head' => 'Notification details',
     'project_alerts_mail_details_project' => '- Project: :project',
     'project_alerts_mail_details_probes_count' => '- Affected probes: :probeCount',
-    'project_alerts_mail_details_probe_list_head' => '- Affected probes list:',
+    'project_alerts_mail_details_probe_list_head' => 'Affected probes list:',
     'project_alerts_mail_details_probe_aggregated' => '  - :probe | Failures: :failureCount | TLS: :probeTlsExpirationDate',
     'project_alerts_mail_details_probe' => '- Probe: :probe',
     'project_alerts_mail_details_reason' => '- Reason: Multiple consecutive failures, or response times that are too slow.',
