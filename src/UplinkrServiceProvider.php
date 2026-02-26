@@ -83,16 +83,18 @@ class UplinkrServiceProvider extends ServiceProvider
 
                 /** @var Schedule $schedule */
                 $schedule = app(Schedule::class);
+                $probeCron = (string)config('uplinkr.scheduler.cron');
+                $alertCron = config('uplinkr.scheduler.alert_cron');
+                $alertCron = is_string($alertCron) && $alertCron !== '' ? $alertCron : $probeCron;
 
                 $schedule->command('uplinkr:project:run-probes --force')
-                    ->cron(config('uplinkr.scheduler.cron'))
+                    ->cron($probeCron)
                     ->withoutOverlapping()
                     ->runInBackground();
 
                 $schedule->command('uplinkr:project:alert:decision')
-                    ->cron(config('uplinkr.scheduler.cron'))
-                    ->withoutOverlapping()
-                    ->runInBackground();
+                    ->cron($alertCron)
+                    ->withoutOverlapping();
             });
         }
     }
