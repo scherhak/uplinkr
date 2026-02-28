@@ -97,6 +97,13 @@ return [
     'project_alerts_mail_alert_settings_trigger_after_failures' => '- The alarm was triggered after :triggerAfterFailures consecutive errors.',
     'project_alerts_mail_alert_settings_latency_threshold_ms' => '- The maximum response time is currently set to :latencyThresholdMs milliseconds.',
     'project_alerts_mail_alert_settings_latency_cooldown_minutes' => '- The current cooldown for notifications is :cooldownMinutes minutes.',
+    'project_list_header' => 'Project: :project | :label | :status',
+    'project_list_description' => 'Description: :description',
+    'project_list_alerts' => 'Alerts: :alerts',
+    'project_list_state' => 'State: total_failures=:totalFailures, last_notification=:lastNotification',
+    'project_list_not_found' => 'Project ":project" not found. Please check the spelling.',
+    'project_list_available_projects' => 'Available projects:',
+    'project_list_available_project_item' => '- :project',
 
     /*
      * Analyze parts

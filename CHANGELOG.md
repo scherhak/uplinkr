@@ -9,6 +9,13 @@ All notable changes to this project will be documented in this file.
   - Added `scheduler.alert_cron` in `config/uplinkr.php` to allow a separate cron expression for `uplinkr:project:alert:decision`
   - `scheduler.alert_cron` defaults to `*/2 * * * *` to provide a safer delay for async probe execution (`probes.execution_mode = job`)
   - Setting `scheduler.alert_cron` to `null` reuses `scheduler.cron` for backward-compatible scheduling behavior
+- **Project List Command Output**
+  - Expanded `uplinkr:project:list` output to read project data from `settings.json` and `state.json`
+  - Added project header output with `project`, `label`, and status (`enabled`/`disabled`) with colorized status rendering
+  - Added optional description line, alert settings line, probes/checks table, and state summary line (`total_failures`, `last_notification`)
+  - Added `--project` option to show only a selected project
+  - If `--project` does not match, command now prints a hint and lists all available projects
+  - Moved project list CLI output strings into `resources/lang/en/messages.php`
 
 ### Fixed
 - **Scheduler Race Reduction for Async Probe Execution**
