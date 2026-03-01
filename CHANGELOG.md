@@ -21,6 +21,9 @@ All notable changes to this project will be documented in this file.
 - **Scheduler Race Reduction for Async Probe Execution**
   - `uplinkr:project:alert:decision` is no longer scheduled with `runInBackground()`
   - Reduces the risk of alert decisions reading stale `state.json` when probe runs dispatch queued jobs and return before workers persist probe state
+- **Project List File Extension Handling**
+  - `ListHandler::allWithDetails()` now resolves `settings` and `state` filenames with the configured storage extension (`uplinkr.storage.file_extension`) instead of hardcoded `.json`
+  - Fixes `uplinkr:project:list` returning no projects when `UPLINKR_FILE_EXTENSION` is set to a non-`json` value
 
 
 ## [0.2.0] – 2026-02-21

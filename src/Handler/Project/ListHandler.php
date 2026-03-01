@@ -37,7 +37,7 @@ class ListHandler
     }
 
     /**
-     * Retrieves project details based on the settings.json and state.json files.
+     * Retrieves project details based on the project settings and state files.
      *
      * @return array<int, array{
      *     project: string,
@@ -55,7 +55,7 @@ class ListHandler
         $projects = [];
 
         foreach ($this->all() as $projectPath) {
-            $settingsPath = sprintf('%s/settings.json', $projectPath);
+            $settingsPath = $this->buildProjectFilename($projectPath, 'settings');
             if (!$disk->exists($settingsPath)) {
                 continue;
             }
@@ -72,7 +72,7 @@ class ListHandler
             $alerts = Arr::get($settings, 'alerts', []);
             $probes = Arr::get($settings, 'probes', []);
 
-            $statePath = sprintf('%s/state.json', $projectPath);
+            $statePath = $this->buildProjectFilename($projectPath, 'state');
             $state = $disk->exists($statePath)
                 ? $this->decodeJson($disk->get($statePath))
                 : [];
@@ -156,5 +156,15 @@ class ListHandler
             'total_failures' => $totalFailures,
             'last_notification_at' => $lastNotification,
         ];
+    }
+
+    /**
+     * @param string $projectPath
+     * @param string $basename
+     * @return string
+     */
+    private function buildProjectFilename(string $projectPath, string $basename): string
+    {
+        return sprintf('%s/%s.%s', $projectPath, $basename, $this->config->getFileExtension());
     }
 }
