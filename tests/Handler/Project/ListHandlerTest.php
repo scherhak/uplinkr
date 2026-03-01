@@ -118,4 +118,44 @@ class ListHandlerTest extends TestCase
         $this->assertSame(10, $projects[0]['state']['total_failures']);
         $this->assertSame('2026-02-28 05:00:00', $projects[0]['state']['last_notification_at']);
     }
+
+    public function testAllWithDetailsUsesConfiguredFileExtension(): void
+    {
+        Storage::fake('local');
+
+        $config = new UplinkrConfig(
+            storageDisk: 'local',
+            storagePath: 'uplinkr_projects',
+            probeResultsPath: 'probes',
+            fileExtension: 'log',
+            archivedFolder: 'archive'
+        );
+
+        Storage::disk('local')->put('uplinkr_projects/project-a/settings.log', json_encode([
+            'project' => 'project-a',
+            'label' => 'Project A',
+            'status' => 'enabled',
+            'description' => 'Demo description',
+            'alerts' => [],
+            'probes' => [],
+        ], JSON_THROW_ON_ERROR));
+
+        Storage::disk('local')->put('uplinkr_projects/project-a/state.log', json_encode([
+            'probes' => [
+                'GET https://example.com' => [
+                    'total_failures' => 3,
+                    'last_notified_failure_at' => '2026-02-28 06:00:00',
+                    'last_notified_slow_at' => null,
+                ],
+            ],
+        ], JSON_THROW_ON_ERROR));
+
+        $handler = new ListHandler($config);
+        $projects = $handler->allWithDetails();
+
+        $this->assertCount(1, $projects);
+        $this->assertSame('project-a', $projects[0]['project']);
+        $this->assertSame(3, $projects[0]['state']['total_failures']);
+        $this->assertSame('2026-02-28 06:00:00', $projects[0]['state']['last_notification_at']);
+    }
 }
