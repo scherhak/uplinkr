@@ -57,7 +57,11 @@ class ProjectListCommandTest extends TestCase
         $this->artisan('uplinkr:project:list')
             ->expectsOutput('Project: project1 | Project One | enabled')
             ->expectsOutput('Description: Project one description')
-            ->expectsOutput('Alerts: enabled=true, trigger_after_failures=5, cooldown_minutes=60, latency_threshold_ms=1000, trigger_after_slow=10, channels=mail,log')
+            ->expectsOutput('Alerts:')
+            ->expectsTable(
+                ['Enabled', 'Trigger After Failures', 'Cooldown Minutes', 'Latency Threshold (ms)', 'Trigger After Slow', 'Channels'],
+                [['true', 5, 60, 1000, 10, 'mail,log']]
+            )
             ->expectsTable(
                 ['Method', 'URL'],
                 [
@@ -65,7 +69,11 @@ class ProjectListCommandTest extends TestCase
                     ['POST', 'https://example.com/status'],
                 ]
             )
-            ->expectsOutput('State: total_failures=12, last_notification=2026-02-28 05:15:02')
+            ->expectsOutput('State:')
+            ->expectsTable(
+                ['Total Failures', 'Last Notification'],
+                [[12, '2026-02-28 05:15:02']]
+            )
             ->assertExitCode(CommandAlias::SUCCESS);
     }
 
@@ -112,6 +120,16 @@ class ProjectListCommandTest extends TestCase
         $this->artisan('uplinkr:project:list', ['--project' => 'project2'])
             ->expectsOutput('Project: project2 | Project Two | disabled')
             ->doesntExpectOutput('Project: project1 | Project One | enabled')
+            ->expectsOutput('Alerts:')
+            ->expectsTable(
+                ['Enabled', 'Trigger After Failures', 'Cooldown Minutes', 'Latency Threshold (ms)', 'Trigger After Slow', 'Channels'],
+                [['false', 0, 0, 0, 0, '-']]
+            )
+            ->expectsOutput('State:')
+            ->expectsTable(
+                ['Total Failures', 'Last Notification'],
+                [[0, '-']]
+            )
             ->assertExitCode(CommandAlias::SUCCESS);
     }
 
