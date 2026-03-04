@@ -3,6 +3,7 @@
 namespace Uplinkr\Tests\Console\Commands\Install;
 
 use File;
+use Illuminate\Support\Facades\Storage;
 use PHPUnit\Framework\Attributes\Test;
 use Uplinkr\Tests\TestCase;
 use Uplinkr\Support\CliIcon;
@@ -12,6 +13,7 @@ class UplinkrInstallCommandTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        Storage::fake('local');
         
         // Ensure config_path('uplinkr.php') exists for some tests or is clean
         if (File::exists(config_path('uplinkr.php'))) {
@@ -64,27 +66,25 @@ class UplinkrInstallCommandTest extends TestCase
     }
 
     #[Test]
-    public function it_configures_iam_alive_status_interval_when_option_is_provided(): void
+    public function it_configures_iam_alive_settings_when_options_are_provided(): void
     {
-        $configPath = config_path('uplinkr.php');
-        if (!File::isDirectory(dirname($configPath))) {
-            File::makeDirectory(dirname($configPath), 0755, true);
-        }
-
-        File::put($configPath, "<?php return ['scheduler' => ['enabled' => false, 'status_interval' => null]];");
-
-        $this->artisan('uplinkr:install --status-interval=15')
-            ->expectsOutputToContain(__('uplinkr::messages.install_iam_alive_configured', ['interval' => 15]))
+        $this->artisan('uplinkr:install --iam-alive --iam-alive-interval-hours=6 --iam-alive-channels=mail,webhook')
+            ->expectsOutputToContain('I\'m alive configured:')
             ->assertExitCode(0);
 
-        $this->assertStringContainsString("'status_interval' => 15", File::get($configPath));
+        Storage::disk('local')->assertExists('uplinkr/settings.json');
+
+        $saved = json_decode((string)Storage::disk('local')->get('uplinkr/settings.json'), true, 512, JSON_THROW_ON_ERROR);
+        $this->assertSame(true, $saved['iam_alive']['enabled']);
+        $this->assertSame(6, $saved['iam_alive']['interval_hours']);
+        $this->assertSame(['mail', 'webhook'], $saved['iam_alive']['channels']);
     }
 
     #[Test]
-    public function it_fails_for_invalid_iam_alive_status_interval(): void
+    public function it_fails_for_invalid_iam_alive_interval_hours(): void
     {
-        $this->artisan('uplinkr:install --status-interval=0')
-            ->expectsOutputToContain(__('uplinkr::messages.install_iam_alive_invalid_interval'))
+        $this->artisan('uplinkr:install --iam-alive --iam-alive-interval-hours=25')
+            ->expectsOutputToContain(__('uplinkr::messages.install_iam_alive_invalid_settings'))
             ->assertExitCode(2);
     }
 

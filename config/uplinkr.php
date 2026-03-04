@@ -428,17 +428,5 @@ return [
          */
         'alert_cron' => '*/2 * * * *',
 
-        /*
-         |--------------------------------------------------------------------------
-         | I'm Alive Status Interval (minutes)
-         |--------------------------------------------------------------------------
-         |
-         | Sends a periodic "Uplinkr is active" email via the existing mail
-         | notification channel.
-         |
-         | Set to null to disable. Valid range: 1-59 minutes.
-         |
-         */
-        'status_interval' => null,
     ],
 ];

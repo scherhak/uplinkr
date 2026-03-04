@@ -4,7 +4,34 @@ All notable changes to this project will be documented in this file.
 
 ## [0.2.1] – 2026-02-xx
 
+### Added
+- **Global I’m Alive Settings (`settings.json`)**
+  - Added global `uplinkr/settings.json` configuration file for heartbeat settings
+  - Added new command `uplinkr:settings` to manage I’m alive behavior
+  - Supports:
+    - enable/disable I’m alive
+    - interval in hours (`1-24`)
+    - channels (`mail`, `log`, `webhook`)
+- **Install Integration for I’m Alive**
+  - `uplinkr:install` now supports:
+    - `--iam-alive`
+    - `--iam-alive-interval-hours=...`
+    - `--iam-alive-channels=...`
+  - Allows enabling/configuring I’m alive directly during installation
+
 ### Changed
+- **I’m Alive Scheduler Behavior**
+  - I’m alive scheduling now reads from `uplinkr/settings.json` (instead of `config/uplinkr.php`)
+  - If `iam_alive.enabled = true` and `uplinkr.scheduler.enabled = true`, `uplinkr:iam-alive` is automatically scheduled
+  - Interval is now hour-based (`1-24`) with cron mapping:
+    - `1-23`: `0 */N * * *`
+    - `24`: `0 0 * * *`
+- **I’m Alive Notification Channels**
+  - `uplinkr:iam-alive` now supports channel routing like check alerts:
+    - `mail` via Laravel mail notifications
+    - `log` via `uplinkr-log`
+    - `webhook` via `uplinkr-webhook`
+  - Mail channel validation remains explicit (requires enabled mail channel + recipients)
 - **Scheduler Configuration**
   - Added `scheduler.alert_cron` in `config/uplinkr.php` to allow a separate cron expression for `uplinkr:project:alert:decision`
   - `scheduler.alert_cron` defaults to `*/2 * * * *` to provide a safer delay for async probe execution (`probes.execution_mode = job`)

@@ -5,7 +5,9 @@ namespace Uplinkr\Console\Commands;
 use File;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Illuminate\Support\Facades\Validator;
 use Symfony\Component\Console\Command\Command as CommandAlias;
+use Uplinkr\Storage\FileSettingsStorage;
 use Uplinkr\Support\CliIcon;
 use Uplinkr\Traits\HandlesProbeOutput;
 use Uplinkr\UplinkrServiceProvider;
@@ -29,7 +31,9 @@ class UplinkrInstallCommand extends Command
      */
     protected $signature = 'uplinkr:install 
                             {--scheduler : Enable automatic scheduler integration}
-                            {--status-interval= : Set I\'m alive status interval in minutes (1-59, enables mail status notification schedule)}';
+                            {--iam-alive : Enable I\'m alive notifications}
+                            {--iam-alive-interval-hours= : Set I\'m alive interval in hours (1-24)}
+                            {--iam-alive-channels= : Comma separated I\'m alive channels (mail,log,webhook)}';
 
     /**
      * The console command description.
@@ -48,7 +52,7 @@ class UplinkrInstallCommand extends Command
      * @return int Returns the status code indicating the success or failure of the operation.
      * @throws FileNotFoundException
      */
-    public function handle(): int
+    public function handle(FileSettingsStorage $settingsStorage): int
     {
         $this->info(CliIcon::RUN->label(text: __('uplinkr::messages.install_running')));
 
@@ -63,7 +67,7 @@ class UplinkrInstallCommand extends Command
             $this->line(__('uplinkr::messages.install_scheduler_enable_later'));
         }
 
-        if (!$this->configureStatusInterval()) {
+        if (!$this->configureIamAliveSettings($settingsStorage)) {
             return CommandAlias::INVALID;
         }
 
@@ -130,53 +134,76 @@ class UplinkrInstallCommand extends Command
     }
 
     /**
-     * Configures the periodic "I'm alive" status interval.
+     * Configures "I'm alive" settings via settings.json.
      *
+     * @param FileSettingsStorage $settingsStorage
      * @return bool
      * @throws FileNotFoundException
+     * @throws \JsonException
      */
-    private function configureStatusInterval(): bool
+    private function configureIamAliveSettings(FileSettingsStorage $settingsStorage): bool
     {
-        $statusInterval = $this->option('status-interval');
-        if ($statusInterval === null) {
+        $enabledOption = $this->option('iam-alive') ? 'true' : null;
+        $intervalOption = $this->option('iam-alive-interval-hours');
+        $channelsOption = $this->option('iam-alive-channels');
+
+        if ($enabledOption === null && $intervalOption === null && $channelsOption === null) {
             return true;
         }
 
-        if (!is_numeric($statusInterval) || (int)$statusInterval < 1 || (int)$statusInterval > 59) {
-            $this->error(CliIcon::ERROR->label(text: __('uplinkr::messages.install_iam_alive_invalid_interval')));
-            return false;
-        }
+        $enabled = filter_var($enabledOption, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+        $interval = $intervalOption !== null ? (int)$intervalOption : null;
+        $channels = $channelsOption !== null ? $this->parseChannels((string)$channelsOption) : null;
 
-        $configPath = config_path('uplinkr.php');
-        if (!File::exists($configPath)) {
-            $this->warn(CliIcon::WARN->label(text: __('uplinkr::messages.install_config_not_found')));
-            return false;
-        }
-
-        $interval = (int)$statusInterval;
-        $content = File::get($configPath);
-        $replaceCount = 0;
-        $updatedContent = preg_replace(
-            "/'status_interval'\\s*=>\\s*(null|\\d+)/",
-            sprintf("'status_interval' => %d", $interval),
-            $content,
-            1,
-            $replaceCount
+        $validator = Validator::make(
+            [
+                'enabled' => $enabled,
+                'interval_hours' => $interval,
+                'channels' => $channels,
+            ],
+            [
+                'enabled' => 'nullable|boolean',
+                'interval_hours' => 'nullable|integer|min:1|max:24',
+                'channels' => 'nullable|array|min:1',
+                'channels.*' => 'in:mail,log,webhook',
+            ]
         );
 
-        if (!is_string($updatedContent) || $replaceCount !== 1) {
-            $this->warn(CliIcon::WARN->label(text: __('uplinkr::messages.install_iam_alive_not_configured')));
+        if ($validator->fails()) {
+            $this->error(CliIcon::ERROR->label(text: __('uplinkr::messages.install_iam_alive_invalid_settings')));
             return false;
         }
 
-        File::put($configPath, $updatedContent);
-        $this->line(CliIcon::OK->label(text: __('uplinkr::messages.install_iam_alive_configured', ['interval' => $interval])));
+        if ($enabled === null && ($interval !== null || $channels !== null)) {
+            $enabled = true;
+        }
+
+        $updated = $settingsStorage->updateIamAliveSettings($enabled, $interval, $channels);
+
+        $this->line(CliIcon::OK->label(text: __('uplinkr::messages.install_iam_alive_configured', [
+            'enabled' => $updated['enabled'] ? 'true' : 'false',
+            'interval' => $updated['interval_hours'],
+            'channels' => implode(',', (array)$updated['channels']),
+        ])));
 
         if (!$this->option('scheduler')) {
             $this->warn(CliIcon::WARN->label(text: __('uplinkr::messages.install_iam_alive_scheduler_hint')));
         }
 
         return true;
+    }
+
+    /**
+     * @param string $channels
+     * @return array
+     */
+    private function parseChannels(string $channels): array
+    {
+        $parts = explode(',', strtolower($channels));
+        $parts = array_map(static fn(string $channel): string => trim($channel), $parts);
+        $parts = array_values(array_filter($parts, static fn(string $channel): bool => $channel !== ''));
+
+        return array_values(array_unique($parts));
     }
 
 }
