@@ -12,7 +12,9 @@ All notable changes to this project will be documented in this file.
 - **Project List Command Output**
   - Expanded `uplinkr:project:list` output to read project data from `settings.json` and `state.json`
   - Added project header output with `project`, `label`, and status (`enabled`/`disabled`) with colorized status rendering
-  - Added optional description line, alert settings line, probes/checks table, and state summary line (`total_failures`, `last_notification`)
+  - Added optional description line, probes/checks table, alerts table, and state table
+  - Alerts are now rendered as a structured table (`enabled`, `trigger_after_failures`, `cooldown_minutes`, `latency_threshold_ms`, `trigger_after_slow`, `channels`)
+  - State is now rendered as a structured table (`total_failures`, `last_notification`)
   - Added `--project` option to show only a selected project
   - If `--project` does not match, command now prints a hint and lists all available projects
   - Moved project list CLI output strings into `resources/lang/en/messages.php`

@@ -80,19 +80,25 @@ class ProjectListCommand extends Command
                 $this->line(__('uplinkr::messages.project_list_description', ['description' => $description]));
             }
 
-            $this->line(__('uplinkr::messages.project_list_alerts', [
-                'alerts' => $this->formatAlerts(Arr::get($project, 'alerts', []))
-            ]));
+            $this->line(__('uplinkr::messages.project_list_alerts'));
+            $this->table(
+                ['Enabled', 'Trigger After Failures', 'Cooldown Minutes', 'Latency Threshold (ms)', 'Trigger After Slow', 'Channels'],
+                $this->formatAlertRows(Arr::get($project, 'alerts', []))
+            );
 
             $this->table(
                 ['Method', 'URL'],
                 $this->formatProbeRows(Arr::get($project, 'probes', []))
             );
 
-            $this->line(__('uplinkr::messages.project_list_state', [
-                'totalFailures' => (int) Arr::get($project, 'state.total_failures', 0),
-                'lastNotification' => Arr::get($project, 'state.last_notification_at', '-') ?? '-',
-            ]));
+            $this->line(__('uplinkr::messages.project_list_state'));
+            $this->table(
+                ['Total Failures', 'Last Notification'],
+                [[
+                    (int) Arr::get($project, 'state.total_failures', 0),
+                    Arr::get($project, 'state.last_notification_at', '-') ?? '-',
+                ]]
+            );
 
             $this->newLine();
         }
@@ -104,25 +110,30 @@ class ProjectListCommand extends Command
      * @param array $alerts
      * @return string
      */
-    private function formatAlerts(array $alerts): string
+    private function formatAlertRows(array $alerts): array
     {
-        if (empty($alerts) || !is_array(Arr::get($alerts, 0))) {
-            return '-';
+        if (empty($alerts)) {
+            return [['false', 0, 0, 0, 0, '-']];
         }
 
-        $alert = Arr::get($alerts, 0, []);
-        $channels = Arr::get($alert, 'channels', []);
-        $channelsString = is_array($channels) && !empty($channels) ? implode(',', $channels) : '-';
+        $rows = [];
+        foreach ($alerts as $alert) {
+            if (!is_array($alert)) {
+                continue;
+            }
 
-        return sprintf(
-            'enabled=%s, trigger_after_failures=%d, cooldown_minutes=%d, latency_threshold_ms=%d, trigger_after_slow=%d, channels=%s',
-            Arr::get($alert, 'enabled', false) ? 'true' : 'false',
-            (int) Arr::get($alert, 'trigger_after_failures', 0),
-            (int) Arr::get($alert, 'cooldown_minutes', 0),
-            (int) Arr::get($alert, 'latency_threshold_ms', 0),
-            (int) Arr::get($alert, 'trigger_after_slow', 0),
-            $channelsString
-        );
+            $channels = Arr::get($alert, 'channels', []);
+            $rows[] = [
+                Arr::get($alert, 'enabled', false) ? 'true' : 'false',
+                (int) Arr::get($alert, 'trigger_after_failures', 0),
+                (int) Arr::get($alert, 'cooldown_minutes', 0),
+                (int) Arr::get($alert, 'latency_threshold_ms', 0),
+                (int) Arr::get($alert, 'trigger_after_slow', 0),
+                is_array($channels) && !empty($channels) ? implode(',', $channels) : '-',
+            ];
+        }
+
+        return empty($rows) ? [['false', 0, 0, 0, 0, '-']] : $rows;
     }
 
     /**
