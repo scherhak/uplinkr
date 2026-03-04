@@ -19,6 +19,7 @@ use Uplinkr\Console\Commands\Project\ProjectRunSelectedCommand;
 use Uplinkr\Console\Commands\Project\ProjectUpdateCommand;
 use Uplinkr\Console\Commands\Prune\PruneStorageCommand;
 use Uplinkr\Console\Commands\UplinkrConfigCommand;
+use Uplinkr\Console\Commands\UplinkrIamAliveCommand;
 use Uplinkr\Console\Commands\UplinkrInstallCommand;
 use Uplinkr\Handler\Probe\ResultHandler;
 use Uplinkr\Handler\Probe\UrlHandler;
@@ -74,6 +75,7 @@ class UplinkrServiceProvider extends ServiceProvider
                 ProjectRunSelectedCommand::class,
                 UplinkrInstallCommand::class,
                 UplinkrConfigCommand::class,
+                UplinkrIamAliveCommand::class,
             ]);
 
             $this->app->booted(function () {
@@ -85,6 +87,7 @@ class UplinkrServiceProvider extends ServiceProvider
                 $schedule = app(Schedule::class);
                 $probeCron = (string)config('uplinkr.scheduler.cron');
                 $alertCron = config('uplinkr.scheduler.alert_cron');
+                $statusInterval = (int)config('uplinkr.scheduler.status_interval', 0);
                 $alertCron = is_string($alertCron) && $alertCron !== '' ? $alertCron : $probeCron;
 
                 $schedule->command('uplinkr:project:run-probes --force')
@@ -95,6 +98,12 @@ class UplinkrServiceProvider extends ServiceProvider
                 $schedule->command('uplinkr:project:alert:decision')
                     ->cron($alertCron)
                     ->withoutOverlapping();
+
+                if ($statusInterval >= 1 && $statusInterval <= 59) {
+                    $schedule->command('uplinkr:iam-alive')
+                        ->cron(sprintf('*/%d * * * *', $statusInterval))
+                        ->withoutOverlapping();
+                }
             });
         }
     }

@@ -19,6 +19,10 @@ return [
     'install_config_not_found' => 'Config file not found, scheduler not enabled.',
     'install_scheduler_already_enabled' => 'Scheduler already enabled',
     'install_scheduler_enabled' => 'Scheduler integration enabled',
+    'install_iam_alive_invalid_interval' => 'Invalid status interval. Please use a value between 1 and 59 minutes.',
+    'install_iam_alive_not_configured' => 'Could not configure status_interval in config/uplinkr.php.',
+    'install_iam_alive_configured' => 'I\'m alive status interval configured to :interval minute(s).',
+    'install_iam_alive_scheduler_hint' => 'Scheduler is not enabled. The I\'m alive notification will not run until scheduler integration is enabled.',
     'install_success' => 'Uplinkr installed successfully.',
 
     /*
@@ -104,6 +108,11 @@ return [
     'project_list_not_found' => 'Project ":project" not found. Please check the spelling.',
     'project_list_available_projects' => 'Available projects:',
     'project_list_available_project_item' => '- :project',
+    'iam_alive_no_recipients' => 'No mail recipients configured for I\'m alive notifications.',
+    'iam_alive_mail_channel_disabled' => 'Mail notifications are disabled. I\'m alive notification was skipped.',
+    'iam_alive_sent' => 'I\'m alive notification sent to :count recipient(s).',
+    'iam_alive_mail_subject' => ':prefix I\'m alive',
+    'iam_alive_mail_line' => 'Uplinkr is active.',
 
     /*
      * Analyze parts

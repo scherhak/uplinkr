@@ -5,6 +5,7 @@ namespace Uplinkr\Console\Commands;
 use File;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Symfony\Component\Console\Command\Command as CommandAlias;
 use Uplinkr\Support\CliIcon;
 use Uplinkr\Traits\HandlesProbeOutput;
 use Uplinkr\UplinkrServiceProvider;
@@ -27,7 +28,8 @@ class UplinkrInstallCommand extends Command
      * @var string
      */
     protected $signature = 'uplinkr:install 
-                            {--scheduler : Enable automatic scheduler integration}';
+                            {--scheduler : Enable automatic scheduler integration}
+                            {--status-interval= : Set I\'m alive status interval in minutes (1-59, enables mail status notification schedule)}';
 
     /**
      * The console command description.
@@ -59,6 +61,10 @@ class UplinkrInstallCommand extends Command
         } else {
             $this->warn(CliIcon::WARN->label(text: __('uplinkr::messages.install_scheduler_not_enabled')));
             $this->line(__('uplinkr::messages.install_scheduler_enable_later'));
+        }
+
+        if (!$this->configureStatusInterval()) {
+            return CommandAlias::INVALID;
         }
 
         $this->newLine();
@@ -121,6 +127,56 @@ class UplinkrInstallCommand extends Command
         File::put($configPath, $content);
 
         $this->line(CliIcon::OK->label(text: __('uplinkr::messages.install_scheduler_enabled')));
+    }
+
+    /**
+     * Configures the periodic "I'm alive" status interval.
+     *
+     * @return bool
+     * @throws FileNotFoundException
+     */
+    private function configureStatusInterval(): bool
+    {
+        $statusInterval = $this->option('status-interval');
+        if ($statusInterval === null) {
+            return true;
+        }
+
+        if (!is_numeric($statusInterval) || (int)$statusInterval < 1 || (int)$statusInterval > 59) {
+            $this->error(CliIcon::ERROR->label(text: __('uplinkr::messages.install_iam_alive_invalid_interval')));
+            return false;
+        }
+
+        $configPath = config_path('uplinkr.php');
+        if (!File::exists($configPath)) {
+            $this->warn(CliIcon::WARN->label(text: __('uplinkr::messages.install_config_not_found')));
+            return false;
+        }
+
+        $interval = (int)$statusInterval;
+        $content = File::get($configPath);
+        $replaceCount = 0;
+        $updatedContent = preg_replace(
+            "/'status_interval'\\s*=>\\s*(null|\\d+)/",
+            sprintf("'status_interval' => %d", $interval),
+            $content,
+            1,
+            $replaceCount
+        );
+
+        if (!is_string($updatedContent) || $replaceCount !== 1) {
+            $this->warn(CliIcon::WARN->label(text: __('uplinkr::messages.install_iam_alive_not_configured')));
+            return false;
+        }
+
+        File::put($configPath, $updatedContent);
+        $this->line(CliIcon::OK->label(text: __('uplinkr::messages.install_iam_alive_configured', ['interval' => $interval])));
+
+        if (!$this->option('scheduler')) {
+            $this->warn(CliIcon::WARN->label(text: __('uplinkr::messages.install_iam_alive_scheduler_hint')));
+        }
+
+        return true;
     }
 
 }

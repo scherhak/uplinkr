@@ -63,4 +63,29 @@ class UplinkrInstallCommandTest extends TestCase
             ->assertExitCode(0);
     }
 
+    #[Test]
+    public function it_configures_iam_alive_status_interval_when_option_is_provided(): void
+    {
+        $configPath = config_path('uplinkr.php');
+        if (!File::isDirectory(dirname($configPath))) {
+            File::makeDirectory(dirname($configPath), 0755, true);
+        }
+
+        File::put($configPath, "<?php return ['scheduler' => ['enabled' => false, 'status_interval' => null]];");
+
+        $this->artisan('uplinkr:install --status-interval=15')
+            ->expectsOutputToContain(__('uplinkr::messages.install_iam_alive_configured', ['interval' => 15]))
+            ->assertExitCode(0);
+
+        $this->assertStringContainsString("'status_interval' => 15", File::get($configPath));
+    }
+
+    #[Test]
+    public function it_fails_for_invalid_iam_alive_status_interval(): void
+    {
+        $this->artisan('uplinkr:install --status-interval=0')
+            ->expectsOutputToContain(__('uplinkr::messages.install_iam_alive_invalid_interval'))
+            ->assertExitCode(2);
+    }
+
 }
