@@ -32,6 +32,18 @@ All notable changes to this project will be documented in this file.
     - `log` via `uplinkr-log`
     - `webhook` via `uplinkr-webhook`
   - Mail channel validation remains explicit (requires enabled mail channel + recipients)
+- **I’m Alive Notification Content**
+  - `uplinkr:iam-alive` now aggregates and sends monitoring summary data across all projects:
+    - active projects (`status=enabled`)
+    - configured probes/checks (sum of all project `settings.json > probes`)
+    - successful checks (current probe state where `consecutive_failures = 0`)
+    - failed checks (current probe state where `consecutive_failures > 0`)
+  - Mail output now includes a readable summary section and a readable `iam_alive` settings section
+  - Webhook and log payloads now include the same summary + settings data for consistent channel behavior
+- **I’m Alive Settings Persistence**
+  - Added `iam_alive.last_sent_at` in global `uplinkr/settings.json`
+  - `last_sent_at` is updated whenever an I’m alive notification is successfully dispatched
+  - `uplinkr:settings` now shows `last_sent_at` in command output
 - **Scheduler Configuration**
   - Added `scheduler.alert_cron` in `config/uplinkr.php` to allow a separate cron expression for `uplinkr:project:alert:decision`
   - `scheduler.alert_cron` defaults to `*/2 * * * *` to provide a safer delay for async probe execution (`probes.execution_mode = job`)
@@ -47,6 +59,9 @@ All notable changes to this project will be documented in this file.
   - Moved project list CLI output strings into `resources/lang/en/messages.php`
 
 ### Fixed
+- **I’m Alive Command Config Consistency**
+  - `uplinkr:iam-alive` now resolves `UplinkrConfig` at runtime to avoid stale singleton config in test/runtime edge cases
+  - Fixes flaky behavior where configured mail recipients could be missed in long-running test processes
 - **Scheduler Race Reduction for Async Probe Execution**
   - `uplinkr:project:alert:decision` is no longer scheduled with `runInBackground()`
   - Reduces the risk of alert decisions reading stale `state.json` when probe runs dispatch queued jobs and return before workers persist probe state

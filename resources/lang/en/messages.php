@@ -114,12 +114,23 @@ return [
     'iam_alive_sent' => 'I\'m alive notification sent via channels: :channels',
     'iam_alive_mail_subject' => ':prefix I\'m alive',
     'iam_alive_mail_line' => 'Uplinkr is active.',
+    'iam_alive_mail_summary_head' => 'Current status summary',
+    'iam_alive_mail_summary_active_projects' => '- Active projects: :count',
+    'iam_alive_mail_summary_configured_probes' => '- Configured probes/checks: :count',
+    'iam_alive_mail_summary_successful_checks' => '- Successful checks (current state): :count',
+    'iam_alive_mail_summary_failed_checks' => '- Failed checks (current state): :count',
+    'iam_alive_mail_settings_head' => 'Current I\'m alive settings',
+    'iam_alive_mail_settings_enabled' => '- Enabled: :enabled',
+    'iam_alive_mail_settings_interval_hours' => '- Interval (hours): :hours',
+    'iam_alive_mail_settings_channels' => '- Channels: :channels',
+    'iam_alive_mail_settings_last_sent_at' => '- Last sent at: :lastSentAt',
     'settings_validation_failed' => 'Settings validation failed. Please check your input.',
     'settings_iam_alive_confirm' => 'Should I\'m alive settings be updated now?',
     'settings_iam_alive_updated' => 'I\'m alive settings updated successfully.',
     'settings_iam_alive_current_enabled' => 'I\'m alive enabled: :enabled',
     'settings_iam_alive_current_interval' => 'I\'m alive interval (hours): :interval',
     'settings_iam_alive_current_channels' => 'I\'m alive channels: :channels',
+    'settings_iam_alive_current_last_sent_at' => 'I\'m alive last sent at: :lastSentAt',
 
     /*
      * Analyze parts

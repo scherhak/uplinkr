@@ -23,6 +23,39 @@ class UplinkrIamAliveCommandTest extends TestCase
 
         config()->set('uplinkr.notifications.channels.mail.enabled', true);
         config()->set('uplinkr.notifications.channels.mail.to', ['ops@example.com']);
+
+        Storage::disk('local')->put('uplinkr/project-a/settings.json', json_encode([
+            'project' => 'project-a',
+            'status' => 'enabled',
+            'probes' => [
+                ['url' => 'https://example.com'],
+                ['url' => 'https://example.com/fail'],
+            ],
+        ], JSON_THROW_ON_ERROR));
+
+        Storage::disk('local')->put('uplinkr/project-a/state.json', json_encode([
+            'project' => 'project-a',
+            'probes' => [
+                'GET https://example.com' => ['consecutive_failures' => 0],
+                'GET https://example.com/fail' => ['consecutive_failures' => 3],
+            ],
+        ], JSON_THROW_ON_ERROR));
+
+        Storage::disk('local')->put('uplinkr/project-b/settings.json', json_encode([
+            'project' => 'project-b',
+            'status' => 'disabled',
+            'probes' => [
+                ['url' => 'https://api.example.com'],
+            ],
+        ], JSON_THROW_ON_ERROR));
+
+        Storage::disk('local')->put('uplinkr/project-b/state.json', json_encode([
+            'project' => 'project-b',
+            'probes' => [
+                'GET https://api.example.com' => ['consecutive_failures' => 0],
+            ],
+        ], JSON_THROW_ON_ERROR));
+
         Storage::disk('local')->put('uplinkr/settings.json', json_encode([
             'iam_alive' => [
                 'enabled' => true,
@@ -32,10 +65,21 @@ class UplinkrIamAliveCommandTest extends TestCase
         ], JSON_THROW_ON_ERROR));
 
         $this->artisan('uplinkr:iam-alive')
-            ->expectsOutput(CliIcon::OK->label(__('uplinkr::messages.iam_alive_sent', ['channels' => 'mail'])))
+            ->expectsOutputToContain(__('uplinkr::messages.iam_alive_sent', ['channels' => 'mail']))
             ->assertExitCode(0);
 
-        Notification::assertSentOnDemand(IamAliveNotification::class);
+        Notification::assertSentOnDemand(IamAliveNotification::class, function ($notification, $channels, $notifiable): bool {
+            $payload = $notification->toArray($notifiable);
+            return ($payload['summary']['active_projects'] ?? null) === 1
+                && ($payload['summary']['configured_probes'] ?? null) === 3
+                && ($payload['summary']['successful_checks'] ?? null) === 2
+                && ($payload['summary']['failed_checks'] ?? null) === 1
+                && is_string($payload['settings']['iam_alive']['last_sent_at'] ?? null)
+                && ($payload['settings']['iam_alive']['channels'] ?? []) === ['mail'];
+        });
+
+        $savedSettings = json_decode((string)Storage::disk('local')->get('uplinkr/settings.json'), true, 512, JSON_THROW_ON_ERROR);
+        $this->assertIsString($savedSettings['iam_alive']['last_sent_at'] ?? null);
     }
 
     public function test_it_skips_when_no_mail_recipients_are_configured(): void

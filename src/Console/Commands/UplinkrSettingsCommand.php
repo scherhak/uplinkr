@@ -43,6 +43,9 @@ class UplinkrSettingsCommand extends Command
             $this->line(__('uplinkr::messages.settings_iam_alive_current_channels', [
                 'channels' => implode(',', (array)$current['channels'])
             ]));
+            $this->line(__('uplinkr::messages.settings_iam_alive_current_last_sent_at', [
+                'lastSentAt' => (string)($current['last_sent_at'] ?? 'n/a')
+            ]));
 
             return CommandAlias::SUCCESS;
         }
@@ -95,6 +98,9 @@ class UplinkrSettingsCommand extends Command
         ]));
         $this->line(__('uplinkr::messages.settings_iam_alive_current_channels', [
             'channels' => implode(',', (array)$updated['channels'])
+        ]));
+        $this->line(__('uplinkr::messages.settings_iam_alive_current_last_sent_at', [
+            'lastSentAt' => (string)($updated['last_sent_at'] ?? 'n/a')
         ]));
 
         return CommandAlias::SUCCESS;

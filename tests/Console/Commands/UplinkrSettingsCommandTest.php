@@ -32,6 +32,7 @@ class UplinkrSettingsCommandTest extends TestCase
         $this->assertSame(true, $saved['iam_alive']['enabled']);
         $this->assertSame(8, $saved['iam_alive']['interval_hours']);
         $this->assertSame(['mail', 'log'], $saved['iam_alive']['channels']);
+        $this->assertNull($saved['iam_alive']['last_sent_at']);
     }
 
     public function test_it_validates_iam_alive_interval_hours_range(): void

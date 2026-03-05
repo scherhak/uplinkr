@@ -6,10 +6,12 @@ use Illuminate\Console\Command;
 use Illuminate\Notifications\AnonymousNotifiable;
 use JsonException;
 use Symfony\Component\Console\Command\Command as CommandAlias;
+use Uplinkr\Handler\IamAlive\IamAliveSummaryHandler;
 use Uplinkr\Notifications\IamAliveNotification;
 use Uplinkr\Objects\Config\UplinkrConfig;
 use Uplinkr\Storage\FileSettingsStorage;
 use Uplinkr\Support\CliIcon;
+use Uplinkr\Support\Time;
 
 class UplinkrIamAliveCommand extends Command
 {
@@ -18,13 +20,14 @@ class UplinkrIamAliveCommand extends Command
     protected $description = 'Send an "I\'m alive" status notification.';
 
     /**
-     * @param UplinkrConfig $config
      * @param FileSettingsStorage $settingsStorage
+     * @param IamAliveSummaryHandler $summaryHandler
      * @return int
      * @throws JsonException
      */
-    public function handle(UplinkrConfig $config, FileSettingsStorage $settingsStorage): int
+    public function handle(FileSettingsStorage $settingsStorage, IamAliveSummaryHandler $summaryHandler): int
     {
+        $config = UplinkrConfig::fromConfig();
         $settings = $settingsStorage->getIamAliveSettings();
         $enabled = (bool)($settings['enabled'] ?? false);
 
@@ -58,7 +61,23 @@ class UplinkrIamAliveCommand extends Command
         if (!empty($recipients)) {
             $notifiable->route('mail', $recipients);
         }
-        $notifiable->notify(new IamAliveNotification($channels));
+
+        $sentAt = Time::now();
+        $summary = $summaryHandler->handle();
+        $iamAliveSettingsForMessage = $settings;
+        $iamAliveSettingsForMessage['channels'] = $channels;
+        $iamAliveSettingsForMessage['last_sent_at'] = $sentAt;
+
+        $payload = [
+            'summary' => $summary,
+            'settings' => [
+                'iam_alive' => $iamAliveSettingsForMessage,
+            ],
+            'sent_at' => $sentAt,
+        ];
+
+        $notifiable->notify(new IamAliveNotification($channels, $payload));
+        $settingsStorage->markIamAliveSent($sentAt);
 
         $this->info(CliIcon::OK->label(text: __('uplinkr::messages.iam_alive_sent', [
             'channels' => implode(',', $channels)

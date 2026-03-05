@@ -16,9 +16,20 @@ class IamAliveNotification extends Notification
 {
     /**
      * @param array $channels
+     * @param array{
+     *     summary?: array{
+     *         active_projects?: int,
+     *         configured_probes?: int,
+     *         successful_checks?: int,
+     *         failed_checks?: int
+     *     },
+     *     settings?: array,
+     *     sent_at?: string
+     * } $payload
      */
     public function __construct(
-        private readonly array $channels = ['mail']
+        private readonly array $channels = ['mail'],
+        private readonly array $payload = []
     )
     {
     }
@@ -42,7 +53,25 @@ class IamAliveNotification extends Notification
 
         $message = (new MailMessage)
             ->subject(__('uplinkr::messages.iam_alive_mail_subject', ['prefix' => $subjectPrefix]))
-            ->line(__('uplinkr::messages.iam_alive_mail_line'));
+            ->line(__('uplinkr::messages.iam_alive_mail_line'))
+            ->line(__('uplinkr::messages.iam_alive_mail_summary_head'))
+            ->line(__('uplinkr::messages.iam_alive_mail_summary_active_projects', ['count' => Arr::get($this->payload, 'summary.active_projects', 0)]))
+            ->line(__('uplinkr::messages.iam_alive_mail_summary_configured_probes', ['count' => Arr::get($this->payload, 'summary.configured_probes', 0)]))
+            ->line(__('uplinkr::messages.iam_alive_mail_summary_successful_checks', ['count' => Arr::get($this->payload, 'summary.successful_checks', 0)]))
+            ->line(__('uplinkr::messages.iam_alive_mail_summary_failed_checks', ['count' => Arr::get($this->payload, 'summary.failed_checks', 0)]))
+            ->line(__('uplinkr::messages.iam_alive_mail_settings_head'))
+            ->line(__('uplinkr::messages.iam_alive_mail_settings_enabled', [
+                'enabled' => $this->boolLabel((bool)Arr::get($this->payload, 'settings.iam_alive.enabled', false))
+            ]))
+            ->line(__('uplinkr::messages.iam_alive_mail_settings_interval_hours', [
+                'hours' => (int)Arr::get($this->payload, 'settings.iam_alive.interval_hours', 24)
+            ]))
+            ->line(__('uplinkr::messages.iam_alive_mail_settings_channels', [
+                'channels' => implode(',', (array)Arr::get($this->payload, 'settings.iam_alive.channels', []))
+            ]))
+            ->line(__('uplinkr::messages.iam_alive_mail_settings_last_sent_at', [
+                'lastSentAt' => (string)Arr::get($this->payload, 'settings.iam_alive.last_sent_at', 'n/a')
+            ]));
 
         if ($config->getMailMailer()) {
             $message->mailer($config->getMailMailer());
@@ -57,8 +86,16 @@ class IamAliveNotification extends Notification
 
     public function toLog(mixed $notifiable): void
     {
+        $summary = Arr::get($this->payload, 'summary', []);
+
         Logger::log()->info(
-            'Uplinkr heartbeat: Uplinkr is active.',
+            sprintf(
+                'Uplinkr heartbeat: active projects=%d, configured probes=%d, successful checks=%d, failed checks=%d',
+                (int)Arr::get($summary, 'active_projects', 0),
+                (int)Arr::get($summary, 'configured_probes', 0),
+                (int)Arr::get($summary, 'successful_checks', 0),
+                (int)Arr::get($summary, 'failed_checks', 0),
+            ),
             $this->toArray($notifiable)
         );
     }
@@ -134,8 +171,15 @@ class IamAliveNotification extends Notification
         return [
             'event' => 'iam_alive',
             'message' => 'Uplinkr is active.',
-            'timestamp' => Time::now(),
+            'timestamp' => Arr::get($this->payload, 'sent_at', Time::now()),
             'channels' => $this->channels,
+            'summary' => [
+                'active_projects' => (int)Arr::get($this->payload, 'summary.active_projects', 0),
+                'configured_probes' => (int)Arr::get($this->payload, 'summary.configured_probes', 0),
+                'successful_checks' => (int)Arr::get($this->payload, 'summary.successful_checks', 0),
+                'failed_checks' => (int)Arr::get($this->payload, 'summary.failed_checks', 0),
+            ],
+            'settings' => Arr::get($this->payload, 'settings', []),
         ];
     }
 
@@ -164,5 +208,14 @@ class IamAliveNotification extends Notification
         $pendingRequest->withHeaders([
             $headerName => sprintf('%s=%s', $algo, $signature)
         ]);
+    }
+
+    /**
+     * @param bool $value
+     * @return string
+     */
+    private function boolLabel(bool $value): string
+    {
+        return $value ? 'true' : 'false';
     }
 }

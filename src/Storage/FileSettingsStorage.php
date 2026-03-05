@@ -56,7 +56,7 @@ class FileSettingsStorage
     }
 
     /**
-     * @return array{enabled: bool, interval_hours: int, channels: array}
+     * @return array{enabled: bool, interval_hours: int, channels: array, last_sent_at: string|null}
      * @throws JsonException
      */
     public function getIamAliveSettings(): array
@@ -82,6 +82,29 @@ class FileSettingsStorage
             'enabled' => $enabled ?? Arr::get($current, 'enabled', false),
             'interval_hours' => $intervalHours ?? Arr::get($current, 'interval_hours', 24),
             'channels' => $channels ?? Arr::get($current, 'channels', ['mail']),
+            'last_sent_at' => Arr::get($current, 'last_sent_at'),
+        ];
+
+        $this->saveSettings($settings);
+
+        return $settings['iam_alive'];
+    }
+
+    /**
+     * @param string $sentAt
+     * @return array
+     * @throws JsonException
+     */
+    public function markIamAliveSent(string $sentAt): array
+    {
+        $settings = $this->getSettings();
+        $current = Arr::get($settings, 'iam_alive', []);
+
+        $settings['iam_alive'] = [
+            'enabled' => (bool)Arr::get($current, 'enabled', false),
+            'interval_hours' => (int)Arr::get($current, 'interval_hours', 24),
+            'channels' => Arr::get($current, 'channels', ['mail']),
+            'last_sent_at' => $sentAt,
         ];
 
         $this->saveSettings($settings);
@@ -99,6 +122,7 @@ class FileSettingsStorage
                 'enabled' => false,
                 'interval_hours' => 24,
                 'channels' => ['mail'],
+                'last_sent_at' => null,
             ],
         ];
     }
