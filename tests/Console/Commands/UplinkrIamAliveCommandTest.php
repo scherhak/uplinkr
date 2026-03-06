@@ -122,4 +122,55 @@ class UplinkrIamAliveCommandTest extends TestCase
 
         Notification::assertNothingSent();
     }
+
+    public function test_it_does_not_mark_last_sent_when_only_webhook_channel_is_disabled(): void
+    {
+        Notification::fake();
+
+        config()->set('uplinkr.notifications.channels.webhook.enabled', false);
+        config()->set('uplinkr.notifications.channels.webhook.url', null);
+
+        Storage::disk('local')->put('uplinkr/settings.json', json_encode([
+            'iam_alive' => [
+                'enabled' => true,
+                'interval_hours' => 2,
+                'channels' => ['webhook'],
+                'last_sent_at' => null,
+            ],
+        ], JSON_THROW_ON_ERROR));
+
+        $this->artisan('uplinkr:iam-alive')
+            ->expectsOutput(CliIcon::WARN->label(__('uplinkr::messages.iam_alive_webhook_channel_disabled')))
+            ->expectsOutput(CliIcon::WARN->label(__('uplinkr::messages.iam_alive_no_channels')))
+            ->assertExitCode(0);
+
+        $savedSettings = json_decode((string)Storage::disk('local')->get('uplinkr/settings.json'), true, 512, JSON_THROW_ON_ERROR);
+        $this->assertNull($savedSettings['iam_alive']['last_sent_at']);
+        Notification::assertNothingSent();
+    }
+
+    public function test_it_skips_scheduled_run_when_interval_is_not_due(): void
+    {
+        Notification::fake();
+
+        config()->set('uplinkr.notifications.channels.log.enabled', true);
+        $lastSentAt = now()->subHour()->toDateTimeString();
+
+        Storage::disk('local')->put('uplinkr/settings.json', json_encode([
+            'iam_alive' => [
+                'enabled' => true,
+                'interval_hours' => 2,
+                'channels' => ['log'],
+                'last_sent_at' => $lastSentAt,
+            ],
+        ], JSON_THROW_ON_ERROR));
+
+        $this->artisan('uplinkr:iam-alive --scheduled')
+            ->expectsOutput(CliIcon::INFO->label(__('uplinkr::messages.iam_alive_not_due')))
+            ->assertExitCode(0);
+
+        $savedSettings = json_decode((string)Storage::disk('local')->get('uplinkr/settings.json'), true, 512, JSON_THROW_ON_ERROR);
+        $this->assertSame($lastSentAt, $savedSettings['iam_alive']['last_sent_at']);
+        Notification::assertNothingSent();
+    }
 }

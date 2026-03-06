@@ -4,6 +4,7 @@ namespace Uplinkr\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Notifications\AnonymousNotifiable;
+use Illuminate\Support\Carbon;
 use JsonException;
 use Symfony\Component\Console\Command\Command as CommandAlias;
 use Uplinkr\Handler\IamAlive\IamAliveSummaryHandler;
@@ -15,7 +16,8 @@ use Uplinkr\Support\Time;
 
 class UplinkrIamAliveCommand extends Command
 {
-    protected $signature = 'uplinkr:iam-alive';
+    protected $signature = 'uplinkr:iam-alive
+                            {--scheduled : Internal scheduler run that respects iam_alive interval_hours}';
 
     protected $description = 'Send an "I\'m alive" status notification.';
 
@@ -36,6 +38,11 @@ class UplinkrIamAliveCommand extends Command
             return CommandAlias::SUCCESS;
         }
 
+        if ($this->option('scheduled') && !$this->isDueForScheduledRun($settings)) {
+            $this->line(CliIcon::INFO->label(text: __('uplinkr::messages.iam_alive_not_due')));
+            return CommandAlias::SUCCESS;
+        }
+
         $channels = (array)($settings['channels'] ?? ['mail']);
         $channels = array_values(array_intersect($channels, ['mail', 'log', 'webhook']));
 
@@ -49,6 +56,16 @@ class UplinkrIamAliveCommand extends Command
             } elseif (!config('uplinkr.notifications.channels.mail.enabled', false)) {
                 $this->warn(CliIcon::WARN->label(text: __('uplinkr::messages.iam_alive_mail_channel_disabled')));
                 $channels = array_values(array_filter($channels, static fn(string $channel): bool => $channel !== 'mail'));
+            }
+        }
+
+        if (in_array('webhook', $channels, true)) {
+            if (!config('uplinkr.notifications.channels.webhook.enabled', false)) {
+                $this->warn(CliIcon::WARN->label(text: __('uplinkr::messages.iam_alive_webhook_channel_disabled')));
+                $channels = array_values(array_filter($channels, static fn(string $channel): bool => $channel !== 'webhook'));
+            } elseif (!is_string(config('uplinkr.notifications.channels.webhook.url')) || trim((string)config('uplinkr.notifications.channels.webhook.url')) === '') {
+                $this->warn(CliIcon::WARN->label(text: __('uplinkr::messages.iam_alive_webhook_url_missing')));
+                $channels = array_values(array_filter($channels, static fn(string $channel): bool => $channel !== 'webhook'));
             }
         }
 
@@ -84,5 +101,30 @@ class UplinkrIamAliveCommand extends Command
         ])));
 
         return CommandAlias::SUCCESS;
+    }
+
+    /**
+     * @param array $settings
+     * @return bool
+     */
+    private function isDueForScheduledRun(array $settings): bool
+    {
+        $intervalHours = (int)($settings['interval_hours'] ?? 24);
+        if ($intervalHours < 1 || $intervalHours > 24) {
+            return false;
+        }
+
+        $lastSentAt = $settings['last_sent_at'] ?? null;
+        if (!is_string($lastSentAt) || trim($lastSentAt) === '') {
+            return true;
+        }
+
+        try {
+            return Carbon::parse($lastSentAt)
+                ->addHours($intervalHours)
+                ->lessThanOrEqualTo(now());
+        } catch (\Throwable) {
+            return true;
+        }
     }
 }

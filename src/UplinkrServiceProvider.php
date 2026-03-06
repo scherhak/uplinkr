@@ -109,12 +109,8 @@ class UplinkrServiceProvider extends ServiceProvider
                     $intervalHours = (int)($iamAlive['interval_hours'] ?? 24);
 
                     if ($enabled && $intervalHours >= 1 && $intervalHours <= 24) {
-                        $cron = $intervalHours === 24
-                            ? '0 0 * * *'
-                            : sprintf('0 */%d * * *', $intervalHours);
-
-                        $schedule->command('uplinkr:iam-alive')
-                            ->cron($cron)
+                        $schedule->command('uplinkr:iam-alive --scheduled')
+                            ->everyMinute()
                             ->withoutOverlapping();
                     }
                 } catch (\JsonException $exception) {
