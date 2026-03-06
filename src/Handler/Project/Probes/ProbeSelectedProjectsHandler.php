@@ -47,7 +47,7 @@ class ProbeSelectedProjectsHandler
             return null;
         }
 
-        $projectValues = new ProjectValues($project);
+        $projectValues = new ProjectValues(data: $project);
 
         if ($projectValues->getStatus() === 'disabled') {
             return [];

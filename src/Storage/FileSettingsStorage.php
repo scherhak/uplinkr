@@ -78,16 +78,16 @@ class FileSettingsStorage
         $settings = $this->getSettings();
         $current = Arr::get($settings, 'iam_alive', []);
 
-        $settings['iam_alive'] = [
+        Arr::set($settings, 'iam_alive', [
             'enabled' => $enabled ?? Arr::get($current, 'enabled', false),
             'interval_hours' => $intervalHours ?? Arr::get($current, 'interval_hours', 24),
             'channels' => $channels ?? Arr::get($current, 'channels', ['mail']),
             'last_sent_at' => Arr::get($current, 'last_sent_at'),
-        ];
+        ]);
 
         $this->saveSettings($settings);
 
-        return $settings['iam_alive'];
+        return Arr::get($settings, 'iam_alive', []);
     }
 
     /**
@@ -100,16 +100,16 @@ class FileSettingsStorage
         $settings = $this->getSettings();
         $current = Arr::get($settings, 'iam_alive', []);
 
-        $settings['iam_alive'] = [
+        Arr::set($settings, 'iam_alive', [
             'enabled' => (bool)Arr::get($current, 'enabled', false),
             'interval_hours' => (int)Arr::get($current, 'interval_hours', 24),
             'channels' => Arr::get($current, 'channels', ['mail']),
             'last_sent_at' => $sentAt,
-        ];
+        ]);
 
         $this->saveSettings($settings);
 
-        return $settings['iam_alive'];
+        return Arr::get($settings, 'iam_alive', []);
     }
 
     /**

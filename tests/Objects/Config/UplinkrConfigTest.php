@@ -22,6 +22,7 @@ class UplinkrConfigTest extends TestCase
         $this->assertEquals('enabled', $config->getStandardProjectStatus());
         $this->assertFalse($config->allowCompleteWipe());
         $this->assertEquals([], $config->getMailTo());
+        $this->assertFalse($config->isMailEnabled());
         $this->assertEquals('uplinkr', $config->getLogChannel());
         $this->assertEquals([], $config->getLogDefinition());
     }
@@ -41,6 +42,7 @@ class UplinkrConfigTest extends TestCase
             standardProject: 'my_project',
             standardProjectStatus: 'disabled',
             mailTo: ['test@example.com'],
+            mailEnabled: true,
             logChannel: 'custom_log',
             logDefinition: ['driver' => 'single']
         );
@@ -56,6 +58,7 @@ class UplinkrConfigTest extends TestCase
         $this->assertEquals('disabled', $config->getStandardProjectStatus());
         $this->assertTrue($config->allowCompleteWipe());
         $this->assertEquals(['test@example.com'], $config->getMailTo());
+        $this->assertTrue($config->isMailEnabled());
         $this->assertEquals('custom_log', $config->getLogChannel());
         $this->assertEquals(['driver' => 'single'], $config->getLogDefinition());
     }

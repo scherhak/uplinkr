@@ -3,6 +3,7 @@
 namespace Uplinkr\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Arr;
 use Illuminate\Notifications\AnonymousNotifiable;
 use Illuminate\Support\Carbon;
 use JsonException;
@@ -53,17 +54,17 @@ class UplinkrIamAliveCommand extends Command
             if (empty($recipients)) {
                 $this->warn(CliIcon::WARN->label(text: __('uplinkr::messages.iam_alive_no_recipients')));
                 $channels = array_values(array_filter($channels, static fn(string $channel): bool => $channel !== 'mail'));
-            } elseif (!config('uplinkr.notifications.channels.mail.enabled', false)) {
+            } elseif (!$config->isMailEnabled()) {
                 $this->warn(CliIcon::WARN->label(text: __('uplinkr::messages.iam_alive_mail_channel_disabled')));
                 $channels = array_values(array_filter($channels, static fn(string $channel): bool => $channel !== 'mail'));
             }
         }
 
         if (in_array('webhook', $channels, true)) {
-            if (!config('uplinkr.notifications.channels.webhook.enabled', false)) {
+            if (!$config->isWebhookEnabled()) {
                 $this->warn(CliIcon::WARN->label(text: __('uplinkr::messages.iam_alive_webhook_channel_disabled')));
                 $channels = array_values(array_filter($channels, static fn(string $channel): bool => $channel !== 'webhook'));
-            } elseif (!is_string(config('uplinkr.notifications.channels.webhook.url')) || trim((string)config('uplinkr.notifications.channels.webhook.url')) === '') {
+            } elseif (!is_string($config->getWebhookUrl()) || trim((string)$config->getWebhookUrl()) === '') {
                 $this->warn(CliIcon::WARN->label(text: __('uplinkr::messages.iam_alive_webhook_url_missing')));
                 $channels = array_values(array_filter($channels, static fn(string $channel): bool => $channel !== 'webhook'));
             }
@@ -82,8 +83,8 @@ class UplinkrIamAliveCommand extends Command
         $sentAt = Time::now();
         $summary = $summaryHandler->handle();
         $iamAliveSettingsForMessage = $settings;
-        $iamAliveSettingsForMessage['channels'] = $channels;
-        $iamAliveSettingsForMessage['last_sent_at'] = $sentAt;
+        Arr::set($iamAliveSettingsForMessage, 'channels', $channels);
+        Arr::set($iamAliveSettingsForMessage, 'last_sent_at', $sentAt);
 
         $payload = [
             'summary' => $summary,
@@ -93,7 +94,7 @@ class UplinkrIamAliveCommand extends Command
             'sent_at' => $sentAt,
         ];
 
-        $notifiable->notify(new IamAliveNotification($channels, $payload));
+        $notifiable->notify(new IamAliveNotification(channels: $channels, payload: $payload));
         $settingsStorage->markIamAliveSent($sentAt);
 
         $this->info(CliIcon::OK->label(text: __('uplinkr::messages.iam_alive_sent', [

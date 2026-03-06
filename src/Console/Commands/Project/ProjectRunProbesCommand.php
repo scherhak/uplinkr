@@ -77,7 +77,7 @@ class ProjectRunProbesCommand extends Command
                 continue;
             }
 
-            $projectValues = new ProjectValues($project);
+            $projectValues = new ProjectValues(data: $project);
             $projectName = $projectValues->getName();
             $probes = $projectValues->getProbes();
 

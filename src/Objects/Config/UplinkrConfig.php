@@ -47,6 +47,7 @@ final class UplinkrConfig
      * @param string $logChannel Log channel name
      * @param array $logDefinition Log configuration
      * @param string $userAgent User-Agent string for HTTP probes
+     * @param bool $mailEnabled Whether mail notifications are enabled
      */
     public function __construct(
         public string  $storageDisk = 'local',
@@ -81,6 +82,7 @@ final class UplinkrConfig
         public string  $logChannel = 'uplinkr',
         public array   $logDefinition = [],
         public string  $userAgent = 'uplinkr-monitor',
+        public bool    $mailEnabled = false,
     )
     {
     }
@@ -125,6 +127,7 @@ final class UplinkrConfig
             logChannel: config('uplinkr.log_channel', 'uplinkr'),
             logDefinition: config('uplinkr.log', []),
             userAgent: config('uplinkr.probes.user_agent', 'uplinkr-monitor'),
+            mailEnabled: config('uplinkr.notifications.channels.mail.enabled', false),
         );
     }
 
@@ -335,6 +338,14 @@ final class UplinkrConfig
     }
 
     /**
+     * @return bool
+     */
+    public function isMailEnabled(): bool
+    {
+        return $this->mailEnabled;
+    }
+
+    /**
      * @return string
      */
     public function getLogChannel(): string
@@ -375,7 +386,7 @@ final class UplinkrConfig
     }
 
     /**
-     * Get the regex pattern for extracting dates from filenames based on grouping strategy.
+     * Get the regex pattern for extracting dates from filenames based on the grouping strategy.
      *
      * @return string Regex pattern
      */
@@ -383,7 +394,6 @@ final class UplinkrConfig
     {
         return match ($this->probeResultsGrouping) {
             'hourly' => '/(\d{4}-\d{2}-\d{2}-\d{2})/',
-            'daily' => '/(\d{4}-\d{2}-\d{2})/',
             'monthly' => '/(\d{4}-\d{2})/',
             default => '/(\d{4}-\d{2}-\d{2})/',
         };

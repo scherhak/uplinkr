@@ -140,7 +140,7 @@ class AlertDecisionHandler
 
         foreach ($projects as $projectPath) {
             $name = basename($projectPath);
-            $allDecisions[] = $this->handle($name);
+            $allDecisions[] = $this->handle(projectName: $name);
         }
 
         if (empty($allDecisions)) {
@@ -376,7 +376,7 @@ class AlertDecisionHandler
         $persistedState = $state;
 
         foreach ($grouped as $notificationData) {
-            $notifiable->notify(new AlertNotificationHandler($notificationData));
+            $notifiable->notify(new AlertNotificationHandler(alertData: $notificationData));
 
             $triggerAfterFailures = Arr::get($notificationData, 'alert.trigger_after_failures', 3);
             foreach (Arr::get($notificationData, 'probes', []) as $probeData) {
