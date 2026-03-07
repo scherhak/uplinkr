@@ -54,15 +54,8 @@ class IamAliveNotification extends Notification
         $message = (new MailMessage)
             ->subject(__('uplinkr::messages.iam_alive_mail_subject', ['prefix' => $subjectPrefix]))
             ->line(__('uplinkr::messages.iam_alive_mail_line'))
-            ->line(__('uplinkr::messages.iam_alive_mail_summary_head'))
-            ->line(__('uplinkr::messages.iam_alive_mail_summary_active_projects', ['count' => Arr::get($this->payload, 'summary.active_projects', 0)]))
-            ->line(__('uplinkr::messages.iam_alive_mail_summary_configured_probes', ['count' => Arr::get($this->payload, 'summary.configured_probes', 0)]))
-            ->line(__('uplinkr::messages.iam_alive_mail_summary_successful_checks', ['count' => Arr::get($this->payload, 'summary.successful_checks', 0)]))
-            ->line(__('uplinkr::messages.iam_alive_mail_summary_failed_checks', ['count' => Arr::get($this->payload, 'summary.failed_checks', 0)]))
+            ->line(__('uplinkr::messages.iam_alive_mail_all_ok'))
             ->line(__('uplinkr::messages.iam_alive_mail_settings_head'))
-            ->line(__('uplinkr::messages.iam_alive_mail_settings_enabled', [
-                'enabled' => $this->boolLabel((bool)Arr::get($this->payload, 'settings.iam_alive.enabled', false))
-            ]))
             ->line(__('uplinkr::messages.iam_alive_mail_settings_interval_hours', [
                 'hours' => (int)Arr::get($this->payload, 'settings.iam_alive.interval_hours', 24)
             ]))
@@ -208,14 +201,5 @@ class IamAliveNotification extends Notification
         $pendingRequest->withHeaders([
             $headerName => sprintf('%s=%s', $algo, $signature)
         ]);
-    }
-
-    /**
-     * @param bool $value
-     * @return string
-     */
-    private function boolLabel(bool $value): string
-    {
-        return $value ? 'true' : 'false';
     }
 }
