@@ -56,7 +56,13 @@ class FileSettingsStorage
     }
 
     /**
-     * @return array{enabled: bool, interval_hours: int, channels: array, last_sent_at: string|null}
+     * @return array{
+     *     enabled: bool,
+     *     interval_hours: int,
+     *     channels: array,
+     *     last_sent_at: string|null,
+     *     last_attempted_at: string|null
+     * }
      * @throws JsonException
      */
     public function getIamAliveSettings(): array
@@ -83,6 +89,7 @@ class FileSettingsStorage
             'interval_hours' => $intervalHours ?? Arr::get($current, 'interval_hours', 24),
             'channels' => $channels ?? Arr::get($current, 'channels', ['mail']),
             'last_sent_at' => Arr::get($current, 'last_sent_at'),
+            'last_attempted_at' => Arr::get($current, 'last_attempted_at'),
         ]);
 
         $this->saveSettings($settings);
@@ -105,6 +112,30 @@ class FileSettingsStorage
             'interval_hours' => (int)Arr::get($current, 'interval_hours', 24),
             'channels' => Arr::get($current, 'channels', ['mail']),
             'last_sent_at' => $sentAt,
+            'last_attempted_at' => $sentAt,
+        ]);
+
+        $this->saveSettings($settings);
+
+        return Arr::get($settings, 'iam_alive', []);
+    }
+
+    /**
+     * @param string $attemptedAt
+     * @return array
+     * @throws JsonException
+     */
+    public function markIamAliveAttempted(string $attemptedAt): array
+    {
+        $settings = $this->getSettings();
+        $current = Arr::get($settings, 'iam_alive', []);
+
+        Arr::set($settings, 'iam_alive', [
+            'enabled' => (bool)Arr::get($current, 'enabled', false),
+            'interval_hours' => (int)Arr::get($current, 'interval_hours', 24),
+            'channels' => Arr::get($current, 'channels', ['mail']),
+            'last_sent_at' => Arr::get($current, 'last_sent_at'),
+            'last_attempted_at' => $attemptedAt,
         ]);
 
         $this->saveSettings($settings);
@@ -123,6 +154,7 @@ class FileSettingsStorage
                 'interval_hours' => 24,
                 'channels' => ['mail'],
                 'last_sent_at' => null,
+                'last_attempted_at' => null,
             ],
         ];
     }

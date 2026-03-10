@@ -80,6 +80,7 @@ class UplinkrIamAliveCommandTest extends TestCase
 
         $savedSettings = json_decode((string)Storage::disk('local')->get('uplinkr/settings.json'), true, 512, JSON_THROW_ON_ERROR);
         $this->assertIsString($savedSettings['iam_alive']['last_sent_at'] ?? null);
+        $this->assertIsString($savedSettings['iam_alive']['last_attempted_at'] ?? null);
     }
 
     public function test_it_skips_when_no_mail_recipients_are_configured(): void
@@ -102,6 +103,10 @@ class UplinkrIamAliveCommandTest extends TestCase
             ->assertExitCode(0);
 
         Notification::assertNothingSent();
+
+        $savedSettings = json_decode((string)Storage::disk('local')->get('uplinkr/settings.json'), true, 512, JSON_THROW_ON_ERROR);
+        $this->assertNull($savedSettings['iam_alive']['last_sent_at'] ?? null);
+        $this->assertNull($savedSettings['iam_alive']['last_attempted_at'] ?? null);
     }
 
     public function test_it_skips_when_iam_alive_is_disabled(): void
@@ -146,7 +151,39 @@ class UplinkrIamAliveCommandTest extends TestCase
 
         $savedSettings = json_decode((string)Storage::disk('local')->get('uplinkr/settings.json'), true, 512, JSON_THROW_ON_ERROR);
         $this->assertNull($savedSettings['iam_alive']['last_sent_at']);
+        $this->assertNull($savedSettings['iam_alive']['last_attempted_at'] ?? null);
         Notification::assertNothingSent();
+    }
+
+    public function test_it_marks_scheduled_attempt_without_creating_a_minute_retry_loop(): void
+    {
+        Notification::fake();
+
+        config()->set('uplinkr.notifications.channels.mail.enabled', true);
+        config()->set('uplinkr.notifications.channels.mail.to', []);
+
+        Storage::disk('local')->put('uplinkr/settings.json', json_encode([
+            'iam_alive' => [
+                'enabled' => true,
+                'interval_hours' => 2,
+                'channels' => ['mail'],
+                'last_sent_at' => null,
+                'last_attempted_at' => null,
+            ],
+        ], JSON_THROW_ON_ERROR));
+
+        $this->artisan('uplinkr:iam-alive --scheduled')
+            ->expectsOutput(CliIcon::WARN->label(__('uplinkr::messages.iam_alive_no_recipients')))
+            ->expectsOutput(CliIcon::WARN->label(__('uplinkr::messages.iam_alive_no_channels')))
+            ->assertExitCode(0);
+
+        $savedSettings = json_decode((string)Storage::disk('local')->get('uplinkr/settings.json'), true, 512, JSON_THROW_ON_ERROR);
+        $this->assertNull($savedSettings['iam_alive']['last_sent_at']);
+        $this->assertIsString($savedSettings['iam_alive']['last_attempted_at'] ?? null);
+
+        $this->artisan('uplinkr:iam-alive --scheduled')
+            ->expectsOutput(CliIcon::INFO->label(__('uplinkr::messages.iam_alive_not_due')))
+            ->assertExitCode(0);
     }
 
     public function test_it_skips_scheduled_run_when_interval_is_not_due(): void

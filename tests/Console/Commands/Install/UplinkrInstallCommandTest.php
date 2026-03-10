@@ -78,6 +78,7 @@ class UplinkrInstallCommandTest extends TestCase
         $this->assertSame(true, $saved['iam_alive']['enabled']);
         $this->assertSame(6, $saved['iam_alive']['interval_hours']);
         $this->assertSame(['mail', 'webhook'], $saved['iam_alive']['channels']);
+        $this->assertNull($saved['iam_alive']['last_attempted_at']);
     }
 
     #[Test]

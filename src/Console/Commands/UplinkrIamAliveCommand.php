@@ -71,6 +71,10 @@ class UplinkrIamAliveCommand extends Command
         }
 
         if (empty($channels)) {
+            if ($this->option('scheduled')) {
+                $settingsStorage->markIamAliveAttempted(Time::now());
+            }
+
             $this->warn(CliIcon::WARN->label(text: __('uplinkr::messages.iam_alive_no_channels')));
             return CommandAlias::SUCCESS;
         }
@@ -82,7 +86,12 @@ class UplinkrIamAliveCommand extends Command
 
         $sentAt = Time::now();
         $summary = $summaryHandler->handle();
-        $iamAliveSettingsForMessage = $settings;
+        $iamAliveSettingsForMessage = Arr::only($settings, [
+            'enabled',
+            'interval_hours',
+            'channels',
+            'last_sent_at',
+        ]);
         Arr::set($iamAliveSettingsForMessage, 'channels', $channels);
         Arr::set($iamAliveSettingsForMessage, 'last_sent_at', $sentAt);
 
@@ -115,17 +124,54 @@ class UplinkrIamAliveCommand extends Command
             return false;
         }
 
-        $lastSentAt = $settings['last_sent_at'] ?? null;
-        if (!is_string($lastSentAt) || trim($lastSentAt) === '') {
+        $lastActivityAt = $this->resolveLastActivityAt($settings);
+        if ($lastActivityAt === null) {
             return true;
         }
 
         try {
-            return Carbon::parse($lastSentAt)
+            return Carbon::parse($lastActivityAt)
                 ->addHours($intervalHours)
                 ->lessThanOrEqualTo(now());
         } catch (\Throwable) {
             return true;
+        }
+    }
+
+    /**
+     * @param array $settings
+     * @return string|null
+     */
+    private function resolveLastActivityAt(array $settings): ?string
+    {
+        $candidates = array_filter([
+            $this->normalizeTimestamp(Arr::get($settings, 'last_sent_at')),
+            $this->normalizeTimestamp(Arr::get($settings, 'last_attempted_at')),
+        ]);
+
+        if ($candidates === []) {
+            return null;
+        }
+
+        rsort($candidates);
+
+        return $candidates[0];
+    }
+
+    /**
+     * @param mixed $value
+     * @return string|null
+     */
+    private function normalizeTimestamp(mixed $value): ?string
+    {
+        if (!is_string($value) || trim($value) === '') {
+            return null;
+        }
+
+        try {
+            return Carbon::parse($value)->toDateTimeString();
+        } catch (\Throwable) {
+            return null;
         }
     }
 }
