@@ -109,12 +109,8 @@ class UplinkrServiceProvider extends ServiceProvider
                     $intervalHours = (int)($iamAlive['interval_hours'] ?? 24);
 
                     if ($enabled && $intervalHours >= 1 && $intervalHours <= 24) {
-                        $cron = $intervalHours === 24
-                            ? '0 0 * * *'
-                            : sprintf('0 */%d * * *', $intervalHours);
-
-                        $schedule->command('uplinkr:iam-alive')
-                            ->cron($cron)
+                        $schedule->command('uplinkr:iam-alive --scheduled')
+                            ->everyMinute()
                             ->withoutOverlapping();
                     }
                 } catch (\JsonException $exception) {
@@ -147,49 +143,49 @@ class UplinkrServiceProvider extends ServiceProvider
             $config = $app->make(UplinkrConfig::class);
             $sanitizer = $app->make(Sanitizer::class);
 
-            return new FileProbeResultsStorage($config, $sanitizer);
+            return new FileProbeResultsStorage(config: $config, sanitizer: $sanitizer);
         });
 
         $this->app->singleton(ProjectStorageInterface::class, function ($app) {
             $config = $app->make(UplinkrConfig::class);
             $sanitizer = $app->make(Sanitizer::class);
 
-            return new FileProjectStorage($config, $sanitizer);
+            return new FileProjectStorage(config: $config, sanitizer: $sanitizer);
         });
 
         $this->app->singleton(ResultHandler::class, function ($app) {
             return new ResultHandler(
-                $app->make(UplinkrConfig::class),
-                $app->make(Sanitizer::class)
+                config: $app->make(UplinkrConfig::class),
+                sanitizer: $app->make(Sanitizer::class)
             );
         });
 
         $this->app->singleton(UrlHandler::class, function ($app) {
             return new UrlHandler(
-                $app->make(ProbeResultsStorageInterface::class),
-                $app->make(UplinkrConfig::class),
-                $app->make(Sanitizer::class),
-                $app->make(ResultHandler::class)
+                storage: $app->make(ProbeResultsStorageInterface::class),
+                config: $app->make(UplinkrConfig::class),
+                sanitizer: $app->make(Sanitizer::class),
+                resultHandler: $app->make(ResultHandler::class)
             );
         });
 
         $this->app->singleton(ProbeSelectedProjectsHandler::class, function ($app) {
             return new ProbeSelectedProjectsHandler(
-                $app->make(ProjectStorageInterface::class),
-                $app->make(UrlHandler::class)
+                projectStorage: $app->make(ProjectStorageInterface::class),
+                urlHandler: $app->make(UrlHandler::class)
             );
         });
 
         $this->app->singleton(ProbeAllProjectsHandler::class, function ($app) {
             return new ProbeAllProjectsHandler(
-                $app->make(ProjectStorageInterface::class),
-                $app->make(UrlHandler::class)
+                projectStorage: $app->make(ProjectStorageInterface::class),
+                urlHandler: $app->make(UrlHandler::class)
             );
         });
 
         $this->app->singleton(FileSettingsStorage::class, function ($app) {
             return new FileSettingsStorage(
-                $app->make(UplinkrConfig::class)
+                config: $app->make(UplinkrConfig::class)
             );
         });
 

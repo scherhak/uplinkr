@@ -71,7 +71,7 @@ class ProjectRunSelectedCommand extends Command
             return CommandAlias::SUCCESS;
         }
 
-        $projectValues = new ProjectValues($project);
+        $projectValues = new ProjectValues(data: $project);
         if ($projectValues->getStatus() === 'disabled') {
             $this->warn(CliIcon::WARN->label(__('uplinkr::messages.project_disabled', ['project' => $projectName])));
 

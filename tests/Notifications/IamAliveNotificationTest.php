@@ -40,7 +40,7 @@ class IamAliveNotificationTest extends TestCase
         $this->assertSame('2026-03-05 10:00:00', $payload['timestamp']);
     }
 
-    public function test_to_mail_contains_summary_and_settings_lines(): void
+    public function test_to_mail_contains_ok_text_and_settings_lines(): void
     {
         $notification = new IamAliveNotification(
             channels: ['mail'],
@@ -64,11 +64,7 @@ class IamAliveNotificationTest extends TestCase
 
         $mail = $notification->toMail(null);
 
-        $this->assertContains('- Active projects: 1', $mail->introLines);
-        $this->assertContains('- Configured probes/checks: 3', $mail->introLines);
-        $this->assertContains('- Successful checks (current state): 2', $mail->introLines);
-        $this->assertContains('- Failed checks (current state): 1', $mail->introLines);
-        $this->assertContains('- Enabled: true', $mail->introLines);
+        $this->assertContains('Everything looks good. Uplinkr is running normally.', $mail->introLines);
         $this->assertContains('- Interval (hours): 2', $mail->introLines);
         $this->assertContains('- Channels: mail', $mail->introLines);
         $this->assertContains('- Last sent at: 2026-03-05 11:00:00', $mail->introLines);

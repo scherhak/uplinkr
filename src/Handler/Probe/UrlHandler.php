@@ -346,7 +346,7 @@ class UrlHandler
      */
     private function getProject(): string
     {
-        $projectValues = new ProjectValues($this->data);
+        $projectValues = new ProjectValues(data: $this->data);
         $project = $projectValues->getName();
 
         if ($project === 'unknown') {
