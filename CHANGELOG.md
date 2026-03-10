@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.3.0] – 2026-03-xx
+## [0.3.0] – 2026-03-10
 
 ### Added
 - **Global I’m Alive Settings (`settings.json`)**
@@ -23,9 +23,7 @@ All notable changes to this project will be documented in this file.
 - **I’m Alive Scheduler Behavior**
   - I’m alive scheduling now reads from `uplinkr/settings.json` (instead of `config/uplinkr.php`)
   - If `iam_alive.enabled = true` and `uplinkr.scheduler.enabled = true`, `uplinkr:iam-alive` is automatically scheduled
-  - Interval is now hour-based (`1-24`) with cron mapping:
-    - `1-23`: `0 */N * * *`
-    - `24`: `0 0 * * *`
+  - Interval is now hour-based (`1-24`) and evaluated at runtime via persisted heartbeat activity timestamps
 - **I’m Alive Notification Channels**
   - `uplinkr:iam-alive` now supports channel routing like check alerts:
     - `mail` via Laravel mail notifications
@@ -38,10 +36,11 @@ All notable changes to this project will be documented in this file.
     - configured probes/checks (sum of all project `settings.json > probes`)
     - successful checks (current probe state where `consecutive_failures = 0`)
     - failed checks (current probe state where `consecutive_failures > 0`)
-  - Mail output now includes a readable summary section and a readable `iam_alive` settings section
+  - Mail output now includes a short all-ok text and a readable `iam_alive` settings section without the `Enabled` line
   - Webhook and log payloads now include the same summary + settings data for consistent channel behavior
 - **I’m Alive Settings Persistence**
   - Added `iam_alive.last_sent_at` in global `uplinkr/settings.json`
+  - Added internal `iam_alive.last_attempted_at` to throttle scheduled retries when no effective delivery channel is available
   - `last_sent_at` is updated whenever an I’m alive notification is successfully dispatched
   - `uplinkr:settings` now shows `last_sent_at` in command output
 - **Scheduler Configuration**
@@ -62,6 +61,9 @@ All notable changes to this project will be documented in this file.
 - **I’m Alive Command Config Consistency**
   - `uplinkr:iam-alive` now resolves `UplinkrConfig` at runtime to avoid stale singleton config in test/runtime edge cases
   - Fixes flaky behavior where configured mail recipients could be missed in long-running test processes
+- **I’m Alive Scheduler Retry Throttling**
+  - Scheduled `uplinkr:iam-alive --scheduled` runs no longer retry every minute when heartbeat delivery is impossible due to missing effective channels
+  - Prevents repeated warning output and unnecessary scheduler work while keeping `last_sent_at` reserved for successful deliveries
 - **Scheduler Race Reduction for Async Probe Execution**
   - `uplinkr:project:alert:decision` is no longer scheduled with `runInBackground()`
   - Reduces the risk of alert decisions reading stale `state.json` when probe runs dispatch queued jobs and return before workers persist probe state
