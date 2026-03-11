@@ -3,6 +3,7 @@
 namespace Uplinkr\Tests\Console\Commands\Install;
 
 use File;
+use Illuminate\Support\Facades\Storage;
 use PHPUnit\Framework\Attributes\Test;
 use Uplinkr\Tests\TestCase;
 use Uplinkr\Support\CliIcon;
@@ -12,6 +13,7 @@ class UplinkrInstallCommandTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        Storage::fake('local');
         
         // Ensure config_path('uplinkr.php') exists for some tests or is clean
         if (File::exists(config_path('uplinkr.php'))) {
@@ -61,6 +63,30 @@ class UplinkrInstallCommandTest extends TestCase
         $this->artisan('uplinkr:install --scheduler')
             ->expectsOutputToContain(__('uplinkr::messages.install_scheduler_already_enabled'))
             ->assertExitCode(0);
+    }
+
+    #[Test]
+    public function it_configures_iam_alive_settings_when_options_are_provided(): void
+    {
+        $this->artisan('uplinkr:install --iam-alive --iam-alive-interval-hours=6 --iam-alive-channels=mail,webhook')
+            ->expectsOutputToContain('I\'m alive configured:')
+            ->assertExitCode(0);
+
+        Storage::disk('local')->assertExists('uplinkr/settings.json');
+
+        $saved = json_decode((string)Storage::disk('local')->get('uplinkr/settings.json'), true, 512, JSON_THROW_ON_ERROR);
+        $this->assertSame(true, $saved['iam_alive']['enabled']);
+        $this->assertSame(6, $saved['iam_alive']['interval_hours']);
+        $this->assertSame(['mail', 'webhook'], $saved['iam_alive']['channels']);
+        $this->assertNull($saved['iam_alive']['last_attempted_at']);
+    }
+
+    #[Test]
+    public function it_fails_for_invalid_iam_alive_interval_hours(): void
+    {
+        $this->artisan('uplinkr:install --iam-alive --iam-alive-interval-hours=25')
+            ->expectsOutputToContain(__('uplinkr::messages.install_iam_alive_invalid_settings'))
+            ->assertExitCode(2);
     }
 
 }

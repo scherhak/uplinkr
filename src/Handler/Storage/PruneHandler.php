@@ -24,7 +24,7 @@ class PruneHandler
         ?Sanitizer                     $sanitizer = null
     )
     {
-        $this->sanitizer = $sanitizer ?? new Sanitizer($this->config);
+        $this->sanitizer = $sanitizer ?? new Sanitizer(config: $this->config);
     }
 
     /**

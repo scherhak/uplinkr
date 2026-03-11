@@ -14,6 +14,9 @@ license: MIT
 - Composer package development
 - CLI-first architecture
 - File-based JSON storage (MVP phase)
+- Global + project-scoped JSON configuration
+- Scheduler-driven monitoring workflows
+- Heartbeat / "I'm alive" monitoring
 - Docker / Podman containerization
 - Git & GitHub workflows
 - Semantic Versioning (SemVer)
@@ -27,9 +30,13 @@ license: MIT
 - Service container architecture
 - Configuration-driven systems
 - Predictable CLI command behavior
+- Explicit runtime behavior
 - Event-driven alerting (log, mail, webhook)
-- Logging strategies (file, mail, webhook)
+- Notification channel design (log, mail, webhook)
+- Global settings vs project settings separation
 - Extensible probe systems (HTTP, TLS, etc.)
+- Async probe execution via queue jobs
+- Alert aggregation and cooldown handling
 - Clean public API design
 - Backward compatibility handling
 - Minimal abstraction / minimal magic
@@ -55,6 +62,8 @@ license: MIT
 - Docker Compose environments
 - Multi-container architecture
 - SSL/TLS handling
+- Laravel scheduler integration
+- Queue worker integration
 - CI pipelines (GitHub Actions)
 - Branch protection strategies
 - Release-based workflow
@@ -91,10 +100,9 @@ license: MIT
 
 ## Optional / Future Skills
 
-- Alert aggregation systems
-- TLS expiry monitoring
 - Queue optimization strategies
-- Documentation consistency for CLI-first workflows
+- Additional probe types beyond HTTP/TLS
+- Long-term storage strategy evolution
 
 ---
 

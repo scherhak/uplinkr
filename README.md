@@ -28,6 +28,30 @@
 
 **Uplinkr** is a lightweight, file-based uptime and response monitoring package for Laravel. It allows you to monitor your URLs and APIs without requiring a database, storing all probe results as JSON files. Perfect for developers who need simple, reliable monitoring integrated directly into their Laravel applications.
 
+## Key Features
+
+- **File-Based Storage** - No database required, all data stored as JSON files
+- **Native Laravel Integration** - Built specifically for Laravel with Artisan commands
+- **Automatic Scheduler Integration** - Run probes automatically with Laravel's task scheduler
+- **Project Organization** - Group related probes together in projects
+- **Global + Project Settings** - Separate global `uplinkr/settings.json` and per-project `settings.json`
+- **Customizable Thresholds** - Define acceptable response times and failure tolerances
+- **Multiple Notification Channels** - Log, email, and webhook support out of the box
+- **I’m Alive Heartbeats** - Global heartbeat notifications with configurable interval and channels
+
+## How It Works
+
+Uplinkr follows a simple workflow:
+
+1. **Create a Project** - Organize your monitoring targets into logical groups
+2. **Add Probes** - Define URLs/APIs to monitor with optional custom headers, methods, and body data
+3. **Configure Alerts** - Set up failure thresholds and notification channels
+4. **Run Probes** - Execute manually or automatically via Laravel's scheduler
+5. **Receive Alerts** - Get notified when probes fail or respond slowly
+6. **Send Heartbeats** - Keep operators informed that monitoring is active via I’m alive
+
+All probe results and settings are stored as JSON files, making it easy to inspect, back up, and track operational changes over time.
+
 ## Quick Start
 
 This section walks you through the minimal setup required to start monitoring a URL or API.
@@ -68,7 +92,7 @@ php artisan uplinkr:project:run-probes
 
 Want to go beyond the basics?
 
-- **Full documentation:** https://uplinkr.dev  
+- **Full documentation:** https://uplinkr.dev
   Complete reference, concepts, and architecture overview.
 
 - **Getting started guide:** https://uplinkr.dev/getting-started/quick-start/  

@@ -46,7 +46,7 @@ class ProjectValues
             }
 
             if (!Arr::has($probe, 'headers') && Arr::has($probe, 'header')) {
-                $probe['headers'] = Arr::get($probe, 'header');
+                Arr::set($probe, 'headers', Arr::get($probe, 'header'));
             }
 
             return $probe;

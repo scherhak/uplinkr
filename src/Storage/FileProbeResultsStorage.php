@@ -91,7 +91,7 @@ class FileProbeResultsStorage implements ProbeResultsStorageInterface
     {
         return sprintf('%s/%s/%s',
             $this->getStoragePath(),
-            $this->getProjectPath($data),
+            $this->getProjectPath(data: $data),
             $this->getProbesResultsPath()
         );
     }
@@ -123,7 +123,7 @@ class FileProbeResultsStorage implements ProbeResultsStorageInterface
      */
     private function getProjectPath(array $data): string
     {
-        $projectValues = new ProjectValues(Arr::get($data, 'settings', []));
+        $projectValues = new ProjectValues(data: Arr::get($data, 'settings', []));
 
         $project = $projectValues->getName();
 

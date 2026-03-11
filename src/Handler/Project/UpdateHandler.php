@@ -37,7 +37,7 @@ readonly class UpdateHandler
      */
     public function handle(array $options): bool
     {
-        $optionsValues = new ProjectValues($options);
+        $optionsValues = new ProjectValues(data: $options);
         $projectName = $optionsValues->getName();
         if ($projectName === 'unknown') {
             return false;
@@ -49,18 +49,18 @@ readonly class UpdateHandler
         }
 
         if (Arr::has($options, 'label')) {
-            $projectData['label'] = $optionsValues->getLabel();
+            Arr::set($projectData, 'label', $optionsValues->getLabel());
         }
 
         if (Arr::has($options, 'description')) {
-            $projectData['description'] = $optionsValues->getDescription();
+            Arr::set($projectData, 'description', $optionsValues->getDescription());
         }
 
         if (Arr::has($options, 'status')) {
-            $projectData['status'] = Arr::get($options, 'status');
+            Arr::set($projectData, 'status', Arr::get($options, 'status'));
         }
 
-        $projectData['updated_at'] = Time::now();
+        Arr::set($projectData, 'updated_at', Time::now());
 
         $this->projectStorage->saveProject($projectData);
 

@@ -107,12 +107,12 @@ class FileProjectStorage implements ProjectStorageInterface
             return;
         }
 
-        $project = $this->findProject($projectName);
+        $project = $this->findProject(project: $projectName);
         if (!$project) {
             return;
         }
 
-        $projectValues = new ProjectValues($project);
+        $projectValues = new ProjectValues(data: $project);
         $probes = $projectValues->getProbes();
         $found = false;
 
@@ -146,10 +146,10 @@ class FileProjectStorage implements ProjectStorageInterface
             ];
         }
 
-        $project['probes'] = $probes;
-        $project['updated_at'] = Time::now();
+        Arr::set($project, 'probes', $probes);
+        Arr::set($project, 'updated_at', Time::now());
 
-        $this->saveProject($project);
+        $this->saveProject(projectData: $project);
     }
 
     /**
@@ -169,22 +169,22 @@ class FileProjectStorage implements ProjectStorageInterface
             return;
         }
 
-        $project = $this->findProject($projectName);
+        $project = $this->findProject(project: $projectName);
         if (!$project) {
             return;
         }
 
-        $projectValues = new ProjectValues($project);
+        $projectValues = new ProjectValues(data: $project);
         $probes = $projectValues->getProbes();
         $urlToRemove = Arr::get($probeData, 'url');
 
-        $project['probes'] = array_values(array_filter($probes, static function ($probe) use ($urlToRemove) {
+        Arr::set($project, 'probes', array_values(array_filter($probes, static function ($probe) use ($urlToRemove) {
             return Arr::get($probe, 'url') !== $urlToRemove;
-        }));
+        })));
 
-        $project['updated_at'] = Time::now();
+        Arr::set($project, 'updated_at', Time::now());
 
-        $this->saveProject($project);
+        $this->saveProject(projectData: $project);
     }
 
     /**
@@ -229,7 +229,7 @@ class FileProjectStorage implements ProjectStorageInterface
             $projectName = basename($directory);
 
             try {
-                $project = $this->findProject($projectName);
+                $project = $this->findProject(project: $projectName);
 
                 if ($project === null) {
                     continue;
@@ -299,7 +299,7 @@ class FileProjectStorage implements ProjectStorageInterface
      */
     private function extractProjectName(array $data): string
     {
-        $projectValues = new ProjectValues($data);
+        $projectValues = new ProjectValues(data: $data);
         $project = $projectValues->getName();
 
         if ($project === 'unknown') {

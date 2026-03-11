@@ -42,7 +42,7 @@ class ProbeAllProjectsHandler
         $results = [];
 
         foreach ($projects as $project) {
-            $projectValues = new ProjectValues($project);
+            $projectValues = new ProjectValues(data: $project);
             $projectName = $projectValues->getName();
 
             if ($projectValues->getStatus() === 'disabled') {
@@ -64,7 +64,7 @@ class ProbeAllProjectsHandler
      */
     public function handleProject(array $project, ?callable $callback = null): array
     {
-        $projectValues = new ProjectValues($project);
+        $projectValues = new ProjectValues(data: $project);
         $projectName = $projectValues->getName();
         $probes = $projectValues->getProbes();
 

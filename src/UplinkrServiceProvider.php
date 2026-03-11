@@ -5,6 +5,7 @@ namespace Uplinkr;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\ServiceProvider;
+use JsonException;
 use Uplinkr\Console\Commands\Probe\ProbeUrlCommand;
 use Uplinkr\Console\Commands\Project\ProjectAddProbeCommand;
 use Uplinkr\Console\Commands\Project\ProjectAlertDecisionCommand;
@@ -19,7 +20,9 @@ use Uplinkr\Console\Commands\Project\ProjectRunSelectedCommand;
 use Uplinkr\Console\Commands\Project\ProjectUpdateCommand;
 use Uplinkr\Console\Commands\Prune\PruneStorageCommand;
 use Uplinkr\Console\Commands\UplinkrConfigCommand;
+use Uplinkr\Console\Commands\UplinkrIamAliveCommand;
 use Uplinkr\Console\Commands\UplinkrInstallCommand;
+use Uplinkr\Console\Commands\UplinkrSettingsCommand;
 use Uplinkr\Handler\Probe\ResultHandler;
 use Uplinkr\Handler\Probe\UrlHandler;
 use Uplinkr\Handler\Project\Probes\ProbeAllProjectsHandler;
@@ -30,6 +33,8 @@ use Uplinkr\Notifications\Channels\UplinkrWebhookChannel;
 use Uplinkr\Objects\Config\UplinkrConfig;
 use Uplinkr\Storage\FileProbeResultsStorage;
 use Uplinkr\Storage\FileProjectStorage;
+use Uplinkr\Storage\FileSettingsStorage;
+use Uplinkr\Support\Logger;
 use Uplinkr\Support\Sanitizer;
 
 /**
@@ -74,6 +79,8 @@ class UplinkrServiceProvider extends ServiceProvider
                 ProjectRunSelectedCommand::class,
                 UplinkrInstallCommand::class,
                 UplinkrConfigCommand::class,
+                UplinkrIamAliveCommand::class,
+                UplinkrSettingsCommand::class,
             ]);
 
             $this->app->booted(function () {
@@ -95,6 +102,23 @@ class UplinkrServiceProvider extends ServiceProvider
                 $schedule->command('uplinkr:project:alert:decision')
                     ->cron($alertCron)
                     ->withoutOverlapping();
+
+                try {
+                    $settingsStorage = app(FileSettingsStorage::class);
+                    $iamAlive = $settingsStorage->getIamAliveSettings();
+                    $enabled = (bool)($iamAlive['enabled'] ?? false);
+                    $intervalHours = (int)($iamAlive['interval_hours'] ?? 24);
+
+                    if ($enabled && $intervalHours >= 1 && $intervalHours <= 24) {
+                        $schedule->command('uplinkr:iam-alive --scheduled')
+                            ->everyMinute()
+                            ->withoutOverlapping();
+                    }
+                } catch (JsonException $exception) {
+                    Logger::log()->warning('Unable to load uplinkr settings.json for scheduler.', [
+                        'reason' => $exception->getMessage(),
+                    ]);
+                }
             });
         }
     }
@@ -120,43 +144,49 @@ class UplinkrServiceProvider extends ServiceProvider
             $config = $app->make(UplinkrConfig::class);
             $sanitizer = $app->make(Sanitizer::class);
 
-            return new FileProbeResultsStorage($config, $sanitizer);
+            return new FileProbeResultsStorage(config: $config, sanitizer: $sanitizer);
         });
 
         $this->app->singleton(ProjectStorageInterface::class, function ($app) {
             $config = $app->make(UplinkrConfig::class);
             $sanitizer = $app->make(Sanitizer::class);
 
-            return new FileProjectStorage($config, $sanitizer);
+            return new FileProjectStorage(config: $config, sanitizer: $sanitizer);
         });
 
         $this->app->singleton(ResultHandler::class, function ($app) {
             return new ResultHandler(
-                $app->make(UplinkrConfig::class),
-                $app->make(Sanitizer::class)
+                config: $app->make(UplinkrConfig::class),
+                sanitizer: $app->make(Sanitizer::class)
             );
         });
 
         $this->app->singleton(UrlHandler::class, function ($app) {
             return new UrlHandler(
-                $app->make(ProbeResultsStorageInterface::class),
-                $app->make(UplinkrConfig::class),
-                $app->make(Sanitizer::class),
-                $app->make(ResultHandler::class)
+                storage: $app->make(ProbeResultsStorageInterface::class),
+                config: $app->make(UplinkrConfig::class),
+                sanitizer: $app->make(Sanitizer::class),
+                resultHandler: $app->make(ResultHandler::class)
             );
         });
 
         $this->app->singleton(ProbeSelectedProjectsHandler::class, function ($app) {
             return new ProbeSelectedProjectsHandler(
-                $app->make(ProjectStorageInterface::class),
-                $app->make(UrlHandler::class)
+                projectStorage: $app->make(ProjectStorageInterface::class),
+                urlHandler: $app->make(UrlHandler::class)
             );
         });
 
         $this->app->singleton(ProbeAllProjectsHandler::class, function ($app) {
             return new ProbeAllProjectsHandler(
-                $app->make(ProjectStorageInterface::class),
-                $app->make(UrlHandler::class)
+                projectStorage: $app->make(ProjectStorageInterface::class),
+                urlHandler: $app->make(UrlHandler::class)
+            );
+        });
+
+        $this->app->singleton(FileSettingsStorage::class, function ($app) {
+            return new FileSettingsStorage(
+                config: $app->make(UplinkrConfig::class)
             );
         });
 

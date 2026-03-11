@@ -61,8 +61,8 @@ readonly class AlertHandler
         // Currently, the requirement says "alerts": [] and shows a list with one object.
         // I will replace/set the first alert or handle it as a single alert configuration for now,
         // as the issue description shows an array with one element.
-        $projectData['alerts'] = [$alert];
-        $projectData['updated_at'] = Time::now();
+        Arr::set($projectData, 'alerts', [$alert]);
+        Arr::set($projectData, 'updated_at', Time::now());
 
         $this->projectStorage->saveProject($projectData);
 

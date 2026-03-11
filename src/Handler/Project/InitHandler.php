@@ -38,10 +38,10 @@ readonly class InitHandler
      */
     public function handle(array $options): bool
     {
-        $optionsValues = new ProjectValues($options);
+        $optionsValues = new ProjectValues(data: $options);
         $projectName = $optionsValues->getName();
         $existingProject = $this->projectStorage->findProject($projectName);
-        $projectValues = $existingProject ? new ProjectValues($existingProject) : null;
+        $projectValues = $existingProject ? new ProjectValues(data: $existingProject) : null;
 
         $data = [
             'project' => $projectName,
