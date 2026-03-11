@@ -3,11 +3,12 @@
 namespace Uplinkr\Console\Commands;
 
 use Illuminate\Console\Command;
-use Illuminate\Support\Arr;
 use Illuminate\Notifications\AnonymousNotifiable;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use JsonException;
 use Symfony\Component\Console\Command\Command as CommandAlias;
+use Throwable;
 use Uplinkr\Handler\IamAlive\IamAliveSummaryHandler;
 use Uplinkr\Notifications\IamAliveNotification;
 use Uplinkr\Objects\Config\UplinkrConfig;
@@ -133,7 +134,7 @@ class UplinkrIamAliveCommand extends Command
             return Carbon::parse($lastActivityAt)
                 ->addHours($intervalHours)
                 ->lessThanOrEqualTo(now());
-        } catch (\Throwable) {
+        } catch (Throwable) {
             return true;
         }
     }
@@ -170,7 +171,7 @@ class UplinkrIamAliveCommand extends Command
 
         try {
             return Carbon::parse($value)->toDateTimeString();
-        } catch (\Throwable) {
+        } catch (Throwable) {
             return null;
         }
     }

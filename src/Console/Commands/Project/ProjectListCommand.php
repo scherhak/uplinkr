@@ -61,7 +61,7 @@ class ProjectListCommand extends Command
         }
 
         foreach ($projects as $project) {
-            $status = (string) Arr::get($project, 'status', 'enabled');
+            $status = (string)Arr::get($project, 'status', 'enabled');
             $isEnabled = strtolower($status) === 'enabled';
             $statusColor = $isEnabled ? 'green' : 'red';
 
@@ -95,7 +95,7 @@ class ProjectListCommand extends Command
             $this->table(
                 ['Total Failures', 'Last Notification'],
                 [[
-                    (int) Arr::get($project, 'state.total_failures', 0),
+                    (int)Arr::get($project, 'state.total_failures', 0),
                     Arr::get($project, 'state.last_notification_at', '-') ?? '-',
                 ]]
             );
@@ -125,10 +125,10 @@ class ProjectListCommand extends Command
             $channels = Arr::get($alert, 'channels', []);
             $rows[] = [
                 Arr::get($alert, 'enabled', false) ? 'true' : 'false',
-                (int) Arr::get($alert, 'trigger_after_failures', 0),
-                (int) Arr::get($alert, 'cooldown_minutes', 0),
-                (int) Arr::get($alert, 'latency_threshold_ms', 0),
-                (int) Arr::get($alert, 'trigger_after_slow', 0),
+                (int)Arr::get($alert, 'trigger_after_failures', 0),
+                (int)Arr::get($alert, 'cooldown_minutes', 0),
+                (int)Arr::get($alert, 'latency_threshold_ms', 0),
+                (int)Arr::get($alert, 'trigger_after_slow', 0),
                 is_array($channels) && !empty($channels) ? implode(',', $channels) : '-',
             ];
         }
