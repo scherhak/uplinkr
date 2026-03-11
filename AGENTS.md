@@ -7,6 +7,8 @@ Uplinkr
 Uplinkr is a lightweight Laravel 12 package for website and API monitoring.
 It is designed as a CLI-first tool with a strong focus on stability,
 predictability, and minimal dependencies.
+It uses file-based JSON storage for both project data and selected global
+runtime settings such as heartbeat configuration.
 
 The project is currently in an early but structured MVP phase.
 Backward compatibility and clean architecture are important.
@@ -14,6 +16,7 @@ Backward compatibility and clean architecture are important.
 ## Core Principles
 - CLI-first, not dashboard-first
 - Explicit over implicit behavior
+- Clear separation between package config and runtime state
 - Predictable execution and output
 - Minimal magic, minimal abstraction
 - Stability over cleverness
@@ -22,6 +25,7 @@ Backward compatibility and clean architecture are important.
 - PHP 8.4
 - Laravel 12
 - Laravel Console Commands
+- Laravel Scheduler / Queue integration
 - File-based storage (JSON) in early versions
 - No frontend, no SPA, no JS framework
 
@@ -33,6 +37,7 @@ You MAY:
 - Suggest refactorings **without applying them automatically**
 - Extend configuration files when explicitly requested
 - Add small, isolated helper classes if clearly justified
+- Extend existing heartbeat / notification flows when explicitly requested and aligned with the current channel architecture
 
 ## Restricted Actions (Ask First)
 You MUST ASK BEFORE:
@@ -42,6 +47,7 @@ You MUST ASK BEFORE:
 - Introducing new storage mechanisms (DB, Redis, etc.)
 - Adding new notification channels or integrations
 - Modifying scheduler or background execution behavior
+- Changing global settings behavior or heartbeat scheduling semantics
 
 ## Forbidden Actions
 You MUST NOT:
@@ -60,6 +66,7 @@ You MUST NOT:
 - Enums are preferred over string constants
 - No hidden side effects
 - No global state
+- File-based state should remain human-inspectable and operationally transparent
 
 ## CLI Output Rules
 - CLI output must be clear, concise, and human-readable

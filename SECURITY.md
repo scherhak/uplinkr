@@ -6,8 +6,9 @@ We take security seriously and provide security updates for the following versio
 
 | Version | Supported |
 | ------- | --------- |
-| 0.1.x   | ✅ Yes    |
-| < 0.1   | ❌ No     |
+| 0.3.x   | ✅ Yes    |
+| 0.2.x   | ❌ No     |
+| 0.1.x   | ❌ No     |
 
 Only the latest released minor version of Uplinkr receives security updates. Security fixes are published to the default branch and released as patch versions.
 
@@ -52,5 +53,10 @@ When using Uplinkr, please follow these recommendations:
 - Always use the latest version
 - Secure webhook endpoints with proper authentication
 - Review email notification settings to avoid information disclosure
+- Protect file-based Uplinkr storage from public access
+- Treat probe headers, request bodies, and webhook secrets as sensitive data
+- Restrict filesystem access to `uplinkr/settings.json`, project `settings.json`, `state.json`, and probe result files
 - Use HTTPS for all monitored URLs when possible
 - Regularly review and rotate any API keys or credentials used in probes
+
+If you are unsure whether an issue belongs to Uplinkr itself, its configuration, or an affected dependency, please report it privately anyway. Ambiguous reports are preferable to missed security issues.

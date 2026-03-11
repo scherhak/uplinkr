@@ -6,6 +6,7 @@ use File;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\Validator;
+use JsonException;
 use Symfony\Component\Console\Command\Command as CommandAlias;
 use Uplinkr\Storage\FileSettingsStorage;
 use Uplinkr\Support\CliIcon;
@@ -139,7 +140,7 @@ class UplinkrInstallCommand extends Command
      * @param FileSettingsStorage $settingsStorage
      * @return bool
      * @throws FileNotFoundException
-     * @throws \JsonException
+     * @throws JsonException
      */
     private function configureIamAliveSettings(FileSettingsStorage $settingsStorage): bool
     {

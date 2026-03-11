@@ -5,6 +5,7 @@ namespace Uplinkr;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\ServiceProvider;
+use JsonException;
 use Uplinkr\Console\Commands\Probe\ProbeUrlCommand;
 use Uplinkr\Console\Commands\Project\ProjectAddProbeCommand;
 use Uplinkr\Console\Commands\Project\ProjectAlertDecisionCommand;
@@ -113,7 +114,7 @@ class UplinkrServiceProvider extends ServiceProvider
                             ->everyMinute()
                             ->withoutOverlapping();
                     }
-                } catch (\JsonException $exception) {
+                } catch (JsonException $exception) {
                     Logger::log()->warning('Unable to load uplinkr settings.json for scheduler.', [
                         'reason' => $exception->getMessage(),
                     ]);

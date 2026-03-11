@@ -139,7 +139,7 @@ class ListHandler
                 continue;
             }
 
-            $totalFailures += (int) Arr::get($probeState, 'total_failures', 0);
+            $totalFailures += (int)Arr::get($probeState, 'total_failures', 0);
 
             $lastFailure = Arr::get($probeState, 'last_notified_failure_at');
             if (is_string($lastFailure) && ($lastNotification === null || strcmp($lastFailure, $lastNotification) > 0)) {
