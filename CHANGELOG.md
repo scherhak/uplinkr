@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.1] – 2026-11-23
+
+### Changed
+- **Laravel 13 Compatibility**
+  - Added Laravel 13 support for `illuminate/support` and `illuminate/console`
+  - Added Testbench 11 and PHPUnit 12 support for package testing on Laravel 13
+  - Retained compatibility with PHP 8.2, Laravel 11 and Laravel 12
+
 ## [0.3.0] – 2026-03-10
 
 ### Added
