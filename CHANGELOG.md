@@ -2,6 +2,51 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.0] – 2026-11-25
+
+### Added
+- **TLS Certificate Expiration Alerts**
+  - Added configurable certificate warning thresholds for HTTPS probes
+  - Added separate decisions for approaching expiry (`certificate_expiration`) and expired certificates (`certificate_expired`)
+  - Added deduplication per certificate expiration date and reached threshold
+  - Added automatic warning-cycle reset when a changed certificate expiration date is observed
+  - Added certificate alert status persistence in each probe's `state.json` entry after successful notification dispatch
+- **Certificate Alert CLI Configuration**
+  - Added `--certificate-expiration` to enable certificate alerts
+  - Added `--no-certificate-expiration` to disable certificate alerts
+  - Added `--certificate-warning-days` for comma-separated warning thresholds
+  - Added validation for positive, unique thresholds and supported notification channels
+
+### Changed
+- **Project List Output**
+  - Added certificate alert activation and warning thresholds to the alert settings table
+- **Alert Notifications**
+  - Added certificate-specific mail and log content
+  - Added `certificate_days_remaining` and `certificate_threshold_days` to structured webhook payloads
+  - Continued to aggregate matching failure and certificate decisions per project and alert configuration
+- **Compatibility Test Matrix**
+  - Added explicit Laravel 11, 12, and 13 dependency matrices using Testbench 9, 10, and 11
+  - Retained support for PHP 8.2 and newer
+
+### Fixed
+- Certificates expiring later on the current calendar day are no longer treated as already expired
+- Less urgent thresholds introduced by later configuration changes no longer repeat an already more urgent notification
+- Certificate notification state is not persisted when no effective log, mail, or webhook channel is available
+- HTTP probes cannot trigger certificate expiration alerts even if inconsistent legacy state contains TLS metadata
+
+### Notes
+- No breaking changes
+- Certificate alerts are disabled by default for existing and new project alert configurations until explicitly enabled
+- No storage migration is required when upgrading from v0.3.1
+
+## [0.3.1] – 2026-11-23
+
+### Changed
+- **Laravel 13 Compatibility**
+  - Added Laravel 13 support for `illuminate/support` and `illuminate/console`
+  - Added Testbench 11 and PHPUnit 12 support for package testing on Laravel 13
+  - Retained compatibility with PHP 8.2, Laravel 11 and Laravel 12
+
 ## [0.3.0] – 2026-03-10
 
 ### Added

@@ -230,4 +230,71 @@ class AlertNotificationHandlerTest extends TestCase
         );
     }
 
+    public function test_certificate_alert_payload_contains_machine_readable_fields(): void
+    {
+        $notification = new AlertNotificationHandler([
+            'project' => 'Certificate Project',
+            'alert' => ['channels' => ['webhook']],
+            'probes' => [[
+                'probe' => 'GET https://example.com',
+                'reason' => 'certificate_expiration',
+                'count' => 0,
+                'probe_tls_expiration_date' => '2026-12-05T23:59:59+00:00',
+                'certificate_days_remaining' => 11,
+                'certificate_threshold_days' => 14,
+            ]],
+        ]);
+
+        $payload = $notification->toArray(null);
+
+        $this->assertSame('certificate_expiration', $payload['probes'][0]['reason']);
+        $this->assertSame(11, $payload['probes'][0]['certificate_days_remaining']);
+        $this->assertSame(14, $payload['probes'][0]['certificate_threshold_days']);
+    }
+
+    public function test_certificate_alert_mail_uses_certificate_specific_content(): void
+    {
+        $notification = new AlertNotificationHandler([
+            'project' => 'Certificate Project',
+            'alert' => ['channels' => ['mail']],
+            'probes' => [[
+                'probe' => 'GET https://example.com',
+                'reason' => 'certificate_expiration',
+                'count' => 0,
+                'probe_tls_expiration_date' => '2026-12-05T23:59:59+00:00',
+                'certificate_days_remaining' => 11,
+                'certificate_threshold_days' => 14,
+            ]],
+        ]);
+
+        $mail = $notification->toMail(null);
+
+        $this->assertStringContainsString('Certificate alert', $mail->subject);
+        $this->assertContains('- Days remaining: 11', $mail->introLines);
+        $this->assertContains('- Warning threshold: 14', $mail->introLines);
+    }
+
+    public function test_certificate_alert_log_uses_certificate_specific_message(): void
+    {
+        Log::shouldReceive('channel')->andReturnSelf();
+        Log::shouldReceive('warning')
+            ->once()
+            ->withArgs(static fn(string $message, array $context): bool =>
+                str_contains($message, 'Certificate alert')
+                && str_contains($message, 'Days remaining: 11')
+                && ($context['certificate_days_remaining'] ?? null) === 11
+            );
+
+        $notification = new AlertNotificationHandler([
+            'project' => 'Certificate Project',
+            'probe' => 'GET https://example.com',
+            'reason' => 'certificate_expiration',
+            'probe_tls_expiration_date' => '2026-12-05T23:59:59+00:00',
+            'certificate_days_remaining' => 11,
+            'certificate_threshold_days' => 14,
+        ]);
+
+        $notification->toLog(null);
+    }
+
 }

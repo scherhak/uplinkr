@@ -37,6 +37,7 @@
 - **Global + Project Settings** - Separate global `uplinkr/settings.json` and per-project `settings.json`
 - **Customizable Thresholds** - Define acceptable response times and failure tolerances
 - **Multiple Notification Channels** - Log, email, and webhook support out of the box
+- **Certificate Expiration Alerts** - Configurable, deduplicated TLS expiry warnings for HTTPS probes
 - **I’m Alive Heartbeats** - Global heartbeat notifications with configurable interval and channels
 
 ## How It Works
@@ -88,6 +89,58 @@ php artisan uplinkr:project:add:probe --project=my-site --url=https://example.co
 php artisan uplinkr:project:run-probes
 ```
 
+### Certificate Expiration Alerts
+
+Uplinkr records TLS certificate expiration metadata for HTTPS probes. Starting
+with v0.4.0, a project can notify operators when a certificate enters one of
+its configured warning windows.
+
+Enable certificate alerts and configure the thresholds:
+
+```bash
+php artisan uplinkr:project:alerts \
+  --project=my-project \
+  --certificate-expiration \
+  --certificate-warning-days=30,14,7,3,1 \
+  --channels=mail,log,webhook \
+  --force
+```
+
+Disable certificate alerts without changing the other project alert settings:
+
+```bash
+php artisan uplinkr:project:alerts \
+  --project=my-project \
+  --no-certificate-expiration \
+  --force
+```
+
+Inspect the normalized configuration:
+
+```bash
+php artisan uplinkr:project:list --project=my-project
+```
+
+Certificate alerts are disabled by default. Warning thresholds must be unique,
+positive integers and are stored in descending order. Uplinkr sends at most one
+notification per certificate expiration date and reached threshold. A changed
+expiration date starts a new warning cycle automatically.
+
+After a successful notification, the probe entry in `state.json` contains a
+human-readable `certificate_expiration_alert` object with the expiration date,
+last notified threshold, notification timestamp, and expired-notification
+timestamp.
+
+The notification payloads for mail, log, and webhook include:
+
+- `reason` (`certificate_expiration` or `certificate_expired`)
+- `probe_tls_expiration_date`
+- `certificate_days_remaining`
+- `certificate_threshold_days`
+
+Upgrading from v0.3.1 requires no migration. Existing projects retain their
+current behavior until certificate alerts are explicitly enabled.
+
 ## Deep Dive
 
 Want to go beyond the basics?
@@ -101,7 +154,7 @@ Want to go beyond the basics?
 ## Requirements
 
 - **PHP:** 8.2 or higher
-- **Laravel:** 11.x or 12.x
+- **Laravel:** 11.x, 12.x, or 13.x
 - **PHP extension:** `ext-openssl` (required for TLS certificate metadata)
 
 ## Contributing

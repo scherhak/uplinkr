@@ -29,6 +29,9 @@ class ProjectAlertsCommand extends Command
                             {--cooldown= : Cooldown in minutes}
                             {--threshold= : Latency threshold in ms}
                             {--slow= : Trigger after X slow responses}
+                            {--certificate-expiration : Enable TLS certificate expiration alerts}
+                            {--no-certificate-expiration : Disable TLS certificate expiration alerts}
+                            {--certificate-warning-days= : Comma separated certificate warning thresholds in days}
                             {--channels= : Comma separated list of channels}
                             {--force : Force execution without confirmation}';
 
@@ -54,7 +57,17 @@ class ProjectAlertsCommand extends Command
         $cooldown = $this->option('cooldown') ? (int)$this->option('cooldown') : null;
         $threshold = $this->option('threshold') ? (int)$this->option('threshold') : null;
         $slow = $this->option('slow') ? (int)$this->option('slow') : null;
-        $channels = $this->option('channels') ? explode(',', $this->option('channels')) : null;
+        $enableCertificateExpiration = $this->input->hasParameterOption('--certificate-expiration');
+        $disableCertificateExpiration = $this->input->hasParameterOption('--no-certificate-expiration');
+        $certificateExpirationEnabled = $enableCertificateExpiration
+            ? true
+            : ($disableCertificateExpiration ? false : null);
+        $certificateWarningDays = $this->option('certificate-warning-days') !== null
+            ? array_map('trim', explode(',', (string)$this->option('certificate-warning-days')))
+            : null;
+        $channels = $this->option('channels')
+            ? array_map('trim', explode(',', (string)$this->option('channels')))
+            : null;
         $force = $this->option('force');
 
         $validate = Validator::make(
@@ -64,6 +77,9 @@ class ProjectAlertsCommand extends Command
                 'cooldown' => $cooldown,
                 'threshold' => $threshold,
                 'slow' => $slow,
+                'certificate_warning_days' => $certificateWarningDays,
+                'certificate_expiration_conflict' => $enableCertificateExpiration && $disableCertificateExpiration,
+                'channels' => $channels,
             ],
             [
                 'project' => 'required|string',
@@ -71,6 +87,11 @@ class ProjectAlertsCommand extends Command
                 'cooldown' => 'nullable|integer|min:1',
                 'threshold' => 'nullable|integer|min:1',
                 'slow' => 'nullable|integer|min:1',
+                'certificate_warning_days' => 'nullable|array|min:1',
+                'certificate_warning_days.*' => 'required|integer|min:1|distinct',
+                'certificate_expiration_conflict' => 'declined',
+                'channels' => 'nullable|array|min:1',
+                'channels.*' => 'required|string|in:mail,log,webhook|distinct',
             ],
         );
 
@@ -94,6 +115,8 @@ class ProjectAlertsCommand extends Command
                     'cooldown_minutes' => $cooldown,
                     'latency_threshold_ms' => $threshold,
                     'trigger_after_slow' => $slow,
+                    'certificate_expiration_enabled' => $certificateExpirationEnabled,
+                    'certificate_expiration_warning_days' => $certificateWarningDays,
                     'channels' => $channels,
                 ]);
 
