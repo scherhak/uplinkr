@@ -22,19 +22,24 @@ use Uplinkr\Support\Time;
  */
 class AlertDecisionHandler
 {
+    private readonly CertificateExpirationDecision $certificateExpirationDecision;
+
     /**
      * @param ProjectStorageInterface $projectStorage
      * @param ListHandler $listHandler
      * @param UplinkrConfig $config
      * @param Sanitizer $sanitizer
+     * @param CertificateExpirationDecision|null $certificateExpirationDecision Evaluates certificate warning thresholds and deduplication state.
      */
     public function __construct(
         private readonly ProjectStorageInterface $projectStorage,
         private readonly ListHandler             $listHandler,
         private readonly UplinkrConfig           $config,
-        private readonly Sanitizer               $sanitizer
+        private readonly Sanitizer               $sanitizer,
+        ?CertificateExpirationDecision           $certificateExpirationDecision = null
     )
     {
+        $this->certificateExpirationDecision = $certificateExpirationDecision ?? new CertificateExpirationDecision();
     }
 
     /**
@@ -259,6 +264,42 @@ class AlertDecisionHandler
     }
 
     /**
+     * Creates a certificate-specific alert decision for notification grouping.
+     *
+     * @param string $projectName The project that owns the affected probe.
+     * @param string $probeKey The human-readable probe identifier from state.json.
+     * @param array $alert The active project alert configuration.
+     * @param array $certificateDecision The evaluated certificate reason, expiry date, remaining days, and threshold.
+     * @return array The normalized alert decision consumed by the notification pipeline.
+     */
+    private function createCertificateAlertDecision(
+        string $projectName,
+        string $probeKey,
+        array $alert,
+        array $certificateDecision
+    ): array
+    {
+        Logger::log()->warning(sprintf(
+            'Certificate alert triggered for project "%s" on probe "%s". Reason: %s (%d days remaining)',
+            $projectName,
+            $probeKey,
+            $certificateDecision['reason'],
+            $certificateDecision['days_remaining']
+        ));
+
+        return [
+            'project' => $projectName,
+            'probe' => $probeKey,
+            'alert' => $alert,
+            'reason' => $certificateDecision['reason'],
+            'count' => 0,
+            'probe_tls_expiration_date' => $certificateDecision['expiration_date'],
+            'certificate_days_remaining' => $certificateDecision['days_remaining'],
+            'certificate_threshold_days' => $certificateDecision['threshold_days'],
+        ];
+    }
+
+    /**
      * Updates the state of a probe by adjusting its failure counters and timestamp.
      *
      * @param array &$state Reference to the array containing the current state.
@@ -281,6 +322,30 @@ class AlertDecisionHandler
         $state['probes'][$probeKey]['total_failures'] = $totalFailures;
         $state['probes'][$probeKey]['consecutive_failures'] = 0;
         $state['probes'][$probeKey]['last_notified_failure_at'] = Time::now();
+    }
+
+    /**
+     * Persists the successfully notified certificate threshold for a probe.
+     *
+     * Replacing the complete certificate alert status also resets the previous
+     * warning cycle when a different certificate expiration date is observed.
+     *
+     * @param array $state Reference to the project state that will be persisted.
+     * @param string $probeKey The probe whose certificate notification succeeded.
+     * @param array $probeData The normalized certificate notification data.
+     * @return void
+     */
+    private function updateCertificateAlertState(array &$state, string $probeKey, array $probeData): void
+    {
+        $reason = Arr::get($probeData, 'reason');
+        $status = [
+            'expiration_date' => Arr::get($probeData, 'probe_tls_expiration_date'),
+            'last_notified_threshold_days' => Arr::get($probeData, 'certificate_threshold_days'),
+            'last_notified_at' => Time::now(),
+            'expired_notified_at' => $reason === 'certificate_expired' ? Time::now() : null,
+        ];
+
+        $state['probes'][$probeKey]['certificate_expiration_alert'] = $status;
     }
 
     /**
@@ -307,17 +372,28 @@ class AlertDecisionHandler
             $currentCooldownMinutes = Arr::get($alert, 'cooldown_minutes', $defaultCooldown);
 
             foreach (Arr::get($state, 'probes', []) as $probeKey => $probeData) {
-                if (!$this->shouldTriggerAlert($probeData, array_merge(['cooldown_minutes' => $currentCooldownMinutes], $alert))) {
-                    continue;
+                if ($this->shouldTriggerAlert($probeData, array_merge(['cooldown_minutes' => $currentCooldownMinutes], $alert))) {
+                    $decisions[] = $this->createAlertDecision($projectName, $probeKey, $alert, $probeData);
+
+                    $triggerAfterFailures = Arr::get($alert, 'trigger_after_failures', 3);
+                    $consecutiveFailures = Arr::get($probeData, 'consecutive_failures', 0);
+
+                    $this->updateProbeState($state, $probeKey, $triggerAfterFailures, $consecutiveFailures);
+                    $stateUpdated = true;
                 }
 
-                $decisions[] = $this->createAlertDecision($projectName, $probeKey, $alert, $probeData);
-
-                $triggerAfterFailures = Arr::get($alert, 'trigger_after_failures', 3);
-                $consecutiveFailures = Arr::get($probeData, 'consecutive_failures', 0);
-
-                $this->updateProbeState($state, $probeKey, $triggerAfterFailures, $consecutiveFailures);
-                $stateUpdated = true;
+                $certificateDecision = $this->isHttpsProbe($probeKey) && $this->hasEffectiveNotificationChannel($alert)
+                    ? $this->certificateExpirationDecision->decide($probeData, $alert)
+                    : null;
+                if ($certificateDecision !== null) {
+                    $decisions[] = $this->createCertificateAlertDecision(
+                        $projectName,
+                        $probeKey,
+                        $alert,
+                        $certificateDecision
+                    );
+                    $stateUpdated = true;
+                }
             }
         }
 
@@ -325,6 +401,50 @@ class AlertDecisionHandler
             'decisions' => $decisions,
             'state_updated' => $stateUpdated
         ];
+    }
+
+    /**
+     * Determines whether a state entry represents an HTTPS probe.
+     *
+     * @param string $probeKey The probe key, usually formatted as "METHOD URL".
+     * @return bool True when the probe URL uses HTTPS.
+     */
+    private function isHttpsProbe(string $probeKey): bool
+    {
+        return preg_match('/(?:^|\s)https:\/\//i', $probeKey) === 1;
+    }
+
+    /**
+     * Determines whether a certificate alert has at least one usable channel.
+     *
+     * @param array $alert The project alert configuration containing channel names.
+     * @return bool True when log, configured mail, or configured webhook delivery is available.
+     */
+    private function hasEffectiveNotificationChannel(array $alert): bool
+    {
+        $channels = Arr::get($alert, 'channels', ['log']);
+        if (!is_array($channels)) {
+            return false;
+        }
+
+        foreach ($channels as $channel) {
+            if ($channel === 'log') {
+                return true;
+            }
+
+            if ($channel === 'mail' && $this->config->isMailEnabled() && $this->config->getMailTo() !== []) {
+                return true;
+            }
+
+            if ($channel === 'webhook'
+                && $this->config->isWebhookEnabled()
+                && is_string($this->config->getWebhookUrl())
+                && trim($this->config->getWebhookUrl()) !== '') {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -364,6 +484,8 @@ class AlertDecisionHandler
                 'reason' => Arr::get($decision, 'reason'),
                 'count' => Arr::get($decision, 'count'),
                 'probe_tls_expiration_date' => Arr::get($decision, 'probe_tls_expiration_date'),
+                'certificate_days_remaining' => Arr::get($decision, 'certificate_days_remaining'),
+                'certificate_threshold_days' => Arr::get($decision, 'certificate_threshold_days'),
             ];
         }
 
@@ -385,12 +507,16 @@ class AlertDecisionHandler
                     continue;
                 }
 
-                $this->updateProbeState(
-                    $persistedState,
-                    $probeKey,
-                    $triggerAfterFailures,
-                    Arr::get($probeData, 'count', 0)
-                );
+                if (in_array(Arr::get($probeData, 'reason'), ['certificate_expiration', 'certificate_expired'], true)) {
+                    $this->updateCertificateAlertState($persistedState, $probeKey, $probeData);
+                } else {
+                    $this->updateProbeState(
+                        $persistedState,
+                        $probeKey,
+                        $triggerAfterFailures,
+                        Arr::get($probeData, 'count', 0)
+                    );
+                }
             }
 
             $this->saveState($projectName, $persistedState);
