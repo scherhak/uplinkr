@@ -114,6 +114,45 @@ class CertificateExpirationDecisionTest extends TestCase
         ], $this->enabledAlert()));
     }
 
+    public function test_certificate_expiring_later_today_is_not_yet_expired(): void
+    {
+        $result = $this->decision->decide(
+            ['probe_tls_expiration_date' => '2026-11-24T23:59:59+00:00'],
+            $this->enabledAlert()
+        );
+
+        $this->assertSame('certificate_expiration', $result['reason']);
+        $this->assertSame(0, $result['days_remaining']);
+        $this->assertSame(1, $result['threshold_days']);
+    }
+
+    public function test_certificate_that_expired_earlier_today_is_expired(): void
+    {
+        $result = $this->decision->decide(
+            ['probe_tls_expiration_date' => '2026-11-24T08:00:00+00:00'],
+            $this->enabledAlert()
+        );
+
+        $this->assertSame('certificate_expired', $result['reason']);
+        $this->assertSame(0, $result['days_remaining']);
+    }
+
+    public function test_a_less_urgent_reconfigured_threshold_is_not_repeated(): void
+    {
+        $expirationDate = '2026-12-05T23:59:59+00:00';
+
+        $this->assertNull($this->decision->decide([
+            'probe_tls_expiration_date' => $expirationDate,
+            'certificate_expiration_alert' => [
+                'expiration_date' => $expirationDate,
+                'last_notified_threshold_days' => 7,
+            ],
+        ], [
+            'certificate_expiration_enabled' => true,
+            'certificate_expiration_warning_days' => [30, 14],
+        ]));
+    }
+
     public function test_a_changed_expiration_date_starts_a_new_warning_cycle(): void
     {
         $result = $this->decision->decide([

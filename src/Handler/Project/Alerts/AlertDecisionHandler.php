@@ -382,7 +382,7 @@ class AlertDecisionHandler
                     $stateUpdated = true;
                 }
 
-                $certificateDecision = $this->isHttpsProbe($probeKey)
+                $certificateDecision = $this->isHttpsProbe($probeKey) && $this->hasEffectiveNotificationChannel($alert)
                     ? $this->certificateExpirationDecision->decide($probeData, $alert)
                     : null;
                 if ($certificateDecision !== null) {
@@ -412,6 +412,39 @@ class AlertDecisionHandler
     private function isHttpsProbe(string $probeKey): bool
     {
         return preg_match('/(?:^|\s)https:\/\//i', $probeKey) === 1;
+    }
+
+    /**
+     * Determines whether a certificate alert has at least one usable channel.
+     *
+     * @param array $alert The project alert configuration containing channel names.
+     * @return bool True when log, configured mail, or configured webhook delivery is available.
+     */
+    private function hasEffectiveNotificationChannel(array $alert): bool
+    {
+        $channels = Arr::get($alert, 'channels', ['log']);
+        if (!is_array($channels)) {
+            return false;
+        }
+
+        foreach ($channels as $channel) {
+            if ($channel === 'log') {
+                return true;
+            }
+
+            if ($channel === 'mail' && $this->config->isMailEnabled() && $this->config->getMailTo() !== []) {
+                return true;
+            }
+
+            if ($channel === 'webhook'
+                && $this->config->isWebhookEnabled()
+                && is_string($this->config->getWebhookUrl())
+                && trim($this->config->getWebhookUrl()) !== '') {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

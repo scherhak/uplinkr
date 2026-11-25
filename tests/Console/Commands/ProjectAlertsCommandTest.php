@@ -127,4 +127,13 @@ class ProjectAlertsCommandTest extends TestCase
             '--force' => true,
         ])->assertExitCode(2);
     }
+
+    public function test_it_rejects_unsupported_notification_channels(): void
+    {
+        $this->artisan('uplinkr:project:alerts', [
+            '--project' => 'my-project',
+            '--channels' => 'mail,unsupported',
+            '--force' => true,
+        ])->assertExitCode(2);
+    }
 }

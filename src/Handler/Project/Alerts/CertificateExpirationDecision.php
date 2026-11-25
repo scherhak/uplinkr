@@ -42,7 +42,9 @@ class CertificateExpirationDecision
             return null;
         }
 
-        $daysRemaining = (int)Carbon::now('UTC')
+        $now = Carbon::now('UTC');
+        $daysRemaining = (int)$now
+            ->copy()
             ->startOfDay()
             ->diffInDays($expiration->copy()->startOfDay(), false);
         $status = Arr::get($probeData, 'certificate_expiration_alert', []);
@@ -52,7 +54,7 @@ class CertificateExpirationDecision
         );
         $normalizedExpirationDate = $expiration->toIso8601String();
 
-        if ($daysRemaining <= 0) {
+        if ($expiration->lessThanOrEqualTo($now)) {
             if ($sameCertificate && Arr::get($status, 'expired_notified_at') !== null) {
                 return null;
             }
@@ -74,8 +76,11 @@ class CertificateExpirationDecision
             return null;
         }
 
-        if ($sameCertificate && Arr::get($status, 'last_notified_threshold_days') === $threshold) {
-            return null;
+        if ($sameCertificate) {
+            $lastNotifiedThreshold = Arr::get($status, 'last_notified_threshold_days');
+            if (is_int($lastNotifiedThreshold) && $lastNotifiedThreshold <= $threshold) {
+                return null;
+            }
         }
 
         return [

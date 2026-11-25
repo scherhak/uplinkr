@@ -450,7 +450,7 @@ class AlertDecisionHandlerTest extends TestCase
                 'trigger_after_failures' => 3,
                 'certificate_expiration_enabled' => true,
                 'certificate_expiration_warning_days' => [30, 14, 7, 3, 1],
-                'channels' => ['mail'],
+                'channels' => ['log'],
             ]],
         ]);
         $this->mockState($projectName, [
@@ -494,7 +494,7 @@ class AlertDecisionHandlerTest extends TestCase
                 'enabled' => true,
                 'certificate_expiration_enabled' => true,
                 'certificate_expiration_warning_days' => [30, 14, 7, 3, 1],
-                'channels' => ['mail'],
+                'channels' => ['log'],
             ]],
         ]);
         $this->mockState($projectName, [
@@ -539,6 +539,40 @@ class AlertDecisionHandlerTest extends TestCase
 
         $this->assertSame([], $this->handler->handle($projectName));
         Notification::assertNothingSent();
+
+        Carbon::setTestNow();
+    }
+
+    public function test_it_does_not_persist_certificate_state_without_an_effective_channel(): void
+    {
+        Carbon::setTestNow(Carbon::parse('2026-11-24 12:00:00', 'UTC'));
+        $projectName = 'disabled-channel-project';
+        $this->mockProject($projectName, [
+            'project' => $projectName,
+            'alerts' => [[
+                'enabled' => true,
+                'certificate_expiration_enabled' => true,
+                'certificate_expiration_warning_days' => [30, 14, 7, 3, 1],
+                'channels' => ['webhook'],
+            ]],
+        ]);
+        $this->mockState($projectName, [
+            'project' => $projectName,
+            'probes' => [
+                'GET https://example.com' => [
+                    'consecutive_failures' => 0,
+                    'probe_tls_expiration_date' => '2026-12-05T23:59:59+00:00',
+                ],
+            ],
+        ]);
+
+        $this->assertSame([], $this->handler->handle($projectName));
+        Notification::assertNothingSent();
+        $state = $this->getUpdatedState($projectName);
+        $this->assertArrayNotHasKey(
+            'certificate_expiration_alert',
+            $state['probes']['GET https://example.com']
+        );
 
         Carbon::setTestNow();
     }
