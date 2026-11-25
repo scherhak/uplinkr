@@ -96,6 +96,21 @@ class AlertNotificationHandler extends Notification
             return;
         }
 
+        if ($this->isCertificateReason($context['reason'])) {
+            Logger::log()->warning(
+                sprintf(
+                    'Certificate alert for project "%s" on probe "%s". Reason: %s. Days remaining: %d. TLS expiration date: %s',
+                    $context['project'],
+                    $context['probe'],
+                    $context['reason'],
+                    $context['certificate_days_remaining'],
+                    $context['probe_tls_expiration_date'] ?? 'n/a'
+                ),
+                $this->toArray($notifiable)
+            );
+            return;
+        }
+
         Logger::log()->warning(
             sprintf(
                 'Alert triggered for project "%s" on probe "%s". Reason: %s (%d failures). TLS expiration date: %s',
@@ -310,6 +325,8 @@ class AlertNotificationHandler extends Notification
             'reason' => Arr::get($firstProbe, 'reason'),
             'count' => Arr::get($firstProbe, 'count'),
             'probe_tls_expiration_date' => Arr::get($firstProbe, 'probe_tls_expiration_date'),
+            'certificate_days_remaining' => Arr::get($firstProbe, 'certificate_days_remaining'),
+            'certificate_threshold_days' => Arr::get($firstProbe, 'certificate_threshold_days'),
             'probes' => $probes,
             'alert_time' => now()->toDateTimeString(),
             'trigger_after_failures' => Arr::get($this->alertData, 'alert.trigger_after_failures'),
@@ -344,17 +361,30 @@ class AlertNotificationHandler extends Notification
     private function buildMailMessage(array $context, array $mailConfig): MailMessage
     {
         $isAggregated = count($context['probes']) > 1;
-        $subject = $isAggregated
-            ? __('uplinkr::messages.project_alerts_mail_subject_aggregated', [
+        $containsCertificateAlert = $this->containsCertificateAlert($context['probes']);
+        $subject = $isAggregated && $containsCertificateAlert
+            ? __('uplinkr::messages.project_alerts_mail_subject_aggregated_mixed', [
                 'prefix' => $mailConfig['subject_prefix'],
                 'project' => $context['project'],
                 'probeCount' => count($context['probes']),
             ])
+            : ($isAggregated
+                ? __('uplinkr::messages.project_alerts_mail_subject_aggregated', [
+                    'prefix' => $mailConfig['subject_prefix'],
+                    'project' => $context['project'],
+                    'probeCount' => count($context['probes']),
+                ])
+                : ($containsCertificateAlert
+                    ? __('uplinkr::messages.project_alerts_mail_subject_certificate', [
+                        'prefix' => $mailConfig['subject_prefix'],
+                        'project' => $context['project'],
+                        'probe' => $context['probe'],
+                    ])
             : __('uplinkr::messages.project_alerts_mail_subject', [
                 'prefix' => $mailConfig['subject_prefix'],
                 'project' => $context['project'],
                 'probe' => $context['probe'],
-            ]);
+                    ])));
 
         $lines = $isAggregated
             ? $this->buildAggregatedMailLines($context)
@@ -428,6 +458,8 @@ class AlertNotificationHandler extends Notification
             'reason' => Arr::get($this->alertData, 'reason'),
             'count' => Arr::get($this->alertData, 'count'),
             'probe_tls_expiration_date' => Arr::get($this->alertData, 'probe_tls_expiration_date'),
+            'certificate_days_remaining' => Arr::get($this->alertData, 'certificate_days_remaining'),
+            'certificate_threshold_days' => Arr::get($this->alertData, 'certificate_threshold_days'),
         ]];
     }
 
@@ -439,6 +471,25 @@ class AlertNotificationHandler extends Notification
      */
     private function buildSingleMailLines(array $context): array
     {
+        if ($this->isCertificateReason($context['reason'])) {
+            return [
+                __('uplinkr::messages.project_alerts_mail_details_head'),
+                __('uplinkr::messages.project_alerts_mail_details_probe', ['probe' => $context['probe']]),
+                __('uplinkr::messages.project_alerts_mail_details_certificate_reason', ['reason' => $context['reason']]),
+                __('uplinkr::messages.project_alerts_mail_details_alert_time', ['alertTime' => $context['alert_time']]),
+                __('uplinkr::messages.project_alerts_mail_details_probe_tls_expiration_date', [
+                    'probeTlsExpirationDate' => $this->formatProbeTlsExpirationDate($context['probe_tls_expiration_date'] ?? null),
+                ]),
+                __('uplinkr::messages.project_alerts_mail_details_certificate_days_remaining', [
+                    'daysRemaining' => $context['certificate_days_remaining'],
+                ]),
+                __('uplinkr::messages.project_alerts_mail_details_certificate_threshold', [
+                    'thresholdDays' => $context['certificate_threshold_days'] ?? 'expired',
+                ]),
+                __('uplinkr::messages.project_alerts_mail_certificate_action'),
+            ];
+        }
+
         return [
             __('uplinkr::messages.project_alerts_mail_details_head'),
             __('uplinkr::messages.project_alerts_mail_details_probe', ['probe' => $context['probe']]),
@@ -475,10 +526,26 @@ class AlertNotificationHandler extends Notification
         ];
 
         foreach ($context['probes'] as $probe) {
-            $lines[] = __('uplinkr::messages.project_alerts_mail_details_probe_aggregated', [
-                'probe' => Arr::get($probe, 'probe'),
-                'failureCount' => Arr::get($probe, 'count'),
-                'probeTlsExpirationDate' => $this->formatProbeTlsExpirationDate(Arr::get($probe, 'probe_tls_expiration_date')),
+            if ($this->isCertificateReason(Arr::get($probe, 'reason'))) {
+                $lines[] = __('uplinkr::messages.project_alerts_mail_details_probe_aggregated_certificate', [
+                    'probe' => Arr::get($probe, 'probe'),
+                    'reason' => Arr::get($probe, 'reason'),
+                    'daysRemaining' => Arr::get($probe, 'certificate_days_remaining'),
+                    'probeTlsExpirationDate' => $this->formatProbeTlsExpirationDate(Arr::get($probe, 'probe_tls_expiration_date')),
+                ]);
+            } else {
+                $lines[] = __('uplinkr::messages.project_alerts_mail_details_probe_aggregated', [
+                    'probe' => Arr::get($probe, 'probe'),
+                    'failureCount' => Arr::get($probe, 'count'),
+                    'probeTlsExpirationDate' => $this->formatProbeTlsExpirationDate(Arr::get($probe, 'probe_tls_expiration_date')),
+                ]);
+            }
+        }
+
+        if ($this->containsCertificateAlert($context['probes'])) {
+            return array_merge($lines, [
+                __('uplinkr::messages.project_alerts_mail_details_reason_mixed'),
+                __('uplinkr::messages.project_alerts_mail_certificate_action'),
             ]);
         }
 
@@ -494,6 +561,12 @@ class AlertNotificationHandler extends Notification
         ]);
     }
 
+    /**
+     * Formats a certificate expiration timestamp for human-readable mail output.
+     *
+     * @param string|null $value The stored certificate expiration timestamp.
+     * @return string A UTC timestamp or `n/a` when no value is available.
+     */
     private function formatProbeTlsExpirationDate(?string $value): string
     {
         if ($value === null || trim($value) === '') {
@@ -507,5 +580,33 @@ class AlertNotificationHandler extends Notification
         } catch (Exception) {
             return $value;
         }
+    }
+
+    /**
+     * Checks whether an alert reason belongs to the certificate warning flow.
+     *
+     * @param mixed $reason The reason value from a normalized probe decision.
+     * @return bool True for approaching-expiry and expired-certificate reasons.
+     */
+    private function isCertificateReason(mixed $reason): bool
+    {
+        return in_array($reason, ['certificate_expiration', 'certificate_expired'], true);
+    }
+
+    /**
+     * Determines whether an aggregated notification includes certificate data.
+     *
+     * @param array $probes The normalized probe decisions in the notification.
+     * @return bool True when at least one probe carries a certificate reason.
+     */
+    private function containsCertificateAlert(array $probes): bool
+    {
+        foreach ($probes as $probe) {
+            if (is_array($probe) && $this->isCertificateReason(Arr::get($probe, 'reason'))) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

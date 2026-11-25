@@ -37,6 +37,8 @@ class ProjectListCommandTest extends TestCase
                     'cooldown_minutes' => 60,
                     'latency_threshold_ms' => 1000,
                     'trigger_after_slow' => 10,
+                    'certificate_expiration_enabled' => true,
+                    'certificate_expiration_warning_days' => [30, 14, 7, 3, 1],
                     'channels' => ['mail', 'log'],
                 ]],
                 'probes' => [
@@ -59,8 +61,8 @@ class ProjectListCommandTest extends TestCase
             ->expectsOutput('Description: Project one description')
             ->expectsOutput('Alerts:')
             ->expectsTable(
-                ['Enabled', 'Trigger After Failures', 'Cooldown Minutes', 'Latency Threshold (ms)', 'Trigger After Slow', 'Channels'],
-                [['true', 5, 60, 1000, 10, 'mail,log']]
+                ['Enabled', 'Trigger After Failures', 'Cooldown Minutes', 'Latency Threshold (ms)', 'Trigger After Slow', 'Certificate Alerts', 'Certificate Warning Days', 'Channels'],
+                [['true', 5, 60, 1000, 10, 'true', '30,14,7,3,1', 'mail,log']]
             )
             ->expectsTable(
                 ['Method', 'URL'],
@@ -122,8 +124,8 @@ class ProjectListCommandTest extends TestCase
             ->doesntExpectOutput('Project: project1 | Project One | enabled')
             ->expectsOutput('Alerts:')
             ->expectsTable(
-                ['Enabled', 'Trigger After Failures', 'Cooldown Minutes', 'Latency Threshold (ms)', 'Trigger After Slow', 'Channels'],
-                [['false', 0, 0, 0, 0, '-']]
+                ['Enabled', 'Trigger After Failures', 'Cooldown Minutes', 'Latency Threshold (ms)', 'Trigger After Slow', 'Certificate Alerts', 'Certificate Warning Days', 'Channels'],
+                [['false', 0, 0, 0, 0, 'false', '-', '-']]
             )
             ->expectsOutput('State:')
             ->expectsTable(

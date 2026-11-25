@@ -82,7 +82,7 @@ class ProjectListCommand extends Command
 
             $this->line(__('uplinkr::messages.project_list_alerts'));
             $this->table(
-                ['Enabled', 'Trigger After Failures', 'Cooldown Minutes', 'Latency Threshold (ms)', 'Trigger After Slow', 'Channels'],
+                ['Enabled', 'Trigger After Failures', 'Cooldown Minutes', 'Latency Threshold (ms)', 'Trigger After Slow', 'Certificate Alerts', 'Certificate Warning Days', 'Channels'],
                 $this->formatAlertRows(Arr::get($project, 'alerts', []))
             );
 
@@ -107,13 +107,15 @@ class ProjectListCommand extends Command
     }
 
     /**
-     * @param array $alerts
-     * @return string
+     * Formats project alert configurations for the CLI table.
+     *
+     * @param array $alerts The alert configurations stored in project settings.
+     * @return array<int, array<int, int|string>> Rows containing availability, certificate, and channel settings.
      */
     private function formatAlertRows(array $alerts): array
     {
         if (empty($alerts)) {
-            return [['false', 0, 0, 0, 0, '-']];
+            return [['false', 0, 0, 0, 0, 'false', '-', '-']];
         }
 
         $rows = [];
@@ -123,22 +125,29 @@ class ProjectListCommand extends Command
             }
 
             $channels = Arr::get($alert, 'channels', []);
+            $certificateWarningDays = Arr::get($alert, 'certificate_expiration_warning_days', []);
             $rows[] = [
                 Arr::get($alert, 'enabled', false) ? 'true' : 'false',
                 (int)Arr::get($alert, 'trigger_after_failures', 0),
                 (int)Arr::get($alert, 'cooldown_minutes', 0),
                 (int)Arr::get($alert, 'latency_threshold_ms', 0),
                 (int)Arr::get($alert, 'trigger_after_slow', 0),
+                Arr::get($alert, 'certificate_expiration_enabled', false) ? 'true' : 'false',
+                is_array($certificateWarningDays) && !empty($certificateWarningDays)
+                    ? implode(',', $certificateWarningDays)
+                    : '-',
                 is_array($channels) && !empty($channels) ? implode(',', $channels) : '-',
             ];
         }
 
-        return empty($rows) ? [['false', 0, 0, 0, 0, '-']] : $rows;
+        return empty($rows) ? [['false', 0, 0, 0, 0, 'false', '-', '-']] : $rows;
     }
 
     /**
-     * @param array $probes
-     * @return array
+     * Formats configured project probes for the CLI table.
+     *
+     * @param array $probes The probes stored in project settings.
+     * @return array<int, array<int, string>> Rows containing HTTP method and URL.
      */
     private function formatProbeRows(array $probes): array
     {

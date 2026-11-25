@@ -55,6 +55,11 @@ readonly class AlertHandler
             'cooldown_minutes' => Arr::get($options, 'cooldown_minutes') ?? Arr::get($existingAlerts, 'cooldown_minutes', 30),
             'latency_threshold_ms' => Arr::get($options, 'latency_threshold_ms') ?? Arr::get($existingAlerts, 'latency_threshold_ms', 1500),
             'trigger_after_slow' => Arr::get($options, 'trigger_after_slow') ?? Arr::get($existingAlerts, 'trigger_after_slow', 3),
+            'certificate_expiration_enabled' => Arr::get($options, 'certificate_expiration_enabled') ?? Arr::get($existingAlerts, 'certificate_expiration_enabled', false),
+            'certificate_expiration_warning_days' => $this->normalizeCertificateWarningDays(
+                Arr::get($options, 'certificate_expiration_warning_days')
+                    ?? Arr::get($existingAlerts, 'certificate_expiration_warning_days', [30, 14, 7, 3, 1])
+            ),
             'channels' => Arr::get($options, 'channels') ?? Arr::get($existingAlerts, 'channels', ['mail']),
         ];
 
@@ -67,5 +72,22 @@ readonly class AlertHandler
         $this->projectStorage->saveProject($projectData);
 
         return true;
+    }
+
+    /**
+     * Normalizes certificate warning thresholds for deterministic storage.
+     *
+     * String values are converted to integers, duplicates are removed, and
+     * thresholds are sorted from the earliest warning to the most urgent one.
+     *
+     * @param array<int, int|string> $warningDays
+     * @return array<int, int>
+     */
+    private function normalizeCertificateWarningDays(array $warningDays): array
+    {
+        $normalized = array_values(array_unique(array_map('intval', $warningDays)));
+        rsort($normalized, SORT_NUMERIC);
+
+        return $normalized;
     }
 }
